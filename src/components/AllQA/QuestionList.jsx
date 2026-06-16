@@ -1,0 +1,52 @@
+import React from 'react';
+
+function StatusPill({ status }) {
+  const map = {
+    pending: ['pending', 'Pending'],
+    'pending-answer': ['pending-answer', 'Review answer'],
+    flagged: ['flagged', 'Flagged'],
+    answered: ['answered', 'Answered'],
+    rejected: ['rejected', 'Rejected'],
+  };
+  const [cls, label] = map[status] || ['pending', status];
+  return <span className={`qq-status-pill ${cls}`}>{label}</span>;
+}
+
+export default function QuestionList({ items, selectedId, onSelect, showAllBadge }) {
+  if (items.length === 0) {
+    return (
+      <div className="qq-queue-list">
+        <div className="qq-empty-queue">
+          <div className="qq-empty-title">Nothing here</div>
+          <div className="qq-empty-desc">No questions match this filter.</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="qq-queue-list">
+      {items.map(item => (
+        <div
+          key={item.id}
+          className={`qq-row ${selectedId === item.id ? 'active' : ''}`}
+          onClick={() => onSelect(item.id)}
+        >
+          <div className="qq-row-top">
+            <span className="qq-row-name">{item.customer}</span>
+            <span className="qq-row-time">{item.time}</span>
+          </div>
+          <div className="qq-row-product">{item.product}</div>
+          <div className="qq-row-q">{item.text}</div>
+          <div className="qq-row-foot">
+            <span>↑ {item.upvotes}</span>
+            {item.status === 'flagged' && (
+              <span className="qq-flag-tag">🚩 {item.flagCount} flags</span>
+            )}
+            {showAllBadge && <StatusPill status={item.status} />}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
