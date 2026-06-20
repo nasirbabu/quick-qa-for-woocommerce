@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { questions as initialData } from '../../data/staticData';
+import React, { useState, useEffect, useCallback } from 'react';
 import QuestionList from './QuestionList';
 import QuestionDetail from './QuestionDetail';
 
@@ -7,10 +6,108 @@ const TABS = [
   { key: 'all',       label: 'All' },
   { key: 'pending-q', label: 'Pending questions' },
   { key: 'pending-a', label: 'Pending answers' },
-  { key: 'flagged',   label: 'Flagged' },
   { key: 'answered',  label: 'Answered' },
   { key: 'rejected',  label: 'Rejected' },
 ];
+
+// ── API helpers ──────────────────────────────────────────────────────────────
+
+const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(settings.restUrl + path, {
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': settings.nonce,
+    },
+    method: options.method || 'GET',
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Request failed (${res.status})`);
+  }
+  return res.json();
+}
+
+// ── Data transformation ──────────────────────────────────────────────────────
+
+function makeInitials(name) {
+  return (name || 'U').trim().split(/\s+/).map(w => w[0] || '').join('').substring(0, 2).toUpperCase();
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '—';
+  const diff = (Date.now() - new Date(dateStr + 'Z').getTime()) / 1000;
+  if (diff < 60)     return 'just now';
+  if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return `${Math.floor(diff / 604800)}w ago`;
+}
+
+function transformItem(q) {
+  const customer       = q.author_name || q.guest_name || 'Anonymous';
+  const pendingAnswers  = (q.answers || []).filter(a => a.status === 'pending');
+  const approvedAnswers = (q.answers || []).filter(a => a.status === 'approved');
+
+  let tab, status;
+  if (q.status === 'rejected') {
+    tab = 'rejected'; status = 'rejected';
+  } else if (q.status === 'pending') {
+    tab = 'pending-q'; status = 'pending';
+  } else {
+    if (pendingAnswers.length > 0) {
+      tab = 'pending-a'; status = 'pending-answer';
+    } else {
+      tab = 'answered'; status = 'answered';
+    }
+  }
+
+  const pa = pendingAnswers[0] || null;
+
+  return {
+    id:        String(q.id),
+    dbId:      parseInt(q.id, 10),
+    tab,
+    status,
+    text:      q.question_text || '',
+    customer,
+    avatar:    makeInitials(customer),
+    role:      q.is_verified_buyer == '1' ? 'verified-buyer' : (parseInt(q.user_id) > 0 ? 'customer' : 'guest'),
+    product:   q.product_title || `Product #${q.product_id}`,
+    productId: parseInt(q.product_id, 10),
+    upvotes:   parseInt(q.upvotes, 10) || 0,
+    time:      timeAgo(q.created_at),
+    answers:   approvedAnswers.map(a => ({
+      id:      String(a.id),
+      dbId:    parseInt(a.id, 10),
+      author:  a.author_name || 'Team',
+      avatar:  makeInitials(a.author_name || 'Team'),
+      role:    a.answer_type === 'admin' ? 'staff' : 'community',
+      time:    timeAgo(a.created_at),
+      text:    a.answer_text || '',
+      helpful: parseInt(a.upvotes, 10) || 0,
+      isBest:  false,
+    })),
+    pendingAnswer: pa ? {
+      id:     String(pa.id),
+      dbId:   parseInt(pa.id, 10),
+      author: pa.author_name || 'User',
+      avatar: makeInitials(pa.author_name || 'User'),
+      role:   pa.answer_type === 'admin' ? 'staff' : 'community',
+      text:   pa.answer_text || '',
+      time:   timeAgo(pa.created_at),
+      meta:   [pa.answer_type === 'admin' ? 'Staff answer' : 'Community answer'],
+    } : null,
+    flagCount: 0,
+    flags:     [],
+    followups: [],
+  };
+}
+
+// ── Tab helpers ──────────────────────────────────────────────────────────────
 
 function filterByTab(questions, tab) {
   if (tab === 'all') return questions;
@@ -19,23 +116,47 @@ function filterByTab(questions, tab) {
 
 function getCounts(questions) {
   return {
-    all: questions.length,
+    all:         questions.length,
     'pending-q': questions.filter(q => q.tab === 'pending-q').length,
     'pending-a': questions.filter(q => q.tab === 'pending-a').length,
-    flagged:     questions.filter(q => q.tab === 'flagged').length,
     answered:    questions.filter(q => q.tab === 'answered').length,
     rejected:    questions.filter(q => q.tab === 'rejected').length,
   };
 }
 
-export default function AllQA() {
-  const [questions, setQuestions] = useState(initialData);
-  const [activeTab, setActiveTab] = useState('pending-q');
-  const [selectedId, setSelectedId] = useState('q-sarah-jacket');
-  const [search, setSearch] = useState('');
+// ── Component ────────────────────────────────────────────────────────────────
 
-  const counts = getCounts(questions);
-  const tabItems = filterByTab(questions, activeTab);
+export default function AllQA() {
+  const [questions,  setQuestions]  = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(null);
+  const [activeTab,  setActiveTab]  = useState('pending-q');
+  const [selectedId, setSelectedId] = useState(null);
+  const [search,     setSearch]     = useState('');
+  const [saving,     setSaving]     = useState(false);
+
+  const loadQuestions = useCallback(async () => {
+    const data  = await apiFetch('admin/questions');
+    const items = data.map(transformItem);
+    setQuestions(items);
+    return items;
+  }, []);
+
+  useEffect(() => {
+    loadQuestions()
+      .then(items => {
+        setLoading(false);
+        const first = items.find(q => q.tab === 'pending-q');
+        setSelectedId(first ? first.id : (items[0] ? items[0].id : null));
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [loadQuestions]);
+
+  const counts       = getCounts(questions);
+  const tabItems     = filterByTab(questions, activeTab);
   const visibleItems = search.trim()
     ? tabItems.filter(q =>
         q.text.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,55 +173,74 @@ export default function AllQA() {
     setSelectedId(first ? first.id : null);
   }
 
-  function handleAction(action, id, payload) {
-    if (action === 'publish') {
-      setQuestions(prev => prev.map(q =>
-        q.id === id
-          ? { ...q, tab: 'answered', status: 'answered', answers: [
-              { id: `a-new-${Date.now()}`, author: 'Store team', avatar: 'ST', role: 'staff',
-                time: 'Just now', text: payload, helpful: 0, isBest: true },
-            ] }
-          : q
-      ));
-      setActiveTab('answered');
-      setSelectedId(id);
+  async function handleAction(action, id, payload) {
+    const item = questions.find(q => q.id === id);
+    if (!item) return;
+
+    setSaving(true);
+    try {
+      if (action === 'approve-question') {
+        await apiFetch(`admin/questions/${item.dbId}`, { method: 'POST', body: { status: 'approved' } });
+        await loadQuestions();
+        setActiveTab('answered');
+        setSelectedId(id);
+
+      } else if (action === 'reject') {
+        await apiFetch(`admin/questions/${item.dbId}`, { method: 'POST', body: { status: 'rejected' } });
+        const refreshed = await loadQuestions();
+        const next = filterByTab(refreshed, activeTab).find(q => q.id !== id);
+        setSelectedId(next ? next.id : null);
+
+      } else if (action === 'approve-answer') {
+        const pa = item.pendingAnswer;
+        if (!pa) return;
+        await apiFetch(`admin/answers/${pa.dbId}`, { method: 'POST', body: { status: 'approved' } });
+        await loadQuestions();
+        setActiveTab('answered');
+        setSelectedId(id);
+
+      } else if (action === 'reject-answer') {
+        const pa = item.pendingAnswer;
+        if (!pa) return;
+        await apiFetch(`admin/answers/${pa.dbId}`, { method: 'POST', body: { status: 'rejected' } });
+        const refreshed = await loadQuestions();
+        const next = filterByTab(refreshed, 'pending-a').find(q => q.id !== id);
+        setSelectedId(next ? next.id : (refreshed[0] ? refreshed[0].id : null));
+
+      } else if (action === 'publish') {
+        await apiFetch(`admin/questions/${item.dbId}/answer`, {
+          method: 'POST',
+          body: { answer_text: payload },
+        });
+        await loadQuestions();
+        setActiveTab('answered');
+        setSelectedId(id);
+      }
+    } catch (err) {
+      console.error('Quick QA action failed:', err.message);
+    } finally {
+      setSaving(false);
     }
-    if (action === 'approve-answer') {
-      setQuestions(prev => prev.map(q =>
-        q.id === id
-          ? { ...q, tab: 'answered', status: 'answered',
-              answers: [{ id: `a-new-${Date.now()}`, author: q.pendingAnswer.author,
-                avatar: q.pendingAnswer.avatar, role: q.pendingAnswer.role,
-                time: 'Just now', text: q.pendingAnswer.text, helpful: 0, isBest: false }] }
-          : q
-      ));
-      setActiveTab('answered');
-      setSelectedId(id);
-    }
-    if (action === 'reject') {
-      setQuestions(prev => prev.map(q =>
-        q.id === id ? { ...q, tab: 'rejected', status: 'rejected' } : q
-      ));
-      const next = tabItems.find(q => q.id !== id);
-      setSelectedId(next ? next.id : null);
-    }
-    if (action === 'delete') {
-      setQuestions(prev => prev.filter(q => q.id !== id));
-      const next = tabItems.find(q => q.id !== id);
-      setSelectedId(next ? next.id : null);
-    }
-    if (action === 'keep') {
-      setQuestions(prev => prev.map(q =>
-        q.id === id ? { ...q, tab: 'answered', status: 'answered', flagCount: 0, flags: [] } : q
-      ));
-      setActiveTab('answered');
-      setSelectedId(id);
-    }
+  }
+
+  if (loading) {
+    return (
+      <div className="qq-page">
+        <div className="qq-state-msg">Loading Q&amp;A data…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="qq-page">
+        <div className="qq-state-msg qq-state-msg--error">Failed to load: {error}</div>
+      </div>
+    );
   }
 
   return (
     <div className="qq-page">
-      {/* Top bar */}
       <div className="qq-top">
         <div className="qq-top-left">
           <span className="qq-page-label">All Q&amp;A</span>
@@ -116,12 +256,11 @@ export default function AllQA() {
         </div>
       </div>
 
-      {/* Sub-tabs */}
       <div className="qq-tabs">
         {TABS.map(tab => (
           <div
             key={tab.key}
-            className={`qq-tab ${activeTab === tab.key ? 'active' : ''} ${tab.key === 'flagged' && counts.flagged > 0 ? 'qq-tab-warn' : ''}`}
+            className={`qq-tab ${activeTab === tab.key ? 'active' : ''}`}
             onClick={() => handleTabChange(tab.key)}
           >
             {tab.label}
@@ -130,9 +269,7 @@ export default function AllQA() {
         ))}
       </div>
 
-      {/* Two-pane body */}
       <div className="qq-body">
-        {/* Left: queue */}
         <div className="qq-queue">
           <div className="qq-queue-head">
             <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
@@ -144,14 +281,14 @@ export default function AllQA() {
             showAllBadge={activeTab === 'all'}
           />
           <div className="qq-page-foot">
-            <span>{visibleItems.length} of {counts[activeTab]}</span>
+            <span>{visibleItems.length} of {counts[activeTab] ?? questions.length}</span>
           </div>
         </div>
 
-        {/* Right: detail */}
         <QuestionDetail
           item={selectedItem}
           onAction={handleAction}
+          saving={saving}
         />
       </div>
     </div>

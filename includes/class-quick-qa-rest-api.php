@@ -53,6 +53,103 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 	 * @since 1.0.0
 	 */
 	public function register_routes() {
+		// ── Admin routes ──────────────────────────────────────────────────────
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'admin_get_questions' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_update_question' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id'     => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+					'status' => array( 'required' => true, 'type' => 'string', 'enum' => array( 'approved', 'rejected', 'pending' ) ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)/answer',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_publish_answer' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id'          => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+					'answer_text' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+						'validate_callback' => static function ( $value ) {
+							$len = mb_strlen( trim( $value ) );
+							return $len >= 1 && $len <= 5000;
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/answers/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_update_answer' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id'     => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+					'status' => array( 'required' => true, 'type' => 'string', 'enum' => array( 'approved', 'rejected', 'pending' ) ),
+				),
+			)
+		);
+
+		// ── Public / customer routes ───────────────────────────────────────────
+
+		// Paginated question list (used by the "Show more" button on the frontend).
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/questions',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_questions_page' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'product_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'offset'     => array(
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 0,
+						'minimum'           => 0,
+						'sanitize_callback' => 'absint',
+					),
+					'limit'      => array(
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 3,
+						'minimum'           => 1,
+						'maximum'           => 10,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/questions',
@@ -146,6 +243,236 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Permission callback for admin-only endpoints.
+	 *
+	 * @since  1.0.0
+	 * @return true|WP_Error
+	 */
+	public function require_admin() {
+		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'quick_qa_forbidden',
+				__( 'You do not have permission to perform this action.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	// =========================================================================
+	// Admin endpoint callbacks
+	// =========================================================================
+
+	/**
+	 * GET /wp-json/quick-qa/v1/admin/questions
+	 *
+	 * Returns all questions (all statuses) with enriched product titles,
+	 * author names, and all answers attached.
+	 *
+	 * @since  1.0.0
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_get_questions() {
+		global $wpdb;
+
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$questions = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT * FROM {$questions_table} ORDER BY created_at DESC LIMIT 500"
+		);
+
+		if ( empty( $questions ) ) {
+			return rest_ensure_response( array() );
+		}
+
+		// Enrich with product titles and author display names.
+		foreach ( $questions as $q ) {
+			$q->product_title = get_the_title( (int) $q->product_id ) ?: "Product #{$q->product_id}";
+			if ( (int) $q->user_id > 0 ) {
+				$user           = get_userdata( (int) $q->user_id );
+				$q->author_name = $user ? $user->display_name : 'Customer';
+			} else {
+				$q->author_name = $q->guest_name ?: 'Guest';
+			}
+		}
+
+		// Fetch all answers for these questions in one query.
+		$question_ids = array_map( 'absint', wp_list_pluck( $questions, 'id' ) );
+		$placeholders = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$answers = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$answers_table} WHERE question_id IN ({$placeholders}) ORDER BY created_at ASC",
+				...$question_ids
+			)
+		);
+
+		foreach ( $answers as $a ) {
+			if ( (int) $a->user_id > 0 ) {
+				$user           = get_userdata( (int) $a->user_id );
+				$a->author_name = $user ? $user->display_name : 'Team';
+			} else {
+				$a->author_name = 'Team';
+			}
+		}
+
+		// Map answers onto their parent questions.
+		$answers_map = array();
+		foreach ( $answers as $a ) {
+			$answers_map[ (int) $a->question_id ][] = $a;
+		}
+
+		foreach ( $questions as $q ) {
+			$q->answers = $answers_map[ (int) $q->id ] ?? array();
+		}
+
+		return rest_ensure_response( $questions );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}
+	 *
+	 * Update question status (approved, rejected, pending).
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_update_question( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$status = $request->get_param( 'status' );
+		$table = $wpdb->prefix . 'quick_qa_questions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$table,
+			array(
+				'status'     => $status,
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/answers/{id}
+	 *
+	 * Update answer status (approved, rejected, pending).
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_update_answer( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$status = $request->get_param( 'status' );
+		$table = $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$table,
+			array(
+				'status'     => $status,
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}/answer
+	 *
+	 * Publish an admin-written answer. Automatically approves the question
+	 * if it is still pending, then inserts the answer as approved/admin type.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_publish_answer( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$question_id = (int) $request->get_param( 'id' );
+		$answer_text = $request->get_param( 'answer_text' );
+		$user_id     = get_current_user_id();
+
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$question = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, status FROM {$questions_table} WHERE id = %d",
+				$question_id
+			)
+		);
+
+		if ( ! $question ) {
+			return new WP_Error( 'quick_qa_not_found', 'Question not found.', array( 'status' => 404 ) );
+		}
+
+		// Auto-approve the question when an admin publishes a reply to it.
+		if ( 'approved' !== $question->status ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->update(
+				$questions_table,
+				array( 'status' => 'approved', 'updated_at' => current_time( 'mysql', true ) ),
+				array( 'id' => $question_id ),
+				array( '%s', '%s' ),
+				array( '%d' )
+			);
+		}
+
+		$now = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->insert(
+			$answers_table,
+			array(
+				'question_id' => $question_id,
+				'user_id'     => $user_id,
+				'answer_type' => 'admin',
+				'answer_text' => $answer_text,
+				'status'      => 'approved',
+				'upvotes'     => 0,
+				'created_at'  => $now,
+				'updated_at'  => $now,
+			),
+			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+		);
+
+		return rest_ensure_response(
+			array(
+				'question_id' => $question_id,
+				'answer_id'   => (int) $wpdb->insert_id,
+			)
+		);
 	}
 
 	// =========================================================================
@@ -258,6 +585,139 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 		}
 
 		return true;
+	}
+
+	// =========================================================================
+	// Paginated questions endpoint
+	// =========================================================================
+
+	/**
+	 * GET /wp-json/quick-qa/v1/questions
+	 *
+	 * Returns rendered HTML for a page of approved questions, plus pagination
+	 * metadata used by the "Show more" button on the product page.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function get_questions_page( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$product_id = $request->get_param( 'product_id' );
+		$offset     = $request->get_param( 'offset' );
+		$limit      = $request->get_param( 'limit' );
+
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+		$votes_table     = $wpdb->prefix . 'quick_qa_votes';
+
+		// Total approved questions (for has_more check).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$questions_table} WHERE product_id = %d AND status = 'approved'",
+				$product_id
+			)
+		);
+
+		// Fetch this page of questions.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$questions = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				$product_id,
+				$limit,
+				$offset
+			)
+		);
+
+		if ( empty( $questions ) ) {
+			return rest_ensure_response(
+				array(
+					'html'     => '',
+					'has_more' => false,
+					'offset'   => $offset,
+					'total'    => $total,
+				)
+			);
+		}
+
+		// Fetch approved answers for these questions in a single query.
+		$question_ids = array_map( 'absint', wp_list_pluck( $questions, 'id' ) );
+		$placeholders = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$answers = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
+				...$question_ids
+			)
+		);
+
+		// Map answers onto their parent questions.
+		$answers_map = array();
+		foreach ( $answers as $answer ) {
+			$answers_map[ (int) $answer->question_id ][] = $answer;
+		}
+		foreach ( $questions as $question ) {
+			$question->answers = $answers_map[ (int) $question->id ] ?? array();
+		}
+
+		// Resolve current-user vote state for buttons.
+		$is_logged_in     = is_user_logged_in();
+		$user_voted_ids   = array();
+		$user_helpful_ids = array();
+
+		if ( $is_logged_in ) {
+			$user_id  = get_current_user_id();
+			$q_args   = array_merge( array( $user_id ), $question_ids );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$voted = $wpdb->get_col(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT object_id FROM {$votes_table} WHERE user_id = %d AND object_type = 'question' AND object_id IN ( {$placeholders} )",
+					...$q_args
+				)
+			);
+			$user_voted_ids = array_map( 'absint', $voted ?: array() );
+
+			if ( ! empty( $answers ) ) {
+				$answer_ids       = array_map( function ( $a ) { return (int) $a->id; }, $answers );
+				$ans_placeholders = implode( ', ', array_fill( 0, count( $answer_ids ), '%d' ) );
+				$a_args           = array_merge( array( $user_id ), $answer_ids );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$helpful = $wpdb->get_col(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT object_id FROM {$votes_table} WHERE user_id = %d AND object_type = 'answer' AND object_id IN ( {$ans_placeholders} )",
+						...$a_args
+					)
+				);
+				$user_helpful_ids = array_map( 'absint', $helpful ?: array() );
+			}
+		}
+
+		// Render question items HTML using the shared partial template.
+		ob_start();
+		$partial = trailingslashit( dirname( dirname( __FILE__ ) ) ) . 'public/partials/quick-qa-question-items.php';
+		include $partial;
+		$html = ob_get_clean();
+
+		return rest_ensure_response(
+			array(
+				'html'     => $html,
+				'has_more' => ( $offset + $limit ) < $total,
+				'offset'   => $offset + $limit,
+				'total'    => $total,
+			)
+		);
 	}
 
 	// =========================================================================

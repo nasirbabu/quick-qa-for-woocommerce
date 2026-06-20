@@ -22,7 +22,7 @@ export default function App() {
   const [page, setPage] = useState('all-qa');
 
   return (
-    <div>
+    <div className="qq-app-shell">
       {/* Plugin nav */}
       <div className="qq-nav">
         <div className="qq-nav-brand">

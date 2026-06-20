@@ -1,4 +1,767 @@
 /**
- * All of the CSS for your public-facing functionality should be
- * included in this file.
+ * Quick Q&A for WooCommerce — Frontend Widget Styles
+ *
+ * All selectors are scoped to .qa-widget so they never conflict with the
+ * active theme. CSS custom properties allow future per-store theming via
+ * the plugin Settings > Appearance panel.
  */
+
+/* ============================================================
+   CSS custom properties (design tokens)
+   ============================================================ */
+.qa-widget {
+	--qa-color:      #FF6B4A;
+	--qa-color-dark: #cc4a28;
+	--qa-radius:     8px;
+	--qa-fs-base:    14px;
+	--qa-fs-small:   12px;
+	--qa-pad:        16px;
+	--qa-gap:        14px;
+
+	font-size:   var(--qa-fs-base);
+	color:       #1f1d1a;
+	font-family: inherit;
+	margin-top:  24px;
+}
+
+/* ============================================================
+   Widget header
+   ============================================================ */
+.qa-widget .qa-head {
+	display:         flex;
+	justify-content: space-between;
+	align-items:     center;
+	padding-bottom:  14px;
+	border-bottom:   1px solid #ebebeb;
+	margin-bottom:   18px;
+	gap:             14px;
+}
+
+.qa-widget .qa-head-info {
+	flex:      1;
+	min-width: 0;
+}
+
+.qa-widget .qa-head-title {
+	font-size:     17px;
+	font-weight:   600;
+	color:         #1f1d1a;
+	margin:        0 0 4px;
+	padding:       0;
+	border:        none;
+	line-height:   1.3;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+.qa-widget .qa-head-sub {
+	font-size: var(--qa-fs-small);
+	color:     #888;
+}
+
+/* ============================================================
+   Primary action button (Ask a question)
+   ============================================================ */
+.qa-widget .qa-ask-btn {
+	background:    var(--qa-color);
+	color:         #fff;
+	border:        none;
+	padding:       9px 18px;
+	border-radius: var(--qa-radius);
+	font-size:     13px;
+	font-weight:   500;
+	cursor:        pointer;
+	font-family:   inherit;
+	white-space:   nowrap;
+	flex-shrink:   0;
+	transition:    background 0.15s;
+}
+
+.qa-widget .qa-ask-btn:hover,
+.qa-widget .qa-ask-btn:focus-visible {
+	background: var(--qa-color-dark);
+}
+
+/* ============================================================
+   Ask form
+   ============================================================ */
+.qa-widget .qa-ask-form {
+	background:    #FAFAF8;
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       18px;
+	margin-bottom: 18px;
+}
+
+.qa-widget .qa-ask-form-title {
+	font-size:    14px;
+	font-weight:  600;
+	margin:       0 0 4px;
+	color:        #1f1d1a;
+}
+
+.qa-widget .qa-ask-form-sub {
+	font-size:     var(--qa-fs-small);
+	color:         #888;
+	margin-bottom: 14px;
+	line-height:   1.5;
+}
+
+.qa-widget .qa-ask-form-field {
+	margin-bottom: 12px;
+}
+
+.qa-widget .qa-ask-form-field label {
+	display:       block;
+	font-size:     var(--qa-fs-small);
+	font-weight:   500;
+	color:         #555;
+	margin-bottom: 5px;
+}
+
+.qa-widget .qa-label-note {
+	font-weight: 400;
+	color:       #888;
+}
+
+.qa-widget .qa-ask-form-field input,
+.qa-widget .qa-ask-form-field textarea {
+	width:         100%;
+	padding:       9px 12px;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	font-size:     13px;
+	font-family:   inherit;
+	outline:       none;
+	resize:        vertical;
+	box-sizing:    border-box;
+	background:    #fff;
+	color:         #1f1d1a;
+	transition:    border-color 0.15s, box-shadow 0.15s;
+}
+
+.qa-widget .qa-ask-form-field input:focus,
+.qa-widget .qa-ask-form-field textarea:focus {
+	border-color: var(--qa-color);
+	box-shadow:   0 0 0 2px rgba(255, 107, 74, 0.15);
+}
+
+.qa-widget .qa-asking-as {
+	background: #f4f4f4;
+	color:      #666;
+	cursor:     default;
+}
+
+.qa-widget .qa-form-counter {
+	font-size:  11px;
+	color:      #aaa;
+	text-align: right;
+	margin-top: 4px;
+}
+
+.qa-widget .qa-form-counter.warn  { color: #cc6600; }
+.qa-widget .qa-form-counter.error { color: #A32D2D; font-weight: 600; }
+
+.qa-widget .qa-form-error {
+	font-size:     var(--qa-fs-small);
+	color:         #A32D2D;
+	background:    #FCEBEB;
+	border-radius: var(--qa-radius);
+	padding:       7px 10px;
+	margin-top:    6px;
+	line-height:   1.4;
+}
+
+.qa-widget .qa-form-actions {
+	display:         flex;
+	justify-content: space-between;
+	align-items:     center;
+	margin-top:      16px;
+}
+
+.qa-widget .qa-form-submit {
+	background:    var(--qa-color);
+	color:         #fff;
+	border:        none;
+	padding:       9px 22px;
+	border-radius: var(--qa-radius);
+	font-size:     13px;
+	font-weight:   500;
+	cursor:        pointer;
+	font-family:   inherit;
+	transition:    background 0.15s;
+}
+
+.qa-widget .qa-form-submit:hover,
+.qa-widget .qa-form-submit:focus-visible {
+	background: var(--qa-color-dark);
+}
+
+.qa-widget .qa-form-submit:disabled {
+	background: #ccc;
+	cursor:     not-allowed;
+}
+
+.qa-widget .qa-form-cancel {
+	font-size:   13px;
+	color:       #888;
+	cursor:      pointer;
+	background:  none;
+	border:      none;
+	font-family: inherit;
+	padding:     0;
+	transition:  color 0.15s;
+}
+
+.qa-widget .qa-form-cancel:hover {
+	color: #555;
+}
+
+/* ============================================================
+   Submission confirmation banner
+   ============================================================ */
+.qa-widget .qa-confirm {
+	background:    #E5F2DC;
+	border:        1px solid #C5E0AC;
+	border-radius: var(--qa-radius);
+	padding:       18px 22px;
+	margin-bottom: 18px;
+	display:       flex;
+	gap:           14px;
+	align-items:   flex-start;
+}
+
+.qa-widget .qa-confirm--pending {
+	background:  #FFF8EC;
+	border-color: #F5E1B5;
+}
+
+.qa-widget .qa-confirm-mark {
+	width:           36px;
+	height:          36px;
+	border-radius:   50%;
+	background:      #6A8E3F;
+	color:           #fff;
+	display:         flex;
+	align-items:     center;
+	justify-content: center;
+	font-size:       18px;
+	flex-shrink:     0;
+}
+
+.qa-widget .qa-confirm--pending .qa-confirm-mark {
+	background: #C09525;
+}
+
+.qa-widget .qa-confirm-title {
+	font-size:     14px;
+	font-weight:   600;
+	color:         #3B6D11;
+	margin-bottom: 4px;
+}
+
+.qa-widget .qa-confirm--pending .qa-confirm-title {
+	color: #6B5817;
+}
+
+.qa-widget .qa-confirm-text {
+	font-size:   13px;
+	color:       #555;
+	line-height: 1.5;
+}
+
+/* ============================================================
+   Controls row (search / filter / sort)
+   ============================================================ */
+.qa-widget .qa-controls {
+	display:     flex;
+	align-items: center;
+	margin-bottom: 16px;
+	gap:         12px;
+	flex-wrap:   nowrap; /* single row always — mobile breakpoint stacks vertically */
+}
+
+.qa-widget .qa-search-frontend {
+	flex:      1 1 auto; /* grows to fill remaining space, can shrink */
+	position:  relative;
+	min-width: 100px;    /* never collapse below this */
+}
+
+.qa-widget .qa-search-frontend input {
+	width:         100%;
+	padding:       8px 12px 8px 32px;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	font-size:     13px;
+	font-family:   inherit;
+	outline:       none;
+	box-sizing:    border-box;
+	background:    #fff;
+	color:         #1f1d1a;
+	transition:    border-color 0.15s;
+}
+
+.qa-widget .qa-search-frontend input:focus {
+	border-color: var(--qa-color);
+}
+
+.qa-widget .qa-search-icon-frontend {
+	position:       absolute;
+	left:           10px;
+	top:            50%;
+	transform:      translateY(-50%);
+	color:          #aaa;
+	font-size:      15px;
+	pointer-events: none;
+	line-height:    1;
+}
+
+.qa-widget .qa-controls-right {
+	display:     flex;
+	gap:         8px;
+	align-items: center;
+	flex:        0 0 auto; /* fixed — never grow, shrink, or wrap */
+}
+
+.qa-widget .qa-filter-pills {
+	display:       flex;
+	gap:           3px;
+	background:    #f0f0f0;
+	padding:       3px;
+	border-radius: var(--qa-radius);
+}
+
+.qa-widget .qa-filter-pill {
+	padding:       5px 12px;
+	border-radius: calc(var(--qa-radius) - 2px);
+	font-size:     12px;
+	cursor:        pointer;
+	color:         #666;
+	font-weight:   500;
+	border:        none;
+	background:    transparent;
+	font-family:   inherit;
+	transition:    background 0.12s, color 0.12s;
+}
+
+.qa-widget .qa-filter-pill.active {
+	background:  #fff;
+	color:       #1f1d1a;
+	box-shadow:  0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.qa-widget .qa-sort-select {
+	padding:       6px 10px;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	font-size:     12px;
+	background:    #fff;
+	cursor:        pointer;
+	font-family:   inherit;
+	outline:       none;
+	color:         #555;
+}
+
+/* ============================================================
+   Question threads
+   ============================================================ */
+.qa-widget .qa-thread {
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       var(--qa-pad);
+	margin-bottom: var(--qa-gap);
+	transition:    border-color 0.15s;
+}
+
+.qa-widget .qa-thread.is-expanded {
+	border-color: var(--qa-color);
+}
+
+.qa-widget .qa-q-row {
+	display:     flex;
+	gap:         10px;
+	align-items: flex-start;
+	cursor:      pointer;
+}
+
+/* ============================================================
+   Avatars
+   ============================================================ */
+.qa-widget .qa-av {
+	flex-shrink:     0;
+	width:           32px;
+	height:          32px;
+	background:      #E8E2DA;
+	color:           #666;
+	display:         flex;
+	align-items:     center;
+	justify-content: center;
+	font-size:       11px;
+	font-weight:     600;
+	flex-shrink:     0;
+}
+
+.qa-widget .qa-av--circle { border-radius: 50%; }
+.qa-widget .qa-av--square { border-radius: 6px; }
+
+.qa-widget .qa-av--staff    { background: #FFE4D8; color: #993C1D; }
+.qa-widget .qa-av--verified { background: #E5F2DC; color: #3B6D11; }
+
+/* ============================================================
+   Question body
+   ============================================================ */
+.qa-widget .qa-q-body {
+	flex:      1;
+	min-width: 0;
+}
+
+.qa-widget .qa-q-meta {
+	display:       flex;
+	gap:           6px;
+	align-items:   center;
+	font-size:     var(--qa-fs-small);
+	color:         #888;
+	flex-wrap:     wrap;
+	margin-bottom: 5px;
+	line-height:   1.4;
+}
+
+.qa-widget .qa-q-meta b {
+	color:       #1f1d1a;
+	font-weight: 600;
+}
+
+.qa-widget .qa-role {
+	background:    #f0f0f0;
+	color:         #666;
+	padding:       2px 7px;
+	border-radius: 4px;
+	font-size:     10px;
+	font-weight:   600;
+	letter-spacing: 0.2px;
+}
+
+.qa-widget .qa-role--staff    { background: #FCEBEB; color: #A32D2D; }
+.qa-widget .qa-role--verified { background: #E5F2DC; color: #3B6D11; }
+
+.qa-widget .qa-awaiting {
+	color:     #cc5500;
+	font-size: 11px;
+}
+
+.qa-widget .qa-q-text {
+	color:       #1f1d1a;
+	font-size:   var(--qa-fs-base);
+	line-height: 1.55;
+}
+
+.qa-widget .qa-q-foot {
+	display:     flex;
+	gap:         14px;
+	margin-top:  9px;
+	align-items: center;
+	flex-wrap:   wrap;
+}
+
+/* ============================================================
+   Upvote button
+   ============================================================ */
+.qa-widget .qa-vote-btn {
+	display:       inline-flex;
+	align-items:   center;
+	gap:           5px;
+	background:    #fff;
+	border:        1px solid #d8d8d8;
+	padding:       4px 10px;
+	border-radius: var(--qa-radius);
+	font-size:     var(--qa-fs-small);
+	color:         #555;
+	cursor:        pointer;
+	font-family:   inherit;
+	transition:    border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.qa-widget .qa-vote-btn:hover {
+	border-color: #aaa;
+}
+
+.qa-widget .qa-vote-btn.is-voted {
+	background:  var(--qa-color);
+	color:       #fff;
+	border-color: var(--qa-color);
+}
+
+.qa-widget .qa-vote-btn:disabled {
+	cursor:  not-allowed;
+	opacity: 0.55;
+}
+
+/* ============================================================
+   Footer links (expand answers, flag)
+   ============================================================ */
+.qa-widget .qa-foot-link {
+	font-size:   var(--qa-fs-small);
+	color:       #888;
+	cursor:      pointer;
+	background:  none;
+	border:      none;
+	font-family: inherit;
+	padding:     0;
+	transition:  color 0.15s;
+}
+
+.qa-widget .qa-foot-link:hover {
+	color: #444;
+}
+
+/* ============================================================
+   Answers panel
+   ============================================================ */
+.qa-widget .qa-answers {
+	margin-top:     14px;
+	padding-top:    14px;
+	border-top:     1px solid #ebebeb;
+	display:        flex;
+	flex-direction: column;
+	gap:            var(--qa-gap);
+}
+
+.qa-widget .qa-answer {
+	display:       flex;
+	gap:           10px;
+	align-items:   flex-start;
+	padding:       10px 12px;
+	border-radius: var(--qa-radius);
+}
+
+.qa-widget .qa-answer--staff {
+	background: linear-gradient(180deg, #FFF8EC 0%, transparent 80%);
+}
+
+.qa-widget .qa-answer-body {
+	flex:      1;
+	min-width: 0;
+}
+
+.qa-widget .qa-best-tag {
+	display:       inline-block;
+	background:    #FAEEDA;
+	color:         #7A5700;
+	padding:       2px 8px;
+	border-radius: 4px;
+	font-size:     10px;
+	font-weight:   700;
+	letter-spacing: 0.3px;
+	margin-bottom: 6px;
+}
+
+/* ============================================================
+   Answer count label (top of expanded answers panel)
+   ============================================================ */
+.qa-widget .qa-answer-label {
+	font-size:     var(--qa-fs-small);
+	font-weight:   600;
+	color:         #888;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	margin-bottom: var(--qa-gap);
+}
+
+/* ============================================================
+   Secondary action button (Add your answer)
+   ============================================================ */
+.qa-widget .qa-ask-btn--secondary {
+	background:  #fff;
+	color:       var(--qa-color);
+	border:      1.5px solid var(--qa-color);
+}
+
+.qa-widget .qa-ask-btn--secondary:hover,
+.qa-widget .qa-ask-btn--secondary:focus-visible {
+	background: #fff4f1;
+	color:      var(--qa-color-dark);
+	border-color: var(--qa-color-dark);
+}
+
+/* ============================================================
+   Helpful vote button (on answers)
+   ============================================================ */
+.qa-widget .qa-helpful {
+	display:     inline-flex;
+	align-items: center;
+	gap:         4px;
+	background:  none;
+	border:      1px solid #d8d8d8;
+	padding:     3px 10px;
+	border-radius: var(--qa-radius);
+	font-size:   var(--qa-fs-small);
+	color:       #666;
+	cursor:      pointer;
+	font-family: inherit;
+	transition:  border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.qa-widget .qa-helpful:hover {
+	border-color: #aaa;
+	color:        #333;
+}
+
+.qa-widget .qa-helpful.is-voted {
+	background:   var(--qa-color);
+	border-color: var(--qa-color);
+	color:        #fff;
+}
+
+.qa-widget .qa-helpful.is-voted .qa-helpful-arrow {
+	display: none;
+}
+
+.qa-widget .qa-helpful:disabled {
+	cursor:  not-allowed;
+	opacity: 0.55;
+}
+
+/* ============================================================
+   "Add your answer" CTA + inline answer form
+   ============================================================ */
+.qa-widget .qa-add-answer-cta {
+	padding-top: 4px;
+}
+
+.qa-widget .qa-answer-form {
+	background:    #FAFAF8;
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       14px;
+	margin-top:    4px;
+}
+
+.qa-widget .qa-answer-form .qa-answer-textarea {
+	width:         100%;
+	box-sizing:    border-box;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	padding:       10px 12px;
+	font-size:     var(--qa-fs-base);
+	font-family:   inherit;
+	line-height:   1.5;
+	resize:        vertical;
+	min-height:    80px;
+	transition:    border-color 0.15s;
+	background:    #fff;
+	color:         inherit;
+}
+
+.qa-widget .qa-answer-form .qa-answer-textarea:focus {
+	outline:      none;
+	border-color: var(--qa-color);
+}
+
+/* Pending confirmation inside an answer thread */
+.qa-widget .qa-answer-confirm {
+	margin-top: 8px;
+}
+
+/* ============================================================
+   Inline text-button (used for "clear the search" link)
+   ============================================================ */
+.qa-widget .qa-link {
+	background:    none;
+	border:        none;
+	padding:       0;
+	font-size:     inherit;
+	font-family:   inherit;
+	color:         var(--qa-color);
+	font-weight:   500;
+	cursor:        pointer;
+	text-decoration: underline;
+	transition:    color 0.15s;
+}
+
+.qa-widget .qa-link:hover {
+	color: var(--qa-color-dark);
+}
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.qa-widget .qa-empty {
+	text-align: center;
+	padding:    44px 20px;
+	color:      #888;
+}
+
+.qa-widget .qa-empty-mark {
+	width:           56px;
+	height:          56px;
+	border-radius:   50%;
+	background:      #f4f4f4;
+	display:         flex;
+	align-items:     center;
+	justify-content: center;
+	margin:          0 auto 14px;
+	font-size:       24px;
+}
+
+.qa-widget .qa-empty-title {
+	font-size:     15px;
+	font-weight:   600;
+	color:         #1f1d1a;
+	margin-bottom: 6px;
+}
+
+.qa-widget .qa-empty p {
+	font-size:   13px;
+	line-height: 1.55;
+	margin:      0;
+}
+
+/* ============================================================
+   Load more
+   ============================================================ */
+.qa-widget .qa-load-more {
+	text-align: center;
+	padding:    14px 0 4px;
+}
+
+.qa-widget .qa-load-more-btn {
+	background:    #fff;
+	border:        1px solid #d8d8d8;
+	padding:       8px 24px;
+	border-radius: var(--qa-radius);
+	font-size:     13px;
+	color:         #555;
+	cursor:        pointer;
+	font-family:   inherit;
+	transition:    border-color 0.15s;
+}
+
+.qa-widget .qa-load-more-btn:hover {
+	border-color: #aaa;
+}
+
+/* ============================================================
+   Responsive adjustments
+   ============================================================ */
+@media (max-width: 600px) {
+	.qa-widget .qa-head {
+		flex-wrap: wrap;
+	}
+
+	/* Stack controls vertically on small screens. */
+	.qa-widget .qa-controls {
+		flex-direction: column;
+		align-items:    stretch;
+	}
+
+	/* Reset row-level flex values so items stretch to full width. */
+	.qa-widget .qa-search-frontend {
+		flex:      none;
+		min-width: 100%;
+	}
+
+	.qa-widget .qa-controls-right {
+		flex:            none;
+		justify-content: space-between;
+	}
+}

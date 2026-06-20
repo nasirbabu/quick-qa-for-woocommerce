@@ -2,11 +2,10 @@ import React from 'react';
 
 function StatusPill({ status }) {
   const map = {
-    pending: ['pending', 'Pending'],
+    pending:          ['pending',        'Pending'],
     'pending-answer': ['pending-answer', 'Review answer'],
-    flagged: ['flagged', 'Flagged'],
-    answered: ['answered', 'Answered'],
-    rejected: ['rejected', 'Rejected'],
+    answered:         ['answered',       'Answered'],
+    rejected:         ['rejected',       'Rejected'],
   };
   const [cls, label] = map[status] || ['pending', status];
   return <span className={`qq-status-pill ${cls}`}>{label}</span>;
@@ -26,27 +25,30 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
 
   return (
     <div className="qq-queue-list">
-      {items.map(item => (
-        <div
-          key={item.id}
-          className={`qq-row ${selectedId === item.id ? 'active' : ''}`}
-          onClick={() => onSelect(item.id)}
-        >
-          <div className="qq-row-top">
-            <span className="qq-row-name">{item.customer}</span>
-            <span className="qq-row-time">{item.time}</span>
+      {items.map(item => {
+        const isPendingAnswer = item.tab === 'pending-a';
+        const displayName = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.author : item.customer;
+        const displayText = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.text : item.text;
+
+        return (
+          <div
+            key={item.id}
+            className={`qq-row ${selectedId === item.id ? 'active' : ''}`}
+            onClick={() => onSelect(item.id)}
+          >
+            <div className="qq-row-top">
+              <span className="qq-row-name">{displayName}</span>
+              <span className="qq-row-time">{item.time}</span>
+            </div>
+            <div className="qq-row-product">{item.product}</div>
+            <div className="qq-row-q">{displayText}</div>
+            <div className="qq-row-foot">
+              <span>↑ {item.upvotes}</span>
+              {showAllBadge && <StatusPill status={item.status} />}
+            </div>
           </div>
-          <div className="qq-row-product">{item.product}</div>
-          <div className="qq-row-q">{item.text}</div>
-          <div className="qq-row-foot">
-            <span>↑ {item.upvotes}</span>
-            {item.status === 'flagged' && (
-              <span className="qq-flag-tag">🚩 {item.flagCount} flags</span>
-            )}
-            {showAllBadge && <StatusPill status={item.status} />}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

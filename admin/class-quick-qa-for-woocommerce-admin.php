@@ -72,8 +72,6 @@ class Quick_Qa_For_Woocommerce_Admin {
 				$this->version
 			);
 		}
-
-		add_action( 'admin_head', array( $this, 'inline_admin_overrides' ) );
 	}
 
 	public function enqueue_scripts( $hook ) {
@@ -90,18 +88,15 @@ class Quick_Qa_For_Woocommerce_Admin {
 				$this->version,
 				true
 			);
-		}
-	}
 
-	/**
-	 * Remove WP admin chrome that competes with the full-page React layout.
-	 */
-	public function inline_admin_overrides() {
-		echo '<style>
-			#quick-qa-root { margin: -8px -20px -10px; }
-			#wpcontent { padding-left: 0 !important; }
-			.wrap { margin: 0; padding: 0; }
-			h1.wp-heading-inline { display: none; }
-		</style>';
+			wp_localize_script(
+				'quick-qa-react-app',
+				'quickQaAdmin',
+				array(
+					'restUrl' => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
+					'nonce'   => wp_create_nonce( 'wp_rest' ),
+				)
+			);
+		}
 	}
 }

@@ -64,6 +64,7 @@
 		bindVoteButtons();
 		bindAnswerForm();
 		bindHelpfulVote();
+		bindShowMore();
 	} );
 
 	// =========================================================================
@@ -88,6 +89,8 @@
 
 	function applyFiltersAndSearch() {
 		var query        = currentSearch.toLowerCase().trim();
+		var activeFilter = currentFilter !== 'all';
+		var isFiltering  = query || activeFilter;
 		var visibleCount = 0;
 
 		threads.forEach( function ( t ) {
@@ -114,7 +117,13 @@
 			}
 		} );
 
-		updateHeaderCount( visibleCount );
+		if ( isFiltering ) {
+			updateHeaderCount( visibleCount );
+		} else {
+			// No active filter/search: show the real total from the server.
+			var total = parseInt( widget.getAttribute( 'data-total' ) || '0', 10 );
+			updateHeaderCount( total );
+		}
 		toggleNoResults( 0 === visibleCount && !! query );
 	}
 
@@ -856,6 +865,75 @@
 			errorEl.style.display = 'none';
 			errorEl.textContent   = '';
 		}
+	}
+
+	// =========================================================================
+	// Show more (pagination)
+	// =========================================================================
+
+	/**
+	 * Attach the "Show more questions" button click handler.
+	 *
+	 * On click: fetches the next page of questions from the REST API, appends the
+	 * returned HTML to #qa-thread-list, rebuilds the thread cache so filtering /
+	 * sorting includes the new items, and hides the button when all questions are
+	 * loaded.
+	 */
+	function bindShowMore() {
+		var btn = document.getElementById( 'qa-show-more' );
+		if ( ! btn ) {
+			return;
+		}
+
+		btn.addEventListener( 'click', function () {
+			var offset    = parseInt( btn.getAttribute( 'data-offset' ) || '0', 10 );
+			var productId = parseInt( widget.getAttribute( 'data-product-id' ) || '0', 10 );
+			var settings  = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			btn.disabled    = true;
+			btn.textContent = i18n( 'loadingMore', 'Loading…' );
+
+			fetch(
+				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=3',
+				{
+					credentials: 'same-origin',
+					headers:     { 'X-WP-Nonce': settings.nonce || '' },
+				}
+			)
+				.then( function ( r ) {
+					return r.json();
+				} )
+				.then( function ( data ) {
+					if ( data.html ) {
+						var threadList = document.getElementById( 'qa-thread-list' );
+						var tmp        = document.createElement( 'div' );
+						tmp.innerHTML  = data.html;
+						while ( tmp.firstChild ) {
+							threadList.appendChild( tmp.firstChild );
+						}
+						// Rebuild cache so new threads participate in filter / sort.
+						buildThreadCache();
+						applyFiltersAndSearch();
+					}
+
+					if ( data.has_more ) {
+						btn.setAttribute( 'data-offset', String( data.offset ) );
+						btn.disabled    = false;
+						btn.textContent = i18n( 'showMore', 'Show more questions' );
+					} else {
+						var wrap = btn.closest( '.qa-load-more' );
+						if ( wrap ) {
+							wrap.style.display = 'none';
+						} else {
+							btn.style.display = 'none';
+						}
+					}
+				} )
+				.catch( function () {
+					btn.disabled    = false;
+					btn.textContent = i18n( 'showMore', 'Show more questions' );
+				} );
+		} );
 	}
 
 	// =========================================================================
