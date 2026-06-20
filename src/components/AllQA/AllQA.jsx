@@ -82,6 +82,7 @@ function transformItem(q) {
     product:   q.product_title || `Product #${q.product_id}`,
     productId: parseInt(q.product_id, 10),
     upvotes:   parseInt(q.upvotes, 10) || 0,
+    createdAt: q.created_at ? new Date(q.created_at + 'Z').getTime() : 0,
     time:      timeAgo(q.created_at),
     answers:   approvedAnswers.map(a => ({
       id:      String(a.id),
@@ -128,6 +129,20 @@ function getProductsInTab(items) {
   return Object.entries(map).sort((a, b) => b[1] - a[1]);
 }
 
+const SORT_OPTIONS = [
+  { key: 'recent',  label: 'Most recent' },
+  { key: 'upvoted', label: 'Most upvoted' },
+  { key: 'oldest',  label: 'Oldest first' },
+];
+
+function applySortToItems(items, sortBy) {
+  const copy = [...items];
+  if (sortBy === 'upvoted') copy.sort((a, b) => b.upvotes - a.upvotes);
+  if (sortBy === 'oldest')  copy.sort((a, b) => a.createdAt - b.createdAt);
+  // 'recent' keeps the API order (created_at DESC), so no sort needed.
+  return copy;
+}
+
 function getCounts(questions) {
   return {
     all:         questions.length,
@@ -151,7 +166,10 @@ export default function AllQA() {
   const [saving,         setSaving]         = useState(false);
   const [productFilter,  setProductFilter]  = useState(null);
   const [filterOpen,     setFilterOpen]     = useState(false);
+  const [sortBy,         setSortBy]         = useState('recent');
+  const [sortOpen,       setSortOpen]       = useState(false);
   const filterRef = useRef(null);
+  const sortRef   = useRef(null);
 
   const loadQuestions = useCallback(async () => {
     const data  = await apiFetch('admin/questions');
@@ -178,18 +196,19 @@ export default function AllQA() {
   const productFiltered = productFilter
     ? tabItems.filter(q => q.product === productFilter)
     : tabItems;
+  const sortedItems     = applySortToItems(productFiltered, sortBy);
   const visibleItems    = search.trim()
-    ? productFiltered.filter(q =>
+    ? sortedItems.filter(q =>
         q.text.toLowerCase().includes(search.toLowerCase()) ||
         q.customer.toLowerCase().includes(search.toLowerCase()) ||
         q.product.toLowerCase().includes(search.toLowerCase())
       )
-    : productFiltered;
+    : sortedItems;
 
   const selectedItem = questions.find(q => q.id === selectedId) || null;
   const products     = getProductsInTab(tabItems);
 
-  // Close the filter popover when the user clicks anywhere outside it.
+  // Close filter popover on outside click.
   useEffect(() => {
     if (!filterOpen) return;
     function handleOutside(e) {
@@ -200,6 +219,18 @@ export default function AllQA() {
     document.addEventListener('mousedown', handleOutside);
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [filterOpen]);
+
+  // Close sort popover on outside click.
+  useEffect(() => {
+    if (!sortOpen) return;
+    function handleOutside(e) {
+      if (sortRef.current && !sortRef.current.contains(e.target)) {
+        setSortOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [sortOpen]);
 
   function handleTabChange(tab) {
     setActiveTab(tab);
@@ -342,7 +373,7 @@ export default function AllQA() {
               <div
                 ref={filterRef}
                 className={`qq-filter-dropdown${productFilter ? ' active' : ''}`}
-                onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); }}
+                onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); setSortOpen(false); }}
               >
                 {productFilter ? '✓ Filtered' : 'Filter ▾'}
                 {filterOpen && (
@@ -368,6 +399,26 @@ export default function AllQA() {
                 )}
               </div>
             )}
+            <div
+              ref={sortRef}
+              className={`qq-filter-dropdown${sortBy !== 'recent' ? ' active' : ''}`}
+              onClick={e => { e.stopPropagation(); setSortOpen(v => !v); setFilterOpen(false); }}
+            >
+              {sortBy !== 'recent' ? '✓ Sorted' : 'Sort ▾'}
+              {sortOpen && (
+                <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
+                  {SORT_OPTIONS.map(opt => (
+                    <div
+                      key={opt.key}
+                      className={`qq-filter-popover-item${sortBy === opt.key ? ' selected' : ''}`}
+                      onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
+                    >
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <QuestionList
             items={visibleItems}
