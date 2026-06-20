@@ -326,11 +326,8 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				: false;
 		}
 
-		// 4. Determine approval status.
-		// 'auto' (default) publishes the question immediately.
-		// 'manual' holds it for admin review.
-		$approval_mode = get_option( 'quick_qa_approval_mode', 'auto' );
-		$status        = 'manual' === $approval_mode ? 'pending' : 'approved';
+		// 4. Determine approval status — all questions require admin review before appearing.
+		$status = 'pending';
 
 		// 5. Persist.
 		$question_id = $this->insert_question(
@@ -468,10 +465,10 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 			);
 		}
 
-		// Determine answer type: store staff answers are always auto-approved.
+		// Determine answer type; all answers require admin review before appearing.
 		$is_admin    = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
 		$answer_type = $is_admin ? 'admin' : 'community';
-		$status      = $is_admin ? 'approved' : 'pending';
+		$status      = 'pending';
 
 		$now            = current_time( 'mysql', true );
 		$answers_table  = $wpdb->prefix . 'quick_qa_answers';
