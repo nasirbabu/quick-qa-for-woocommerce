@@ -274,13 +274,20 @@ class Quick_Qa_For_Woocommerce_Public {
 				'restUrl' => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
-					'askQuestion'  => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
-					'cancel'       => __( 'Cancel', 'quick-qa-for-woocommerce' ),
-					'submit'       => __( 'Submit question', 'quick-qa-for-woocommerce' ),
-					'submitting'   => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
-					'minLength'    => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
-					'nameRequired' => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
-					'errorGeneric' => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
+					'askQuestion'    => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
+					'cancel'         => __( 'Cancel', 'quick-qa-for-woocommerce' ),
+					'submit'         => __( 'Submit question', 'quick-qa-for-woocommerce' ),
+					'submitting'     => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
+					'minLength'      => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'nameRequired'   => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'errorGeneric'   => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
+					/* translators: %d replaced by JS with the question count. Singular. */
+					'questionCount'  => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
+					/* translators: %d replaced by JS with the question count. Plural. */
+					'questionsCount' => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
+					'collapse'       => __( 'Collapse', 'quick-qa-for-woocommerce' ),
+					'oneAnswer'      => __( '1 answer', 'quick-qa-for-woocommerce' ),
+					'answers'        => __( 'answers', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);

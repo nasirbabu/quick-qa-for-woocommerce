@@ -249,30 +249,43 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				: false;
 		}
 
-		// 4. Persist.
+		// 4. Determine approval status.
+		// 'auto' (default) publishes the question immediately.
+		// 'manual' holds it for admin review.
+		$approval_mode = get_option( 'quick_qa_approval_mode', 'auto' );
+		$status        = 'manual' === $approval_mode ? 'pending' : 'approved';
+
+		// 5. Persist.
 		$question_id = $this->insert_question(
 			$product_id,
 			$user_id,
 			$guest_name,
 			$guest_email,
 			$question_text,
-			$is_verified
+			$is_verified,
+			$status
 		);
 
 		if ( is_wp_error( $question_id ) ) {
 			return $question_id;
 		}
 
-		// 5. Bump the rate-limit counter.
+		// 6. Bump the rate-limit counter.
 		$this->increment_rate_limit();
 
-		// 6. Respond.
+		// 7. Respond — include the resolved status so the JS can react correctly.
+		if ( 'approved' === $status ) {
+			$message = __( 'Your question has been published.', 'quick-qa-for-woocommerce' );
+		} else {
+			/* translators: Shown when the question requires manual approval before appearing. */
+			$message = __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' );
+		}
+
 		return rest_ensure_response(
 			array(
 				'id'      => $question_id,
-				'status'  => 'pending',
-				/* translators: Confirmation message shown to the customer after submitting a question. */
-				'message' => __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' ),
+				'status'  => $status,
+				'message' => $message,
 			)
 		);
 	}
@@ -296,10 +309,11 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 	 * @param  string $guest_email
 	 * @param  string $question_text
 	 * @param  bool   $is_verified
+	 * @param  string $status         'approved' or 'pending'.
 	 * @return int|WP_Error  Inserted row ID, or WP_Error on DB failure.
 	 * @global wpdb $wpdb
 	 */
-	private function insert_question( $product_id, $user_id, $guest_name, $guest_email, $question_text, $is_verified ) {
+	private function insert_question( $product_id, $user_id, $guest_name, $guest_email, $question_text, $is_verified, $status ) {
 		global $wpdb;
 
 		$now   = current_time( 'mysql', true ); // UTC.
@@ -314,7 +328,7 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				'guest_name'        => $guest_name,
 				'guest_email'       => $guest_email,
 				'question_text'     => $question_text,
-				'status'            => 'pending',
+				'status'            => $status,
 				'upvotes'           => 0,
 				'is_verified_buyer' => $is_verified ? 1 : 0,
 				'created_at'        => $now,

@@ -21,6 +21,7 @@ $question_count = count( $questions );
 <div class="qa-widget"
 	id="quick-qa-widget"
 	data-product-id="<?php echo esc_attr( $product_id ); ?>"
+	data-total="<?php echo esc_attr( $question_count ); ?>"
 >
 
 	<?php // ================================================================ ?>
@@ -216,6 +217,9 @@ $question_count = count( $questions );
 					<option value="upvoted">
 						<?php esc_html_e( 'Most upvoted', 'quick-qa-for-woocommerce' ); ?>
 					</option>
+					<option value="oldest">
+						<?php esc_html_e( 'Oldest first', 'quick-qa-for-woocommerce' ); ?>
+					</option>
 				</select>
 			</div>
 		</div>
@@ -262,6 +266,9 @@ $question_count = count( $questions );
 					data-question-id="<?php echo esc_attr( $question->id ); ?>"
 					data-answered="<?php echo $is_answered ? '1' : '0'; ?>"
 					data-created-at="<?php echo esc_attr( strtotime( $question->created_at ) ); ?>"
+					data-upvotes="<?php echo esc_attr( $question->upvotes ); ?>"
+					data-question-text="<?php echo esc_attr( $question->question_text ); ?>"
+					data-answer-texts="<?php echo esc_attr( implode( ' ', wp_list_pluck( $question->answers, 'answer_text' ) ) ); ?>"
 				>
 					<?php // Question row — click to expand answers. ?>
 					<div class="qa-q-row" data-action="toggle-thread">
@@ -309,6 +316,7 @@ $question_count = count( $questions );
 								<button class="qa-foot-link"
 									type="button"
 									data-action="toggle-thread"
+									data-answer-count="<?php echo esc_attr( $answer_count ); ?>"
 									aria-expanded="false"
 								>
 									<?php if ( $is_answered ) : ?>
@@ -337,6 +345,18 @@ $question_count = count( $questions );
 					<?php if ( ! empty( $question->answers ) ) : ?>
 						<?php // Answers panel — collapsed by default. ?>
 						<div class="qa-answers" style="display:none;">
+
+							<div class="qa-answer-label">
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: %d: number of answers to this question */
+										_n( '%d answer', '%d answers', $answer_count, 'quick-qa-for-woocommerce' ),
+										$answer_count
+									)
+								);
+								?>
+							</div>
 
 							<?php foreach ( $question->answers as $index => $answer ) : ?>
 								<?php
@@ -377,7 +397,7 @@ $question_count = count( $questions );
 											<b><?php echo esc_html( $ans_name ); ?></b>
 											<?php if ( $is_staff ) : ?>
 												<span class="qa-role qa-role--staff">
-													<?php esc_html_e( 'Staff', 'quick-qa-for-woocommerce' ); ?>
+													<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
 												</span>
 											<?php else : ?>
 												<span class="qa-role qa-role--verified">
@@ -400,6 +420,26 @@ $question_count = count( $questions );
 				</div>
 			<?php endforeach; ?>
 
+		</div>
+
+		<?php // Search-returned-nothing empty state (JS shows/hides this). ?>
+		<div class="qa-empty qa-no-results"
+			id="qa-no-results"
+			style="display:none;"
+			aria-hidden="true"
+			role="status"
+		>
+			<div class="qa-empty-mark" aria-hidden="true">⌕</div>
+			<div class="qa-empty-title">
+				<?php esc_html_e( 'No matching questions', 'quick-qa-for-woocommerce' ); ?>
+			</div>
+			<p>
+				<?php esc_html_e( 'Try a different keyword, or', 'quick-qa-for-woocommerce' ); ?>
+				<button type="button" class="qa-link" id="qa-clear-search">
+					<?php esc_html_e( 'clear the search', 'quick-qa-for-woocommerce' ); ?>
+				</button>
+				<?php esc_html_e( 'to see all.', 'quick-qa-for-woocommerce' ); ?>
+			</p>
 		</div>
 
 	<?php else : ?>
