@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import QuestionList from './QuestionList';
 import QuestionDetail from './QuestionDetail';
 
@@ -121,6 +121,13 @@ function filterByTab(questions, tab) {
   return questions.filter(q => q.tab === tab);
 }
 
+// Returns [[productName, count], …] sorted by count desc for the given items.
+function getProductsInTab(items) {
+  const map = {};
+  items.forEach(q => { map[q.product] = (map[q.product] || 0) + 1; });
+  return Object.entries(map).sort((a, b) => b[1] - a[1]);
+}
+
 function getCounts(questions) {
   return {
     all:         questions.length,
@@ -135,13 +142,16 @@ function getCounts(questions) {
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function AllQA() {
-  const [questions,  setQuestions]  = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(null);
-  const [activeTab,  setActiveTab]  = useState('pending-q');
-  const [selectedId, setSelectedId] = useState(null);
-  const [search,     setSearch]     = useState('');
-  const [saving,     setSaving]     = useState(false);
+  const [questions,      setQuestions]      = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState(null);
+  const [activeTab,      setActiveTab]      = useState('pending-q');
+  const [selectedId,     setSelectedId]     = useState(null);
+  const [search,         setSearch]         = useState('');
+  const [saving,         setSaving]         = useState(false);
+  const [productFilter,  setProductFilter]  = useState(null);
+  const [filterOpen,     setFilterOpen]     = useState(false);
+  const filterRef = useRef(null);
 
   const loadQuestions = useCallback(async () => {
     const data  = await apiFetch('admin/questions');
@@ -163,20 +173,38 @@ export default function AllQA() {
       });
   }, [loadQuestions]);
 
-  const counts       = getCounts(questions);
-  const tabItems     = filterByTab(questions, activeTab);
-  const visibleItems = search.trim()
-    ? tabItems.filter(q =>
+  const counts          = getCounts(questions);
+  const tabItems        = filterByTab(questions, activeTab);
+  const productFiltered = productFilter
+    ? tabItems.filter(q => q.product === productFilter)
+    : tabItems;
+  const visibleItems    = search.trim()
+    ? productFiltered.filter(q =>
         q.text.toLowerCase().includes(search.toLowerCase()) ||
         q.customer.toLowerCase().includes(search.toLowerCase()) ||
         q.product.toLowerCase().includes(search.toLowerCase())
       )
-    : tabItems;
+    : productFiltered;
 
   const selectedItem = questions.find(q => q.id === selectedId) || null;
+  const products     = getProductsInTab(tabItems);
+
+  // Close the filter popover when the user clicks anywhere outside it.
+  useEffect(() => {
+    if (!filterOpen) return;
+    function handleOutside(e) {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [filterOpen]);
 
   function handleTabChange(tab) {
     setActiveTab(tab);
+    setProductFilter(null);
+    setFilterOpen(false);
     const first = filterByTab(questions, tab)[0];
     setSelectedId(first ? first.id : null);
   }
@@ -298,7 +326,48 @@ export default function AllQA() {
       <div className="qq-body">
         <div className="qq-queue">
           <div className="qq-queue-head">
-            <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+            <div className="qq-queue-head-left">
+              <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+              {productFilter && (
+                <span className="qq-active-filter">
+                  {productFilter}
+                  <span
+                    className="qq-active-filter-x"
+                    onClick={e => { e.stopPropagation(); setProductFilter(null); }}
+                  >×</span>
+                </span>
+              )}
+            </div>
+            {products.length > 1 && (
+              <div
+                ref={filterRef}
+                className={`qq-filter-dropdown${productFilter ? ' active' : ''}`}
+                onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); }}
+              >
+                {productFilter ? '✓ Filtered' : 'Filter ▾'}
+                {filterOpen && (
+                  <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
+                    <div
+                      className={`qq-filter-popover-item${!productFilter ? ' selected' : ''}`}
+                      onClick={() => { setProductFilter(null); setFilterOpen(false); }}
+                    >
+                      All products
+                      <span className="qq-filter-popover-count">{tabItems.length}</span>
+                    </div>
+                    {products.map(([name, count]) => (
+                      <div
+                        key={name}
+                        className={`qq-filter-popover-item${productFilter === name ? ' selected' : ''}`}
+                        onClick={() => { setProductFilter(name); setFilterOpen(false); }}
+                      >
+                        {name}
+                        <span className="qq-filter-popover-count">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <QuestionList
             items={visibleItems}

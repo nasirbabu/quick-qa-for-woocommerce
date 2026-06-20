@@ -198,15 +198,88 @@ a { color: var(--coral); text-decoration: none; }
   overflow: hidden;
 }
 .qq-queue-head {
-  padding: 14px 20px 10px;
+  padding: 10px 14px 10px 20px;
   font-size: 12px;
   color: var(--text-4);
+  display: flex;
+  align-items: center;
+  gap: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
 }
 .qq-queue-list { flex: 1; overflow-y: auto; }
+.qq-queue-head-left { flex: 1; display: flex; align-items: center; gap: 4px; }
+
+/* Product filter dropdown */
+.qq-filter-dropdown {
+  font-size: 12px;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+.qq-filter-dropdown:hover { background: var(--cream-2); color: var(--text); }
+.qq-filter-dropdown.active { color: var(--coral); font-weight: 500; }
+
+.qq-filter-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  min-width: 200px;
+  z-index: 100;
+  overflow: hidden;
+}
+.qq-filter-popover-item {
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.qq-filter-popover-item:hover { background: var(--cream-2); }
+.qq-filter-popover-item.selected {
+  background: var(--coral-soft);
+  color: var(--coral-text);
+  font-weight: 500;
+}
+.qq-filter-popover-count { font-size: 11px; color: var(--text-4); }
+.qq-filter-popover-item.selected .qq-filter-popover-count { color: var(--coral); }
+
+/* Active filter chip */
+.qq-active-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--coral-soft);
+  color: var(--coral-text);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.qq-active-filter-x {
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.7;
+  line-height: 1;
+}
+.qq-active-filter-x:hover { opacity: 1; }
 
 .qq-row {
   padding: 14px 20px;
