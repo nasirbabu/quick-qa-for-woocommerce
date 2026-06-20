@@ -274,18 +274,17 @@
    Controls row (search / filter / sort)
    ============================================================ */
 .qa-widget .qa-controls {
-	display:         flex;
-	justify-content: space-between;
-	align-items:     center;
-	margin-bottom:   16px;
-	gap:             12px;
-	flex-wrap:       wrap;
+	display:     flex;
+	align-items: center;
+	margin-bottom: 16px;
+	gap:         12px;
+	flex-wrap:   nowrap; /* single row always — mobile breakpoint stacks vertically */
 }
 
 .qa-widget .qa-search-frontend {
-	flex:      1;
+	flex:      1 1 auto; /* grows to fill remaining space, can shrink */
 	position:  relative;
-	min-width: 160px;
+	min-width: 100px;    /* never collapse below this */
 }
 
 .qa-widget .qa-search-frontend input {
@@ -321,7 +320,7 @@
 	display:     flex;
 	gap:         8px;
 	align-items: center;
-	flex-wrap:   wrap;
+	flex:        0 0 auto; /* fixed — never grow, shrink, or wrap */
 }
 
 .qa-widget .qa-filter-pills {
@@ -649,16 +648,20 @@
 		flex-wrap: wrap;
 	}
 
+	/* Stack controls vertically on small screens. */
 	.qa-widget .qa-controls {
 		flex-direction: column;
 		align-items:    stretch;
 	}
 
-	.qa-widget .qa-controls-right {
-		justify-content: space-between;
+	/* Reset row-level flex values so items stretch to full width. */
+	.qa-widget .qa-search-frontend {
+		flex:      none;
+		min-width: 100%;
 	}
 
-	.qa-widget .qa-search-frontend {
-		min-width: 100%;
+	.qa-widget .qa-controls-right {
+		flex:            none;
+		justify-content: space-between;
 	}
 }
