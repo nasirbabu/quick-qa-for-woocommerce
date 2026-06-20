@@ -281,8 +281,9 @@ a { color: var(--coral); text-decoration: none; }
 }
 .qq-active-filter-x:hover { opacity: 1; }
 
+/* ── Row checkbox ── */
 .qq-row {
-  padding: 14px 20px;
+  padding: 14px 20px 14px 44px; /* left: 44px reserves checkbox space */
   border-top: 0.5px solid var(--cream-3);
   cursor: pointer;
   position: relative;
@@ -290,6 +291,143 @@ a { color: var(--coral); text-decoration: none; }
 }
 .qq-row:hover:not(.active) { background: var(--cream-2); }
 .qq-row.active { background: var(--coral-soft); }
+
+.qq-row-check {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #CBC4BB;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.qq-row:hover .qq-row-check { opacity: 1; }
+.qq-row-check.checked,
+.qq-bulk-mode .qq-row-check { opacity: 1; }
+.qq-row-check.checked { background: var(--coral); border-color: var(--coral); }
+
+.qq-row.selected { background: var(--coral-soft); }
+.qq-row.selected::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--coral);
+  opacity: 0.5;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Bulk bar (replaces queue head when items selected) ── */
+.qq-bulk-bar {
+  background: var(--coral-soft);
+  border-bottom: 0.5px solid #FAD9CC;
+  padding: 10px 14px 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.qq-bulk-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.qq-bulk-bar-master {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--coral);
+  background: var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.qq-bulk-bar-master.partial { background: var(--coral); border-color: var(--coral); }
+.qq-bulk-bar-master.empty   { background: white; color: white; }
+.qq-bulk-bar-count   { color: var(--text); font-weight: 500; }
+.qq-bulk-bar-link    { color: var(--coral); cursor: pointer; font-size: 12px; }
+.qq-bulk-bar-link:hover { text-decoration: underline; }
+.qq-bulk-bar-actions { display: flex; gap: 6px; }
+
+.qq-bulk-action-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 0.5px solid var(--hairline);
+  background: white;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.qq-bulk-action-btn:hover { color: var(--text); border-color: #D4CCC2; }
+.qq-bulk-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.qq-bulk-action-btn.primary { background: var(--coral); color: white; border-color: var(--coral); }
+.qq-bulk-action-btn.primary:hover { background: var(--coral-hover); border-color: var(--coral-hover); }
+.qq-bulk-action-btn.danger:hover  { color: var(--red); border-color: var(--red); }
+
+/* ── Bulk summary panel (replaces conversation detail) ── */
+.qq-bulk-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px;
+  text-align: center;
+  background: var(--cream);
+  overflow-y: auto;
+}
+.qq-bulk-summary-art {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--coral-soft) 0%, #FDEEE8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  font-size: 32px;
+}
+.qq-bulk-summary-num   { font-size: 30px; font-weight: 600; color: var(--text); margin: 0 0 4px; }
+.qq-bulk-summary-label { font-size: 14px; color: var(--text-3); margin: 0 0 22px; }
+.qq-bulk-summary-card {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: 8px;
+  padding: 16px 20px;
+  max-width: 360px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.qq-bulk-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.qq-bulk-summary-row + .qq-bulk-summary-row { border-top: 0.5px solid var(--cream-3); }
+.qq-bulk-summary-row span { color: var(--text-2); }
+.qq-bulk-summary-row b    { color: var(--text); font-weight: 500; }
+.qq-bulk-summary-tip { font-size: 12px; color: var(--text-3); max-width: 300px; line-height: 1.6; }
 .qq-row.active::before {
   content: '';
   position: absolute;

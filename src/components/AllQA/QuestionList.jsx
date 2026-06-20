@@ -12,7 +12,7 @@ function StatusPill({ status }) {
   return <span className={`qq-status-pill ${cls}`}>{label}</span>;
 }
 
-export default function QuestionList({ items, selectedId, onSelect, showAllBadge }) {
+export default function QuestionList({ items, selectedId, onSelect, showAllBadge, selectedIds = [], onToggleSelect = () => {}, bulkMode = false }) {
   if (items.length === 0) {
     return (
       <div className="qq-queue-list">
@@ -30,13 +30,21 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
         const isPendingAnswer = item.tab === 'pending-a';
         const displayName = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.author : item.customer;
         const displayText = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.text : item.text;
+        const isSelected  = selectedIds.includes(item.id);
+        const isActive    = selectedId === item.id && !bulkMode;
 
         return (
           <div
             key={item.id}
-            className={`qq-row ${selectedId === item.id ? 'active' : ''}`}
-            onClick={() => onSelect(item.id)}
+            className={`qq-row${isActive ? ' active' : ''}${isSelected ? ' selected' : ''}`}
+            onClick={() => bulkMode ? onToggleSelect(item.id) : onSelect(item.id)}
           >
+            <div
+              className={`qq-row-check${isSelected ? ' checked' : ''}`}
+              onClick={e => { e.stopPropagation(); onToggleSelect(item.id); }}
+            >
+              {isSelected ? '✓' : ''}
+            </div>
             <div className="qq-row-top">
               <span className="qq-row-name">{displayName}</span>
               <span className="qq-row-time">{item.time}</span>

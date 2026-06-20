@@ -154,6 +154,71 @@ function getCounts(questions) {
   };
 }
 
+// ── Bulk bar (replaces queue head when ≥1 item selected) ─────────────────────
+
+function BulkBar({ selectedCount, totalCount, allSelected, partial, onToggleAll, onSelectAll, onClear, actions, saving }) {
+  const masterCls = allSelected ? '' : partial ? 'partial' : 'empty';
+  return (
+    <div className="qq-bulk-bar">
+      <div className="qq-bulk-bar-left">
+        <div className={`qq-bulk-bar-master ${masterCls}`} onClick={onToggleAll}>
+          {allSelected ? '✓' : partial ? '−' : ''}
+        </div>
+        <span className="qq-bulk-bar-count">{selectedCount} selected</span>
+        {!allSelected && (
+          <span className="qq-bulk-bar-link" onClick={onSelectAll}>
+            Select all {totalCount}
+          </span>
+        )}
+        <span className="qq-bulk-bar-link" onClick={onClear}>Clear</span>
+      </div>
+      <div className="qq-bulk-bar-actions">
+        {actions.map(a => (
+          <button
+            key={a.key}
+            className={`qq-bulk-action-btn${a.primary ? ' primary' : ''}${a.danger ? ' danger' : ''}`}
+            onClick={a.onClick}
+            disabled={saving}
+          >
+            {saving ? '…' : a.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Bulk summary (replaces conversation panel when ≥1 item selected) ──────────
+
+function BulkSummary({ selectedItems, activeTab }) {
+  const count             = selectedItems.length;
+  const productsAffected  = new Set(selectedItems.map(q => q.product)).size;
+  const totalUpvotes      = selectedItems.reduce((s, q) => s + q.upvotes, 0);
+  const hints = {
+    'pending-q': 'Approve to publish them, or reject if they are spam or off-topic.',
+    'pending-a': 'Approve to publish these community answers with their trust badges.',
+    'flagged':   'Dismiss flags to restore content, or delete if the flags are valid.',
+  };
+  const hint = hints[activeTab] || 'Choose a bulk action above.';
+
+  return (
+    <div className="qq-bulk-summary">
+      <div className="qq-bulk-summary-art">📦</div>
+      <div className="qq-bulk-summary-num">{count}</div>
+      <div className="qq-bulk-summary-label">{count === 1 ? 'item' : 'items'} selected</div>
+      <div className="qq-bulk-summary-card">
+        <div className="qq-bulk-summary-row">
+          <span>Across products</span><b>{productsAffected}</b>
+        </div>
+        <div className="qq-bulk-summary-row">
+          <span>Total upvotes</span><b>{totalUpvotes}</b>
+        </div>
+      </div>
+      <div className="qq-bulk-summary-tip">{hint}</div>
+    </div>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function AllQA() {
@@ -168,6 +233,7 @@ export default function AllQA() {
   const [filterOpen,     setFilterOpen]     = useState(false);
   const [sortBy,         setSortBy]         = useState('recent');
   const [sortOpen,       setSortOpen]       = useState(false);
+  const [selectedIds,    setSelectedIds]    = useState([]);
   const filterRef = useRef(null);
   const sortRef   = useRef(null);
 
@@ -232,8 +298,74 @@ export default function AllQA() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [sortOpen]);
 
+  const bulkMode   = selectedIds.length > 0;
+  const allSelected = selectedIds.length === visibleItems.length && visibleItems.length > 0;
+  const partial     = selectedIds.length > 0 && selectedIds.length < visibleItems.length;
+
+  function toggleSelect(id) {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  }
+  function handleToggleAll() {
+    const ids = visibleItems.map(q => q.id);
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
+    } else {
+      setSelectedIds(prev => [...new Set([...prev, ...ids])]);
+    }
+  }
+  function handleSelectAllInTab() {
+    setSelectedIds(visibleItems.map(q => q.id));
+  }
+  function handleClearSelection() { setSelectedIds([]); }
+
+  function getBulkActions() {
+    const run = action => () => handleBulkAction(action);
+    if (activeTab === 'pending-q') return [
+      { key: 'approve', label: 'Approve', primary: true, onClick: run('approve') },
+      { key: 'reject',  label: 'Reject',  danger: true,  onClick: run('reject') },
+    ];
+    if (activeTab === 'pending-a') return [
+      { key: 'approve-answers', label: 'Approve', primary: true, onClick: run('approve-answers') },
+      { key: 'reject',          label: 'Reject',  danger: true,  onClick: run('reject') },
+    ];
+    if (activeTab === 'flagged') return [
+      { key: 'dismiss-flags', label: 'Dismiss flags', onClick: run('dismiss-flags') },
+      { key: 'delete',        label: 'Delete', danger: true, onClick: run('delete') },
+    ];
+    return [{ key: 'delete', label: 'Delete', danger: true, onClick: run('delete') }];
+  }
+
+  async function handleBulkAction(action) {
+    const items = questions.filter(q => selectedIds.includes(q.id));
+    setSaving(true);
+    try {
+      if (action === 'approve') {
+        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'approved' } })));
+      } else if (action === 'reject') {
+        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'rejected' } })));
+      } else if (action === 'approve-answers') {
+        await Promise.all(items.filter(i => i.pendingAnswer).map(i =>
+          apiFetch(`admin/answers/${i.pendingAnswer.dbId}`, { method: 'POST', body: { status: 'approved' } })
+        ));
+      } else if (action === 'dismiss-flags') {
+        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}/dismiss-flags`, { method: 'POST', body: {} })));
+      } else if (action === 'delete') {
+        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}/delete`, { method: 'POST', body: {} })));
+      }
+      setSelectedIds([]);
+      const refreshed = await loadQuestions();
+      const remaining = filterByTab(refreshed, activeTab);
+      setSelectedId(remaining[0] ? remaining[0].id : null);
+    } catch (err) {
+      console.error('Bulk action failed:', err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function handleTabChange(tab) {
     setActiveTab(tab);
+    setSelectedIds([]);
     setProductFilter(null);
     setFilterOpen(false);
     const first = filterByTab(questions, tab)[0];
@@ -355,87 +487,111 @@ export default function AllQA() {
       </div>
 
       <div className="qq-body">
-        <div className="qq-queue">
-          <div className="qq-queue-head">
-            <div className="qq-queue-head-left">
-              <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
-              {productFilter && (
-                <span className="qq-active-filter">
-                  {productFilter}
-                  <span
-                    className="qq-active-filter-x"
-                    onClick={e => { e.stopPropagation(); setProductFilter(null); }}
-                  >×</span>
-                </span>
-              )}
-            </div>
-            {products.length > 1 && (
-              <div
-                ref={filterRef}
-                className={`qq-filter-dropdown${productFilter ? ' active' : ''}`}
-                onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); setSortOpen(false); }}
-              >
-                {productFilter ? '✓ Filtered' : 'Filter ▾'}
-                {filterOpen && (
-                  <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
-                    <div
-                      className={`qq-filter-popover-item${!productFilter ? ' selected' : ''}`}
-                      onClick={() => { setProductFilter(null); setFilterOpen(false); }}
-                    >
-                      All products
-                      <span className="qq-filter-popover-count">{tabItems.length}</span>
-                    </div>
-                    {products.map(([name, count]) => (
+        <div className={`qq-queue${bulkMode ? ' qq-bulk-mode' : ''}`}>
+          {bulkMode ? (
+            <BulkBar
+              selectedCount={selectedIds.length}
+              totalCount={visibleItems.length}
+              allSelected={allSelected}
+              partial={partial}
+              onToggleAll={handleToggleAll}
+              onSelectAll={handleSelectAllInTab}
+              onClear={handleClearSelection}
+              actions={getBulkActions()}
+              saving={saving}
+            />
+          ) : (
+            <div className="qq-queue-head">
+              <div className="qq-queue-head-left">
+                <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+                {productFilter && (
+                  <span className="qq-active-filter">
+                    {productFilter}
+                    <span
+                      className="qq-active-filter-x"
+                      onClick={e => { e.stopPropagation(); setProductFilter(null); }}
+                    >×</span>
+                  </span>
+                )}
+              </div>
+              {products.length > 1 && (
+                <div
+                  ref={filterRef}
+                  className={`qq-filter-dropdown${productFilter ? ' active' : ''}`}
+                  onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); setSortOpen(false); }}
+                >
+                  {productFilter ? '✓ Filtered' : 'Filter ▾'}
+                  {filterOpen && (
+                    <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
                       <div
-                        key={name}
-                        className={`qq-filter-popover-item${productFilter === name ? ' selected' : ''}`}
-                        onClick={() => { setProductFilter(name); setFilterOpen(false); }}
+                        className={`qq-filter-popover-item${!productFilter ? ' selected' : ''}`}
+                        onClick={() => { setProductFilter(null); setFilterOpen(false); }}
                       >
-                        {name}
-                        <span className="qq-filter-popover-count">{count}</span>
+                        All products
+                        <span className="qq-filter-popover-count">{tabItems.length}</span>
+                      </div>
+                      {products.map(([name, count]) => (
+                        <div
+                          key={name}
+                          className={`qq-filter-popover-item${productFilter === name ? ' selected' : ''}`}
+                          onClick={() => { setProductFilter(name); setFilterOpen(false); }}
+                        >
+                          {name}
+                          <span className="qq-filter-popover-count">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div
+                ref={sortRef}
+                className={`qq-filter-dropdown${sortBy !== 'recent' ? ' active' : ''}`}
+                onClick={e => { e.stopPropagation(); setSortOpen(v => !v); setFilterOpen(false); }}
+              >
+                {sortBy !== 'recent' ? '✓ Sorted' : 'Sort ▾'}
+                {sortOpen && (
+                  <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
+                    {SORT_OPTIONS.map(opt => (
+                      <div
+                        key={opt.key}
+                        className={`qq-filter-popover-item${sortBy === opt.key ? ' selected' : ''}`}
+                        onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
+                      >
+                        {opt.label}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
-            <div
-              ref={sortRef}
-              className={`qq-filter-dropdown${sortBy !== 'recent' ? ' active' : ''}`}
-              onClick={e => { e.stopPropagation(); setSortOpen(v => !v); setFilterOpen(false); }}
-            >
-              {sortBy !== 'recent' ? '✓ Sorted' : 'Sort ▾'}
-              {sortOpen && (
-                <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
-                  {SORT_OPTIONS.map(opt => (
-                    <div
-                      key={opt.key}
-                      className={`qq-filter-popover-item${sortBy === opt.key ? ' selected' : ''}`}
-                      onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
-                    >
-                      {opt.label}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-          </div>
+          )}
           <QuestionList
             items={visibleItems}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={id => { setSelectedId(id); setSelectedIds([]); }}
             showAllBadge={activeTab === 'all'}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            bulkMode={bulkMode}
           />
           <div className="qq-page-foot">
             <span>{visibleItems.length} of {counts[activeTab] ?? questions.length}</span>
           </div>
         </div>
 
-        <QuestionDetail
-          item={selectedItem}
-          onAction={handleAction}
-          saving={saving}
-        />
+        {bulkMode ? (
+          <BulkSummary
+            selectedItems={questions.filter(q => selectedIds.includes(q.id))}
+            activeTab={activeTab}
+          />
+        ) : (
+          <QuestionDetail
+            item={selectedItem}
+            onAction={handleAction}
+            saving={saving}
+          />
+        )}
       </div>
     </div>
   );
