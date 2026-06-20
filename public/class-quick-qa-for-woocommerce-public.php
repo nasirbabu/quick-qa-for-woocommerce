@@ -259,5 +259,30 @@ class Quick_Qa_For_Woocommerce_Public {
 			$this->version,
 			true
 		);
+
+		/**
+		 * Pass REST API URL, nonce, and translatable strings to the frontend JS.
+		 *
+		 * The nonce uses the standard WordPress REST cookie (`wp_rest`) so
+		 * WordPress can resolve the current user from the X-WP-Nonce header on
+		 * every fetch() request — no manual session handling required.
+		 */
+		wp_localize_script(
+			$this->plugin_name,
+			'quickQaSettings',
+			array(
+				'restUrl' => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+				'i18n'    => array(
+					'askQuestion'  => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
+					'cancel'       => __( 'Cancel', 'quick-qa-for-woocommerce' ),
+					'submit'       => __( 'Submit question', 'quick-qa-for-woocommerce' ),
+					'submitting'   => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
+					'minLength'    => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'nameRequired' => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'errorGeneric' => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
+				),
+			)
+		);
 	}
 }

@@ -142,7 +142,6 @@ $question_count = count( $questions );
 		</div>
 
 		<input type="hidden" id="qa-product-id" value="<?php echo esc_attr( $product_id ); ?>" />
-		<?php wp_nonce_field( 'quick_qa_submit_question', 'quick_qa_nonce' ); ?>
 
 		<div class="qa-form-actions">
 			<button type="button" class="qa-form-cancel" id="qa-cancel-ask">
@@ -262,6 +261,7 @@ $question_count = count( $questions );
 				<div class="qa-thread"
 					data-question-id="<?php echo esc_attr( $question->id ); ?>"
 					data-answered="<?php echo $is_answered ? '1' : '0'; ?>"
+					data-created-at="<?php echo esc_attr( strtotime( $question->created_at ) ); ?>"
 				>
 					<?php // Question row — click to expand answers. ?>
 					<div class="qa-q-row" data-action="toggle-thread">

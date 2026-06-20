@@ -78,6 +78,7 @@ class Quick_Qa_For_Woocommerce {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_rest_hooks();
 
 	}
 
@@ -121,6 +122,11 @@ class Quick_Qa_For_Woocommerce {
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-quick-qa-for-woocommerce-public.php';
+
+		/**
+		 * The class responsible for registering and handling all REST API endpoints.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-rest-api.php';
 
 		$this->loader = new Quick_Qa_For_Woocommerce_Loader();
 
@@ -176,6 +182,20 @@ class Quick_Qa_For_Woocommerce {
 
 		// Register the Q&A tab on WooCommerce product pages.
 		$this->loader->add_filter( 'woocommerce_product_tabs', $plugin_public, 'register_product_tab' );
+
+	}
+
+	/**
+	 * Register all REST API routes provided by the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_rest_hooks() {
+
+		$rest_api = new Quick_Qa_For_Woocommerce_Rest_Api();
+
+		$this->loader->add_action( 'rest_api_init', $rest_api, 'register_routes' );
 
 	}
 
