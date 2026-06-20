@@ -40,11 +40,27 @@ define( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION', '1.0.0' );
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-quick-qa-for-woocommerce-activator.php
+ *
+ * @param bool $network_wide Whether the plugin is being activated network-wide.
  */
-function activate_quick_qa_for_woocommerce() {
+function activate_quick_qa_for_woocommerce( $network_wide = false ) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-quick-qa-for-woocommerce-activator.php';
-	Quick_Qa_For_Woocommerce_Activator::activate();
+	Quick_Qa_For_Woocommerce_Activator::activate( $network_wide );
 }
+
+/**
+ * Run a schema-version check on every page load and apply upgrades if needed.
+ *
+ * This handles users who update the plugin via the WordPress updater without
+ * manually deactivating and reactivating it, which would skip activate().
+ *
+ * @since 1.0.0
+ */
+function quick_qa_maybe_update_db() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-quick-qa-for-woocommerce-activator.php';
+	Quick_Qa_For_Woocommerce_Activator::maybe_update_db();
+}
+add_action( 'plugins_loaded', 'quick_qa_maybe_update_db' );
 
 /**
  * The code that runs during plugin deactivation.
