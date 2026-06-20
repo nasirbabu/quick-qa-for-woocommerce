@@ -491,6 +491,11 @@
 	border-color: var(--qa-color);
 }
 
+.qa-widget .qa-vote-btn:disabled {
+	cursor:  not-allowed;
+	opacity: 0.55;
+}
+
 /* ============================================================
    Footer links (expand answers, flag)
    ============================================================ */
@@ -560,6 +565,101 @@
 	text-transform: uppercase;
 	letter-spacing: 0.4px;
 	margin-bottom: var(--qa-gap);
+}
+
+/* ============================================================
+   Secondary action button (Add your answer)
+   ============================================================ */
+.qa-widget .qa-ask-btn--secondary {
+	background:  #fff;
+	color:       var(--qa-color);
+	border:      1.5px solid var(--qa-color);
+}
+
+.qa-widget .qa-ask-btn--secondary:hover,
+.qa-widget .qa-ask-btn--secondary:focus-visible {
+	background: #fff4f1;
+	color:      var(--qa-color-dark);
+	border-color: var(--qa-color-dark);
+}
+
+/* ============================================================
+   Helpful vote button (on answers)
+   ============================================================ */
+.qa-widget .qa-helpful {
+	display:     inline-flex;
+	align-items: center;
+	gap:         4px;
+	background:  none;
+	border:      1px solid #d8d8d8;
+	padding:     3px 10px;
+	border-radius: var(--qa-radius);
+	font-size:   var(--qa-fs-small);
+	color:       #666;
+	cursor:      pointer;
+	font-family: inherit;
+	transition:  border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.qa-widget .qa-helpful:hover {
+	border-color: #aaa;
+	color:        #333;
+}
+
+.qa-widget .qa-helpful.is-voted {
+	background:   var(--qa-color);
+	border-color: var(--qa-color);
+	color:        #fff;
+}
+
+.qa-widget .qa-helpful.is-voted .qa-helpful-arrow {
+	display: none;
+}
+
+.qa-widget .qa-helpful:disabled {
+	cursor:  not-allowed;
+	opacity: 0.55;
+}
+
+/* ============================================================
+   "Add your answer" CTA + inline answer form
+   ============================================================ */
+.qa-widget .qa-add-answer-cta {
+	padding-top: 4px;
+}
+
+.qa-widget .qa-answer-form {
+	background:    #FAFAF8;
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       14px;
+	margin-top:    4px;
+}
+
+.qa-widget .qa-answer-form .qa-answer-textarea {
+	width:         100%;
+	box-sizing:    border-box;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	padding:       10px 12px;
+	font-size:     var(--qa-fs-base);
+	font-family:   inherit;
+	line-height:   1.5;
+	resize:        vertical;
+	min-height:    80px;
+	transition:    border-color 0.15s;
+	background:    #fff;
+	color:         inherit;
+}
+
+.qa-widget .qa-answer-form .qa-answer-textarea:focus {
+	outline:      none;
+	border-color: var(--qa-color);
+}
+
+/* Pending confirmation inside an answer thread */
+.qa-widget .qa-answer-confirm {
+	margin-top: 8px;
 }
 
 /* ============================================================

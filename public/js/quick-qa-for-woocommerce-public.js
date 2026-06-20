@@ -61,6 +61,9 @@
 		bindFilterPills();
 		bindSearch();
 		bindSort();
+		bindVoteButtons();
+		bindAnswerForm();
+		bindHelpfulVote();
 	} );
 
 	// =========================================================================
@@ -363,11 +366,15 @@
 				expandBtn.setAttribute( 'aria-expanded', String( ! isExpanded ) );
 
 				if ( isExpanded ) {
-					// Was expanded → now collapsed: restore "N answers" label.
+					// Was expanded → now collapsed: restore original label.
 					var count = parseInt( expandBtn.dataset.answerCount, 10 ) || 0;
-					expandBtn.textContent = 1 === count
-						? i18n( 'oneAnswer', '1 answer' )
-						: count + ' ' + i18n( 'answers', 'answers' );
+					if ( 0 === count ) {
+						expandBtn.textContent = i18n( 'noAnswersYet', 'No answers yet' );
+					} else if ( 1 === count ) {
+						expandBtn.textContent = i18n( 'oneAnswer', '1 answer' );
+					} else {
+						expandBtn.textContent = count + ' ' + i18n( 'answers', 'answers' );
+					}
 				} else {
 					// Was collapsed → now expanded: show "Collapse".
 					expandBtn.textContent = i18n( 'collapse', 'Collapse' );
@@ -458,6 +465,375 @@
 			.forEach( function ( t ) {
 				container.appendChild( t.el );
 			} );
+	}
+
+	// =========================================================================
+	// Answer form (open / cancel / submit / char counter)
+	// =========================================================================
+
+	/**
+	 * Delegate click + input events inside #qa-thread-list for the inline
+	 * community answer form: open, cancel, char counter, and fetch submit.
+	 */
+	function bindAnswerForm() {
+		var threadList = document.getElementById( 'qa-thread-list' );
+		if ( ! threadList ) {
+			return;
+		}
+
+		// Click events: open, cancel, submit.
+		threadList.addEventListener( 'click', function ( e ) {
+			// Open the form.
+			var openBtn = e.target.closest( '[data-action="open-answer-form"]' );
+			if ( openBtn ) {
+				var qid  = openBtn.dataset.questionId;
+				var form = document.getElementById( 'qa-answer-form-' + qid );
+				var cta  = openBtn.closest( '.qa-add-answer-cta' );
+				if ( form ) {
+					form.style.display = 'block';
+					form.setAttribute( 'aria-hidden', 'false' );
+					if ( cta ) cta.style.display = 'none';
+					var textarea = form.querySelector( '.qa-answer-textarea' );
+					if ( textarea ) textarea.focus();
+				}
+				return;
+			}
+
+			// Cancel.
+			var cancelBtn = e.target.closest( '[data-action="cancel-answer"]' );
+			if ( cancelBtn ) {
+				closeAnswerForm( cancelBtn.dataset.questionId );
+				return;
+			}
+
+			// Submit.
+			var submitBtn = e.target.closest( '[data-action="submit-answer"]' );
+			if ( submitBtn && ! submitBtn.disabled ) {
+				handleAnswerSubmit( submitBtn );
+			}
+		} );
+
+		// Char counter — delegated input listener.
+		threadList.addEventListener( 'input', function ( e ) {
+			if ( ! e.target.classList.contains( 'qa-answer-textarea' ) ) {
+				return;
+			}
+			var form = e.target.closest( '.qa-answer-form' );
+			if ( form ) {
+				var counter = form.querySelector( '.qa-answer-char-count' );
+				if ( counter ) {
+					counter.textContent = e.target.value.length;
+				}
+			}
+		} );
+	}
+
+	function closeAnswerForm( questionId ) {
+		var form = document.getElementById( 'qa-answer-form-' + questionId );
+		var cta  = document.querySelector(
+			'[data-action="open-answer-form"][data-question-id="' + questionId + '"]'
+		);
+
+		if ( form ) {
+			form.style.display = 'none';
+			form.setAttribute( 'aria-hidden', 'true' );
+			var textarea = form.querySelector( '.qa-answer-textarea' );
+			if ( textarea ) {
+				textarea.value = '';
+			}
+			var counter = form.querySelector( '.qa-answer-char-count' );
+			if ( counter ) {
+				counter.textContent = '0';
+			}
+			var errorEl = form.querySelector( '.qa-answer-error' );
+			if ( errorEl ) {
+				errorEl.style.display = 'none';
+				errorEl.textContent   = '';
+			}
+		}
+		if ( cta ) {
+			var ctaWrap = cta.closest( '.qa-add-answer-cta' );
+			if ( ctaWrap ) ctaWrap.style.display = '';
+		}
+	}
+
+	function handleAnswerSubmit( submitBtn ) {
+		var questionId = parseInt( submitBtn.dataset.questionId, 10 );
+		var form       = document.getElementById( 'qa-answer-form-' + questionId );
+		if ( ! form ) {
+			return;
+		}
+
+		var textarea = form.querySelector( '.qa-answer-textarea' );
+		var errorEl  = form.querySelector( '.qa-answer-error' );
+
+		if ( errorEl ) {
+			errorEl.style.display = 'none';
+			errorEl.textContent   = '';
+		}
+
+		var text = textarea ? textarea.value.trim() : '';
+		if ( text.length < 10 ) {
+			if ( errorEl ) {
+				errorEl.textContent   = i18n( 'answerMinLength', 'Your answer must be at least 10 characters.' );
+				errorEl.style.display = 'block';
+			}
+			if ( textarea ) textarea.focus();
+			return;
+		}
+
+		// Loading state.
+		submitBtn.disabled    = true;
+		submitBtn.textContent = i18n( 'submitting', 'Submitting…' );
+
+		var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+		fetch( ( settings.restUrl || '' ) + 'answers', {
+			method:      'POST',
+			credentials: 'same-origin',
+			headers:     {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce':   settings.nonce || '',
+			},
+			body: JSON.stringify( {
+				question_id: questionId,
+				answer_text: text,
+			} ),
+		} )
+			.then( function ( response ) {
+				return response.json().then( function ( data ) {
+					if ( ! response.ok ) {
+						throw new Error(
+							data.message ||
+							i18n( 'errorGeneric', 'Something went wrong. Please try again.' )
+						);
+					}
+					return data;
+				} );
+			} )
+			.then( function ( data ) {
+				closeAnswerForm( String( questionId ) );
+
+				if ( 'approved' === data.status ) {
+					// Admin answer auto-approved: reload to show it in the list.
+					setTimeout( function () {
+						window.location.reload();
+					}, 400 );
+				} else {
+					// Community answer pending review: show inline confirmation.
+					var confirmEl = document.getElementById( 'qa-answer-confirm-' + questionId );
+					if ( confirmEl ) {
+						confirmEl.style.display = 'flex';
+						confirmEl.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+					}
+					// Hide the "Add your answer" button so the user can't double-submit.
+					var ctaWrap = document.querySelector(
+						'.qa-add-answer-cta:has([data-question-id="' + questionId + '"])'
+					);
+					if ( ctaWrap ) ctaWrap.style.display = 'none';
+				}
+			} )
+			.catch( function ( err ) {
+				if ( errorEl ) {
+					errorEl.textContent   = err.message;
+					errorEl.style.display = 'block';
+				}
+				submitBtn.disabled    = false;
+				submitBtn.textContent = i18n( 'submitAnswer', 'Submit answer' );
+			} );
+	}
+
+	// =========================================================================
+	// Helpful votes on answers
+	// =========================================================================
+
+	/**
+	 * Delegate "↑ Helpful" button clicks from the thread list.
+	 *
+	 * Calls POST /votes with object_type=answer. Mirrors the optimistic
+	 * update pattern used by the question upvote handler.
+	 */
+	function bindHelpfulVote() {
+		var threadList = document.getElementById( 'qa-thread-list' );
+		if ( ! threadList ) {
+			return;
+		}
+
+		threadList.addEventListener( 'click', function ( e ) {
+			var btn = e.target.closest( '.qa-helpful[data-action="helpful-vote"]' );
+			if ( ! btn || btn.disabled ) {
+				return;
+			}
+
+			var answerId = parseInt( btn.dataset.id, 10 );
+			if ( ! answerId ) {
+				return;
+			}
+
+			var isVoted   = btn.classList.contains( 'is-voted' );
+			var countEl   = btn.querySelector( '.qa-helpful-count' );
+			var oldCount  = countEl
+				? ( parseInt( countEl.textContent.replace( /[()]/g, '' ), 10 ) || 0 )
+				: 0;
+			var newCount  = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+
+			// Optimistic UI update.
+			btn.classList.toggle( 'is-voted', ! isVoted );
+			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			if ( countEl ) {
+				countEl.textContent = '(' + newCount + ')';
+			}
+			btn.disabled = true;
+
+			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			fetch( ( settings.restUrl || '' ) + 'votes', {
+				method:      'POST',
+				credentials: 'same-origin',
+				headers:     {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce':   settings.nonce || '',
+				},
+				body: JSON.stringify( {
+					object_type: 'answer',
+					object_id:   answerId,
+				} ),
+			} )
+				.then( function ( response ) {
+					return response.json().then( function ( data ) {
+						if ( ! response.ok ) {
+							throw new Error(
+								data.message ||
+								i18n( 'errorGeneric', 'Something went wrong. Please try again.' )
+							);
+						}
+						return data;
+					} );
+				} )
+				.then( function ( data ) {
+					if ( countEl ) {
+						countEl.textContent = '(' + data.count + ')';
+					}
+					btn.classList.toggle( 'is-voted', data.voted );
+					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+				} )
+				.catch( function () {
+					// Revert on failure.
+					btn.classList.toggle( 'is-voted', isVoted );
+					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					if ( countEl ) {
+						countEl.textContent = '(' + oldCount + ')';
+					}
+				} )
+				.finally( function () {
+					btn.disabled = false;
+				} );
+		} );
+	}
+
+	// =========================================================================
+	// Upvote questions
+	// =========================================================================
+
+	/**
+	 * Delegate vote-button clicks from the thread list.
+	 *
+	 * Applies an optimistic UI update (toggle class + count) immediately, then
+	 * confirms with the server and corrects to the authoritative count on
+	 * success, or reverts on error. The button is disabled while the request
+	 * is in flight to prevent double-submits.
+	 */
+	function bindVoteButtons() {
+		var threadList = document.getElementById( 'qa-thread-list' );
+		if ( ! threadList ) {
+			return;
+		}
+
+		threadList.addEventListener( 'click', function ( e ) {
+			var btn = e.target.closest( '.qa-vote-btn[data-action="upvote-question"]' );
+			if ( ! btn || btn.disabled ) {
+				return;
+			}
+
+			var questionId = parseInt( btn.dataset.id, 10 );
+			if ( ! questionId ) {
+				return;
+			}
+
+			var isVoted  = btn.classList.contains( 'is-voted' );
+			var countEl  = btn.querySelector( '.qa-vote-count' );
+			var oldCount = countEl ? ( parseInt( countEl.textContent, 10 ) || 0 ) : 0;
+			var newCount = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+
+			// Optimistic UI update.
+			btn.classList.toggle( 'is-voted', ! isVoted );
+			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			if ( countEl ) {
+				countEl.textContent = newCount;
+			}
+			btn.disabled = true;
+
+			// Keep thread cache upvotes in sync so sort-by-upvoted is accurate.
+			var threadEntry = null;
+			for ( var i = 0; i < threads.length; i++ ) {
+				if ( parseInt( threads[ i ].el.dataset.questionId, 10 ) === questionId ) {
+					threadEntry         = threads[ i ];
+					threadEntry.upvotes = newCount;
+					break;
+				}
+			}
+
+			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			fetch( ( settings.restUrl || '' ) + 'votes', {
+				method:      'POST',
+				credentials: 'same-origin',
+				headers:     {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce':   settings.nonce || '',
+				},
+				body: JSON.stringify( {
+					object_type: 'question',
+					object_id:   questionId,
+				} ),
+			} )
+				.then( function ( response ) {
+					return response.json().then( function ( data ) {
+						if ( ! response.ok ) {
+							throw new Error(
+								data.message ||
+								i18n( 'errorGeneric', 'Something went wrong. Please try again.' )
+							);
+						}
+						return data;
+					} );
+				} )
+				.then( function ( data ) {
+					// Confirm with the server's authoritative count.
+					if ( countEl ) {
+						countEl.textContent = data.count;
+					}
+					btn.classList.toggle( 'is-voted', data.voted );
+					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+					if ( threadEntry ) {
+						threadEntry.upvotes = data.count;
+					}
+				} )
+				.catch( function () {
+					// Revert the optimistic update.
+					btn.classList.toggle( 'is-voted', isVoted );
+					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					if ( countEl ) {
+						countEl.textContent = oldCount;
+					}
+					if ( threadEntry ) {
+						threadEntry.upvotes = oldCount;
+					}
+				} )
+				.finally( function () {
+					btn.disabled = false;
+				} );
+		} );
 	}
 
 	// =========================================================================

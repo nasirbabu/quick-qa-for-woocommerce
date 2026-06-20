@@ -103,6 +103,27 @@ class Quick_Qa_For_Woocommerce_Public {
 		);
 		$questions = $this->get_approved_questions( $product_id );
 
+		// Determine which questions the current user has already upvoted.
+		$user_voted_ids = array();
+		if ( $is_logged_in && ! empty( $questions ) ) {
+			$question_ids   = array_map( 'absint', wp_list_pluck( $questions, 'id' ) );
+			$user_voted_ids = $this->get_user_question_votes( absint( $current_user->ID ), $question_ids );
+		}
+
+		// Determine which answers the current user has marked as helpful.
+		$user_helpful_ids = array();
+		if ( $is_logged_in && ! empty( $questions ) ) {
+			$all_answer_ids = array();
+			foreach ( $questions as $q ) {
+				foreach ( $q->answers as $a ) {
+					$all_answer_ids[] = (int) $a->id;
+				}
+			}
+			if ( ! empty( $all_answer_ids ) ) {
+				$user_helpful_ids = $this->get_user_answer_votes( absint( $current_user->ID ), $all_answer_ids );
+			}
+		}
+
 		include plugin_dir_path( __FILE__ ) . 'partials/quick-qa-tab.php';
 	}
 
@@ -183,6 +204,75 @@ class Quick_Qa_For_Woocommerce_Public {
 				...$question_ids
 			)
 		);
+	}
+
+	/**
+	 * Fetch the IDs of questions the given user has upvoted.
+	 *
+	 * Used to set the initial `is-voted` state on upvote buttons without
+	 * requiring a separate per-question query (single IN() query).
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  int   $user_id      WordPress user ID.
+	 * @param  int[] $question_ids Question IDs to check.
+	 * @return int[]               Subset of $question_ids the user has upvoted.
+	 * @global wpdb $wpdb
+	 */
+	private function get_user_question_votes( $user_id, array $question_ids ) {
+		if ( ! $user_id || empty( $question_ids ) ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		$votes_table  = $wpdb->prefix . 'quick_qa_votes';
+		$placeholders = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
+		$args         = array_merge( array( $user_id ), $question_ids );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$voted_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT object_id FROM {$votes_table} WHERE user_id = %d AND object_type = 'question' AND object_id IN ( {$placeholders} )",
+				...$args
+			)
+		);
+
+		return array_map( 'absint', $voted_ids ?: array() );
+	}
+
+	/**
+	 * Fetch the IDs of answers the given user has marked as helpful.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  int   $user_id    WordPress user ID.
+	 * @param  int[] $answer_ids Answer IDs to check.
+	 * @return int[]             Subset of $answer_ids the user has voted helpful.
+	 * @global wpdb $wpdb
+	 */
+	private function get_user_answer_votes( $user_id, array $answer_ids ) {
+		if ( ! $user_id || empty( $answer_ids ) ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		$votes_table  = $wpdb->prefix . 'quick_qa_votes';
+		$placeholders = implode( ', ', array_fill( 0, count( $answer_ids ), '%d' ) );
+		$args         = array_merge( array( $user_id ), $answer_ids );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$voted_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT object_id FROM {$votes_table} WHERE user_id = %d AND object_type = 'answer' AND object_id IN ( {$placeholders} )",
+				...$args
+			)
+		);
+
+		return array_map( 'absint', $voted_ids ?: array() );
 	}
 
 	/**
@@ -285,9 +375,12 @@ class Quick_Qa_For_Woocommerce_Public {
 					'questionCount'  => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Plural. */
 					'questionsCount' => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
-					'collapse'       => __( 'Collapse', 'quick-qa-for-woocommerce' ),
-					'oneAnswer'      => __( '1 answer', 'quick-qa-for-woocommerce' ),
-					'answers'        => __( 'answers', 'quick-qa-for-woocommerce' ),
+					'collapse'         => __( 'Collapse', 'quick-qa-for-woocommerce' ),
+					'oneAnswer'        => __( '1 answer', 'quick-qa-for-woocommerce' ),
+					'answers'          => __( 'answers', 'quick-qa-for-woocommerce' ),
+					'noAnswersYet'     => __( 'No answers yet', 'quick-qa-for-woocommerce' ),
+					'answerMinLength'  => __( 'Your answer must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'submitAnswer'     => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);
