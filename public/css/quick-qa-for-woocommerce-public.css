@@ -18,6 +18,7 @@
 	--qa-pad:        16px;
 	--qa-gap:        14px;
 
+	position:    relative; /* anchor for the flag modal backdrop */
 	font-size:   var(--qa-fs-base);
 	color:       #1f1d1a;
 	font-family: inherit;
@@ -738,6 +739,111 @@
 
 .qa-widget .qa-load-more-btn:hover {
 	border-color: #aaa;
+}
+
+/* ============================================================
+   Flag link (subtle, sits next to the thread footer links)
+   ============================================================ */
+.qa-widget .qa-flag-link {
+	opacity: 0.6;
+}
+
+.qa-widget .qa-flag-link:hover {
+	opacity:    1;
+	color:      #A32D2D;
+}
+
+/* ============================================================
+   Flag modal — backdrop anchored to .qa-widget
+   ============================================================ */
+.qa-flag-modal-backdrop {
+	position:        absolute;
+	inset:           0;
+	background:      rgba(0, 0, 0, 0.35);
+	display:         flex;
+	align-items:     center;
+	justify-content: center;
+	z-index:         50;
+	border-radius:   var(--qa-radius, 8px);
+}
+
+.qa-flag-modal {
+	background:    #fff;
+	border-radius: 8px;
+	padding:       22px 26px;
+	max-width:     340px;
+	width:         calc(100% - 48px);
+	box-shadow:    0 10px 32px rgba(0, 0, 0, 0.18);
+}
+
+.qa-flag-modal-title {
+	font-size:   16px;
+	font-weight: 600;
+	color:       #1f1d1a;
+	margin:      0 0 6px;
+}
+
+.qa-flag-modal-sub {
+	font-size:     12px;
+	color:         #888;
+	margin-bottom: 16px;
+	line-height:   1.5;
+}
+
+.qa-flag-reasons {
+	display:        flex;
+	flex-direction: column;
+	gap:            4px;
+	margin-bottom:  16px;
+}
+
+.qa-flag-reason-btn {
+	padding:       10px 12px;
+	border:        1px solid #ebebeb;
+	border-radius: 6px;
+	cursor:        pointer;
+	font-size:     13px;
+	background:    #fff;
+	text-align:    left;
+	font-family:   inherit;
+	color:         #1f1d1a;
+	transition:    background 0.12s, border-color 0.12s;
+}
+
+.qa-flag-reason-btn:hover {
+	background:   #FAFAF8;
+	border-color: #d0d0d0;
+}
+
+.qa-flag-actions {
+	display:         flex;
+	justify-content: flex-end;
+}
+
+/* ============================================================
+   Toast notification
+   ============================================================ */
+.qa-toast {
+	position:   fixed;
+	bottom:     24px;
+	left:       50%;
+	transform:  translateX(-50%) translateY(8px);
+	background: #1f1d1a;
+	color:      #fff;
+	padding:    10px 20px;
+	border-radius: 6px;
+	font-size:  13px;
+	z-index:    99999;
+	opacity:    0;
+	transition: opacity 0.2s, transform 0.2s;
+	pointer-events: none;
+	white-space: nowrap;
+	font-family: inherit;
+}
+
+.qa-toast--visible {
+	opacity:   1;
+	transform: translateX(-50%) translateY(0);
 }
 
 /* ============================================================

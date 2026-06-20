@@ -64,6 +64,8 @@
 		bindVoteButtons();
 		bindAnswerForm();
 		bindHelpfulVote();
+		bindShowMore();
+		bindFlagButtons();
 	} );
 
 	// =========================================================================
@@ -88,6 +90,8 @@
 
 	function applyFiltersAndSearch() {
 		var query        = currentSearch.toLowerCase().trim();
+		var activeFilter = currentFilter !== 'all';
+		var isFiltering  = query || activeFilter;
 		var visibleCount = 0;
 
 		threads.forEach( function ( t ) {
@@ -114,7 +118,13 @@
 			}
 		} );
 
-		updateHeaderCount( visibleCount );
+		if ( isFiltering ) {
+			updateHeaderCount( visibleCount );
+		} else {
+			// No active filter/search: show the real total from the server.
+			var total = parseInt( widget.getAttribute( 'data-total' ) || '0', 10 );
+			updateHeaderCount( total );
+		}
 		toggleNoResults( 0 === visibleCount && !! query );
 	}
 
@@ -856,6 +866,228 @@
 			errorEl.style.display = 'none';
 			errorEl.textContent   = '';
 		}
+	}
+
+	// =========================================================================
+	// Flag modal
+	// =========================================================================
+
+	var FLAG_REASONS = [
+		'Spam or promotional',
+		'Incorrect information',
+		'Offensive language',
+		'Duplicate question',
+		'Other',
+	];
+
+	/**
+	 * Delegate "⚐ Flag" button clicks from the thread list and open the modal.
+	 */
+	function bindFlagButtons() {
+		var threadList = document.getElementById( 'qa-thread-list' );
+		if ( ! threadList ) {
+			return;
+		}
+
+		threadList.addEventListener( 'click', function ( e ) {
+			var btn = e.target.closest( '[data-action="open-flag"]' );
+			if ( ! btn ) {
+				return;
+			}
+			e.stopPropagation();
+			openFlagModal( btn.dataset.flagType, parseInt( btn.dataset.flagId, 10 ) );
+		} );
+	}
+
+	function openFlagModal( objectType, objectId ) {
+		// Build reason buttons HTML.
+		var reasonsHtml = '';
+		for ( var i = 0; i < FLAG_REASONS.length; i++ ) {
+			reasonsHtml +=
+				'<button type="button" class="qa-flag-reason-btn" data-reason="' +
+				FLAG_REASONS[ i ] +
+				'">' +
+				FLAG_REASONS[ i ] +
+				'</button>';
+		}
+
+		var backdrop = document.createElement( 'div' );
+		backdrop.className = 'qa-flag-modal-backdrop';
+		backdrop.id        = 'qa-flag-modal-backdrop';
+		backdrop.innerHTML =
+			'<div class="qa-flag-modal">' +
+				'<h3 class="qa-flag-modal-title">Report this content</h3>' +
+				'<p class="qa-flag-modal-sub">Help us keep Q&amp;A useful. Reports are reviewed by our team.</p>' +
+				'<div class="qa-flag-reasons">' + reasonsHtml + '</div>' +
+				'<div class="qa-flag-actions">' +
+					'<button type="button" class="qa-form-cancel" id="qa-flag-cancel">Cancel</button>' +
+				'</div>' +
+			'</div>';
+
+		widget.style.position = 'relative';
+		widget.appendChild( backdrop );
+
+		// Close on backdrop click (not on modal click).
+		backdrop.addEventListener( 'click', function ( e ) {
+			if ( e.target === backdrop ) {
+				closeFlagModal();
+			}
+		} );
+
+		document.getElementById( 'qa-flag-cancel' ).addEventListener( 'click', closeFlagModal );
+
+		backdrop.querySelectorAll( '.qa-flag-reason-btn' ).forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				submitFlag( objectType, objectId, btn.dataset.reason );
+			} );
+		} );
+	}
+
+	function closeFlagModal() {
+		var backdrop = document.getElementById( 'qa-flag-modal-backdrop' );
+		if ( backdrop && backdrop.parentNode ) {
+			backdrop.parentNode.removeChild( backdrop );
+		}
+	}
+
+	function submitFlag( objectType, objectId, reason ) {
+		closeFlagModal();
+
+		var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+		fetch( ( settings.restUrl || '' ) + 'flags', {
+			method:      'POST',
+			credentials: 'same-origin',
+			headers:     {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce':   settings.nonce || '',
+			},
+			body: JSON.stringify( {
+				object_type: objectType,
+				object_id:   objectId,
+				reason:      reason,
+			} ),
+		} )
+			.then( function ( r ) {
+				return r.json();
+			} )
+			.then( function ( data ) {
+				showFlagToast( 'Thanks for letting us know' );
+
+				// Auto-hidden: remove the flagged question thread from the DOM so it
+				// disappears without a page reload. For flagged answers we let the
+				// server handle it — the answer will be gone on the next page load.
+				if ( data.auto_hidden && 'question' === objectType ) {
+					var thread = widget.querySelector(
+						'.qa-thread[data-question-id="' + objectId + '"]'
+					);
+					if ( thread && thread.parentNode ) {
+						thread.parentNode.removeChild( thread );
+						buildThreadCache();
+						applyFiltersAndSearch();
+					}
+				}
+			} )
+			.catch( function () {
+				showFlagToast( 'Thanks for letting us know' );
+			} );
+	}
+
+	function showFlagToast( message ) {
+		var existing = document.getElementById( 'qa-flag-toast' );
+		if ( existing && existing.parentNode ) {
+			existing.parentNode.removeChild( existing );
+		}
+
+		var toast        = document.createElement( 'div' );
+		toast.id         = 'qa-flag-toast';
+		toast.className  = 'qa-toast';
+		toast.textContent = message;
+		document.body.appendChild( toast );
+
+		// Trigger enter transition on next frame.
+		setTimeout( function () {
+			toast.classList.add( 'qa-toast--visible' );
+		}, 16 );
+
+		// Remove after 3 s.
+		setTimeout( function () {
+			toast.classList.remove( 'qa-toast--visible' );
+			setTimeout( function () {
+				if ( toast.parentNode ) {
+					toast.parentNode.removeChild( toast );
+				}
+			}, 300 );
+		}, 3000 );
+	}
+
+	// =========================================================================
+	// Show more (pagination)
+	// =========================================================================
+
+	/**
+	 * Attach the "Show more questions" button click handler.
+	 *
+	 * On click: fetches the next page of questions from the REST API, appends the
+	 * returned HTML to #qa-thread-list, rebuilds the thread cache so filtering /
+	 * sorting includes the new items, and hides the button when all questions are
+	 * loaded.
+	 */
+	function bindShowMore() {
+		var btn = document.getElementById( 'qa-show-more' );
+		if ( ! btn ) {
+			return;
+		}
+
+		btn.addEventListener( 'click', function () {
+			var offset    = parseInt( btn.getAttribute( 'data-offset' ) || '0', 10 );
+			var productId = parseInt( widget.getAttribute( 'data-product-id' ) || '0', 10 );
+			var settings  = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			btn.disabled    = true;
+			btn.textContent = i18n( 'loadingMore', 'Loading…' );
+
+			fetch(
+				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=3',
+				{
+					credentials: 'same-origin',
+					headers:     { 'X-WP-Nonce': settings.nonce || '' },
+				}
+			)
+				.then( function ( r ) {
+					return r.json();
+				} )
+				.then( function ( data ) {
+					if ( data.html ) {
+						var threadList = document.getElementById( 'qa-thread-list' );
+						var tmp        = document.createElement( 'div' );
+						tmp.innerHTML  = data.html;
+						while ( tmp.firstChild ) {
+							threadList.appendChild( tmp.firstChild );
+						}
+						// Rebuild cache so new threads participate in filter / sort.
+						buildThreadCache();
+						applyFiltersAndSearch();
+					}
+
+					if ( data.has_more ) {
+						btn.setAttribute( 'data-offset', String( data.offset ) );
+						btn.disabled    = false;
+						btn.textContent = i18n( 'showMore', 'Show more questions' );
+					} else {
+						var wrap = btn.closest( '.qa-load-more' );
+						if ( wrap ) {
+							wrap.style.display = 'none';
+						} else {
+							btn.style.display = 'none';
+						}
+					}
+				} )
+				.catch( function () {
+					btn.disabled    = false;
+					btn.textContent = i18n( 'showMore', 'Show more questions' );
+				} );
+		} );
 	}
 
 	// =========================================================================

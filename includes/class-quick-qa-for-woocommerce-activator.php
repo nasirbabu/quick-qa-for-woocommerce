@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.0.0';
+	const DB_VERSION = '1.1.0';
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -77,6 +77,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 *  - wp_quick_qa_questions : one row per customer question on a product.
 	 *  - wp_quick_qa_answers   : one row per answer (admin or community).
 	 *  - wp_quick_qa_votes     : one row per upvote; unique key prevents duplicates.
+	 *  - wp_quick_qa_flags     : one row per user-flag on a question or answer.
 	 *
 	 * @since  1.0.0
 	 * @global wpdb $wpdb WordPress database abstraction object.
@@ -155,6 +156,30 @@ class Quick_Qa_For_Woocommerce_Activator {
 				created_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
 				UNIQUE KEY vote_unique (object_type,object_id,user_id)
+			) {$charset_collate};"
+		);
+
+		// ------------------------------------------------------------------ //
+		// Table: wp_quick_qa_flags
+		// ------------------------------------------------------------------ //
+		// object_type: 'question' | 'answer'.
+		// The UNIQUE KEY on (object_type, object_id, user_id) prevents a user
+		// from flagging the same item twice.
+		// When an item accumulates FLAG_THRESHOLD flags its status is set to
+		// 'flagged' and it is hidden from the public thread list.
+		// ------------------------------------------------------------------ //
+		$table_flags = $wpdb->prefix . 'quick_qa_flags';
+		dbDelta(
+			"CREATE TABLE {$table_flags} (
+				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				object_type varchar(20) NOT NULL,
+				object_id bigint(20) UNSIGNED NOT NULL,
+				user_id bigint(20) UNSIGNED NOT NULL,
+				reason varchar(100) NOT NULL DEFAULT '',
+				created_at datetime DEFAULT NULL,
+				PRIMARY KEY  (id),
+				KEY object_idx (object_type,object_id),
+				UNIQUE KEY flag_unique (object_type,object_id,user_id)
 			) {$charset_collate};"
 		);
 	}

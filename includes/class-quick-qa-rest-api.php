@@ -114,6 +114,32 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 			)
 		);
 
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)/dismiss-flags',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_dismiss_flags' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_delete_question' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+				),
+			)
+		);
+
 		// ── Public / customer routes ───────────────────────────────────────────
 
 		// Paginated question list (used by the "Show more" button on the frontend).
@@ -193,6 +219,36 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 						},
 						/* translators: REST API parameter description. */
 						'description'       => __( 'The answer text (10–2000 characters).', 'quick-qa-for-woocommerce' ),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/flags',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'submit_flag' ),
+				'permission_callback' => array( $this, 'require_login' ),
+				'args'                => array(
+					'object_type' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'enum'              => array( 'question', 'answer' ),
+						'sanitize_callback' => 'sanitize_key',
+					),
+					'object_id'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'reason'      => array(
+						'required'          => false,
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -333,7 +389,53 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 		}
 
 		foreach ( $questions as $q ) {
-			$q->answers = $answers_map[ (int) $q->id ] ?? array();
+			$q->answers    = $answers_map[ (int) $q->id ] ?? array();
+			$q->flag_count = 0;
+			$q->flags      = array();
+		}
+
+		// Attach flag records for questions that were auto-hidden (status = 'flagged').
+		$flagged_q_ids = array_values( array_filter(
+			$question_ids,
+			function ( $id ) use ( $questions ) {
+				foreach ( $questions as $q ) {
+					if ( (int) $q->id === $id && $q->status === 'flagged' ) {
+						return true;
+					}
+				}
+				return false;
+			}
+		) );
+
+		if ( ! empty( $flagged_q_ids ) ) {
+			$flags_table = $wpdb->prefix . 'quick_qa_flags';
+			$ph_f        = implode( ', ', array_fill( 0, count( $flagged_q_ids ), '%d' ) );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$flags = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT f.object_id, f.reason, f.created_at,
+					        COALESCE(u.display_name, 'A customer') AS reporter_name
+					 FROM {$flags_table} f
+					 LEFT JOIN {$wpdb->users} u ON u.ID = f.user_id
+					 WHERE f.object_type = 'question' AND f.object_id IN ({$ph_f})
+					 ORDER BY f.created_at ASC",
+					...$flagged_q_ids
+				)
+			);
+
+			$flags_map = array();
+			foreach ( $flags as $flag ) {
+				$flags_map[ (int) $flag->object_id ][] = $flag;
+			}
+
+			foreach ( $questions as $q ) {
+				if ( isset( $flags_map[ (int) $q->id ] ) ) {
+					$q->flag_count = count( $flags_map[ (int) $q->id ] );
+					$q->flags      = $flags_map[ (int) $q->id ];
+				}
+			}
 		}
 
 		return rest_ensure_response( $questions );
@@ -473,6 +575,96 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				'answer_id'   => (int) $wpdb->insert_id,
 			)
 		);
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}/dismiss-flags
+	 *
+	 * Restores a flagged question to 'approved' and deletes its flag records.
+	 *
+	 * @since  1.1.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_dismiss_flags( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id              = (int) $request->get_param( 'id' );
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$flags_table     = $wpdb->prefix . 'quick_qa_flags';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$questions_table,
+			array(
+				'status'     => 'approved',
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete(
+			$flags_table,
+			array(
+				'object_type' => 'question',
+				'object_id'   => $id,
+			),
+			array( '%s', '%d' )
+		);
+
+		return rest_ensure_response( array( 'id' => $id, 'status' => 'approved' ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}/delete
+	 *
+	 * Hard-deletes a question and all its answers, votes, and flag records.
+	 *
+	 * @since  1.1.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_delete_question( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id              = (int) $request->get_param( 'id' );
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+		$flags_table     = $wpdb->prefix . 'quick_qa_flags';
+		$votes_table     = $wpdb->prefix . 'quick_qa_votes';
+
+		// Delete answer-level flags first.
+		$answer_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id FROM {$answers_table} WHERE question_id = %d",
+				$id
+			)
+		);
+		foreach ( $answer_ids as $aid ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->delete(
+				$flags_table,
+				array( 'object_type' => 'answer', 'object_id' => (int) $aid ),
+				array( '%s', '%d' )
+			);
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $flags_table,     array( 'object_type' => 'question', 'object_id' => $id ), array( '%s', '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $votes_table,     array( 'object_type' => 'question', 'object_id' => $id ), array( '%s', '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $answers_table,   array( 'question_id' => $id ), array( '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $questions_table, array( 'id'          => $id ), array( '%d' ) );
+
+		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
 	}
 
 	// =========================================================================
@@ -966,6 +1158,107 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				'id'      => (int) $wpdb->insert_id,
 				'status'  => $status,
 				'message' => $message,
+			)
+		);
+	}
+
+	// =========================================================================
+	// Flags endpoint callback
+	// =========================================================================
+
+	/**
+	 * Handle POST /wp-json/quick-qa/v1/flags.
+	 *
+	 * Records a flag from the current user. Duplicate flags (same user, same
+	 * item) are silently accepted so the "Thanks" confirmation always shows.
+	 * When an item accumulates FLAG_THRESHOLD flags its public status is
+	 * changed to 'flagged', removing it from the approved thread list.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Incoming request.
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function submit_flag( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$flag_threshold = 3;
+
+		$user_id     = get_current_user_id();
+		$object_type = $request->get_param( 'object_type' );
+		$object_id   = $request->get_param( 'object_id' );
+		$reason      = $request->get_param( 'reason' );
+
+		// Verify the target exists and is publicly visible (approved).
+		$obj_table = 'question' === $object_type
+			? $wpdb->prefix . 'quick_qa_questions'
+			: $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id FROM {$obj_table} WHERE id = %d AND status = 'approved'",
+				$object_id
+			)
+		);
+
+		if ( ! $exists ) {
+			return new WP_Error(
+				'quick_qa_not_found',
+				__( 'The item you are trying to flag does not exist.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$flags_table = $wpdb->prefix . 'quick_qa_flags';
+
+		// Insert the flag. The UNIQUE KEY silently rejects duplicates via
+		// INSERT IGNORE so a user who flags the same item twice gets no error.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"INSERT IGNORE INTO {$flags_table} (object_type, object_id, user_id, reason, created_at)
+				 VALUES (%s, %d, %d, %s, %s)",
+				$object_type,
+				$object_id,
+				$user_id,
+				$reason,
+				current_time( 'mysql', true )
+			)
+		);
+
+		// Count total flags for this item and auto-hide if threshold is met.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$flag_count = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$flags_table} WHERE object_type = %s AND object_id = %d",
+				$object_type,
+				$object_id
+			)
+		);
+
+		if ( $flag_count >= $flag_threshold ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->update(
+				$obj_table,
+				array(
+					'status'     => 'flagged',
+					'updated_at' => current_time( 'mysql', true ),
+				),
+				array( 'id' => $object_id ),
+				array( '%s', '%s' ),
+				array( '%d' )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'flagged'     => true,
+				'flag_count'  => $flag_count,
+				'auto_hidden' => $flag_count >= $flag_threshold,
 			)
 		);
 	}

@@ -6,6 +6,7 @@ const TABS = [
   { key: 'all',       label: 'All' },
   { key: 'pending-q', label: 'Pending questions' },
   { key: 'pending-a', label: 'Pending answers' },
+  { key: 'flagged',   label: 'Flagged' },
   { key: 'answered',  label: 'Answered' },
   { key: 'rejected',  label: 'Rejected' },
 ];
@@ -55,6 +56,8 @@ function transformItem(q) {
   let tab, status;
   if (q.status === 'rejected') {
     tab = 'rejected'; status = 'rejected';
+  } else if (q.status === 'flagged') {
+    tab = 'flagged'; status = 'flagged';
   } else if (q.status === 'pending') {
     tab = 'pending-q'; status = 'pending';
   } else {
@@ -101,8 +104,12 @@ function transformItem(q) {
       time:   timeAgo(pa.created_at),
       meta:   [pa.answer_type === 'admin' ? 'Staff answer' : 'Community answer'],
     } : null,
-    flagCount: 0,
-    flags:     [],
+    flagCount: parseInt(q.flag_count, 10) || 0,
+    flags:     (q.flags || []).map(f => ({
+      reason:   f.reason || '',
+      reporter: f.reporter_name || 'A customer',
+      time:     timeAgo(f.created_at),
+    })),
     followups: [],
   };
 }
@@ -119,6 +126,7 @@ function getCounts(questions) {
     all:         questions.length,
     'pending-q': questions.filter(q => q.tab === 'pending-q').length,
     'pending-a': questions.filter(q => q.tab === 'pending-a').length,
+    flagged:     questions.filter(q => q.tab === 'flagged').length,
     answered:    questions.filter(q => q.tab === 'answered').length,
     rejected:    questions.filter(q => q.tab === 'rejected').length,
   };
@@ -215,6 +223,20 @@ export default function AllQA() {
         await loadQuestions();
         setActiveTab('answered');
         setSelectedId(id);
+
+      } else if (action === 'dismiss-flags') {
+        await apiFetch(`admin/questions/${item.dbId}/dismiss-flags`, { method: 'POST', body: {} });
+        const refreshed = await loadQuestions();
+        const remaining = filterByTab(refreshed, 'flagged').filter(q => q.id !== id);
+        setSelectedId(remaining[0] ? remaining[0].id : null);
+        if (filterByTab(refreshed, 'flagged').length === 0) setActiveTab('answered');
+
+      } else if (action === 'delete-flagged') {
+        await apiFetch(`admin/questions/${item.dbId}/delete`, { method: 'POST', body: {} });
+        const refreshed = await loadQuestions();
+        const remaining = filterByTab(refreshed, 'flagged');
+        setSelectedId(remaining[0] ? remaining[0].id : null);
+        if (remaining.length === 0) setActiveTab('all');
       }
     } catch (err) {
       console.error('Quick QA action failed:', err.message);
@@ -260,7 +282,11 @@ export default function AllQA() {
         {TABS.map(tab => (
           <div
             key={tab.key}
-            className={`qq-tab ${activeTab === tab.key ? 'active' : ''}`}
+            className={[
+              'qq-tab',
+              activeTab === tab.key ? 'active' : '',
+              tab.key === 'flagged' && counts.flagged > 0 ? 'qq-tab-warn' : '',
+            ].filter(Boolean).join(' ')}
             onClick={() => handleTabChange(tab.key)}
           >
             {tab.label}

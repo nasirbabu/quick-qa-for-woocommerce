@@ -101,7 +101,10 @@ class Quick_Qa_For_Woocommerce_Public {
 			absint( $current_user->ID ),
 			$product_id
 		);
-		$questions = $this->get_approved_questions( $product_id );
+		$per_page    = 3;
+		$questions   = $this->get_approved_questions( $product_id, 0, $per_page );
+		$total_count = $this->get_total_approved_questions_count( $product_id );
+		$has_more    = $total_count > count( $questions );
 
 		// Determine which questions the current user has already upvoted.
 		$user_voted_ids = array();
@@ -139,7 +142,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * @return object[]        Array of question row objects.
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_questions( $product_id ) {
+	private function get_approved_questions( $product_id, $offset = 0, $limit = 3 ) {
 		global $wpdb;
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
@@ -148,9 +151,10 @@ class Quick_Qa_For_Woocommerce_Public {
 		$questions = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d",
+				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d OFFSET %d",
 				$product_id,
-				absint( get_option( 'quick_qa_per_page', 10 ) )
+				$limit,
+				$offset
 			)
 		);
 
@@ -172,6 +176,30 @@ class Quick_Qa_For_Woocommerce_Public {
 		}
 
 		return $questions;
+	}
+
+	/**
+	 * Count all approved questions for a product (used for pagination).
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  int $product_id WooCommerce product post ID.
+	 * @return int
+	 * @global wpdb $wpdb
+	 */
+	public function get_total_approved_questions_count( $product_id ) {
+		global $wpdb;
+
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$questions_table} WHERE product_id = %d AND status = 'approved'",
+				$product_id
+			)
+		);
 	}
 
 	/**
@@ -381,6 +409,8 @@ class Quick_Qa_For_Woocommerce_Public {
 					'noAnswersYet'     => __( 'No answers yet', 'quick-qa-for-woocommerce' ),
 					'answerMinLength'  => __( 'Your answer must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
 					'submitAnswer'     => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
+					'showMore'         => __( 'Show more questions', 'quick-qa-for-woocommerce' ),
+					'loadingMore'      => __( 'Loading…', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);

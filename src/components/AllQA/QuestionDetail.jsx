@@ -279,6 +279,89 @@ function AnsweredDetail({ item, onPublish, saving }) {
   );
 }
 
+// ── Flagged question (auto-hidden, awaiting admin review) ─────────────────────
+
+function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
+  return (
+    <>
+      <div className="qq-conv-head">
+        <div>
+          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
+            Auto-hidden after {item.flagCount} flag{item.flagCount !== 1 ? 's' : ''} · awaiting your review
+          </div>
+        </div>
+      </div>
+
+      <div className="qq-flag-banner">
+        <div className="qq-flag-banner-head">
+          <div className="qq-flag-banner-title">
+            <div className="qq-flag-icon">!</div>
+            Flagged {item.flagCount} time{item.flagCount !== 1 ? 's' : ''}
+            {item.flags.length > 1 ? ` by ${item.flags.length} different customers` : ''}
+          </div>
+          {item.flags.length > 0 && (
+            <div className="qq-flag-banner-meta">First flag: {item.flags[0].time}</div>
+          )}
+        </div>
+        {item.flags.length > 0 && (
+          <div className="qq-flag-list">
+            {item.flags.map((f, i) => (
+              <div key={i} className="qq-flag-item">
+                <span className="qq-flag-reason">{f.reason}</span>
+                <span className="qq-flag-reporter">{f.reporter}</span>
+                <span className="qq-flag-time">{f.time}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="qq-conv-body">
+        <div className="qq-msg">
+          <Avatar initials={item.avatar} role={item.role} />
+          <div className="qq-msg-body">
+            <div className="qq-msg-meta">
+              <b>{item.customer}</b>
+              <RoleBadge role={item.role} />
+              <span>· {item.time}</span>
+            </div>
+            <div className="qq-flagged-box">
+              <div className="qq-msg-text">{item.text}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="qq-action-bar">
+        <div className="qq-action-row">
+          <div className="qq-action-info">
+            {item.flags.length > 0
+              ? <>Multiple customers reported this as <b>{item.flags[0].reason.toLowerCase()}</b>.</>
+              : 'This content was flagged by customers.'}
+          </div>
+          <div className="qq-action-buttons">
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onDismiss}
+              disabled={saving}
+            >
+              Dismiss flags
+            </button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={onDelete}
+              disabled={saving}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Rejected question ─────────────────────────────────────────────────────────
 
 function RejectedDetail({ item, onRestore, saving }) {
@@ -347,9 +430,19 @@ export default function QuestionDetail({ item, onAction, saving }) {
   const handleRejectAnswer     = () => onAction('reject-answer', item.id);
   const handlePublish          = (reply) => onAction('publish', item.id, reply);
   const handleRestore          = () => onAction('approve-question', item.id);
+  const handleDismissFlags     = () => onAction('dismiss-flags', item.id);
+  const handleDeleteFlagged    = () => onAction('delete-flagged', item.id);
 
   return (
     <div className="qq-conv">
+      {item.status === 'flagged' && (
+        <FlaggedDetail
+          item={item}
+          onDismiss={handleDismissFlags}
+          onDelete={handleDeleteFlagged}
+          saving={saving}
+        />
+      )}
       {item.status === 'pending' && (
         <PendingQuestionDetail
           item={item}

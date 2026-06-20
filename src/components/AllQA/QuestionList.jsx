@@ -4,6 +4,7 @@ function StatusPill({ status }) {
   const map = {
     pending:          ['pending',        'Pending'],
     'pending-answer': ['pending-answer', 'Review answer'],
+    flagged:          ['flagged',        'Flagged'],
     answered:         ['answered',       'Answered'],
     rejected:         ['rejected',       'Rejected'],
   };
@@ -44,6 +45,9 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
             <div className="qq-row-q">{displayText}</div>
             <div className="qq-row-foot">
               <span>↑ {item.upvotes}</span>
+              {item.status === 'flagged' && (
+                <span className="qq-flag-tag">{item.flagCount} flag{item.flagCount !== 1 ? 's' : ''}</span>
+              )}
               {showAllBadge && <StatusPill status={item.status} />}
             </div>
           </div>
