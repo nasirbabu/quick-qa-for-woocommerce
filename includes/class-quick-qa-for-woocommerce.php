@@ -174,6 +174,9 @@ class Quick_Qa_For_Woocommerce {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		// Register the Q&A tab on WooCommerce product pages.
+		$this->loader->add_filter( 'woocommerce_product_tabs', $plugin_public, 'register_product_tab' );
+
 	}
 
 	/**
