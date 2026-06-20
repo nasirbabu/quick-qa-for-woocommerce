@@ -204,6 +204,11 @@
 		}
 
 		clearFormError();
+
+		// Reset reCAPTCHA so a re-open shows a fresh unchecked widget.
+		if ( typeof grecaptcha !== 'undefined' && typeof grecaptcha.reset === 'function' ) {
+			grecaptcha.reset();
+		}
 	}
 
 	// =========================================================================
@@ -273,6 +278,17 @@
 				return;
 			}
 
+			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			// reCAPTCHA check — must be completed before submit.
+			if ( settings.recaptchaEnabled === '1' ) {
+				var token = ( typeof grecaptcha !== 'undefined' ) ? grecaptcha.getResponse() : '';
+				if ( ! token ) {
+					showFormError( i18n( 'recaptchaRequired', 'Please complete the reCAPTCHA check.' ) );
+					return;
+				}
+			}
+
 			// Loading state.
 			submitBtn.disabled    = true;
 			submitBtn.textContent = i18n( 'submitting', 'Submitting…' );
@@ -289,7 +305,10 @@
 				body.guest_email = guestEmailEl.value.trim();
 			}
 
-			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+			// Include reCAPTCHA token when present.
+			if ( settings.recaptchaEnabled === '1' && typeof grecaptcha !== 'undefined' ) {
+				body.recaptcha_token = grecaptcha.getResponse();
+			}
 
 			fetch( ( settings.restUrl || '' ) + 'questions', {
 				method:      'POST',

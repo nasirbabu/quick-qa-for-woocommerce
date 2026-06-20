@@ -195,6 +195,23 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/admin/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_settings' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'save_settings' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/answers',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -668,6 +685,54 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 	}
 
 	// =========================================================================
+	// Settings
+	// =========================================================================
+
+	/**
+	 * GET /wp-json/quick-qa/v1/admin/settings
+	 */
+	public function get_settings( WP_REST_Request $request ) {
+		return rest_ensure_response( array(
+			'who_can_ask'              => (string) get_option( 'quick_qa_who_can_ask', 'both' ),
+			'require_email_for_guests' => (bool) get_option( 'quick_qa_require_email_for_guests', true ),
+			'enable_honeypot'          => (bool) get_option( 'quick_qa_enable_honeypot', false ),
+			'submission_rate_limit'    => (int) get_option( 'quick_qa_submission_rate_limit', 3 ),
+			'recaptcha_enabled'        => (bool) get_option( 'quick_qa_recaptcha_enabled', false ),
+			'recaptcha_site_key'       => (string) get_option( 'quick_qa_recaptcha_site_key', '' ),
+			'recaptcha_secret_key'     => (string) get_option( 'quick_qa_recaptcha_secret_key', '' ),
+		) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/settings
+	 */
+	public function save_settings( WP_REST_Request $request ) {
+		$body = $request->get_json_params();
+
+		$string_fields = array( 'who_can_ask', 'recaptcha_site_key', 'recaptcha_secret_key' );
+		$bool_fields   = array( 'require_email_for_guests', 'enable_honeypot', 'recaptcha_enabled' );
+		$int_fields    = array( 'submission_rate_limit' );
+
+		foreach ( $string_fields as $key ) {
+			if ( array_key_exists( $key, $body ) ) {
+				update_option( 'quick_qa_' . $key, sanitize_text_field( $body[ $key ] ) );
+			}
+		}
+		foreach ( $bool_fields as $key ) {
+			if ( array_key_exists( $key, $body ) ) {
+				update_option( 'quick_qa_' . $key, (bool) $body[ $key ] );
+			}
+		}
+		foreach ( $int_fields as $key ) {
+			if ( array_key_exists( $key, $body ) ) {
+				update_option( 'quick_qa_' . $key, max( 1, (int) $body[ $key ] ) );
+			}
+		}
+
+		return $this->get_settings( $request );
+	}
+
+	// =========================================================================
 	// Argument schema
 	// =========================================================================
 
@@ -707,13 +772,19 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 				/* translators: REST API parameter description. */
 				'description'       => __( 'Display name for guest (non-logged-in) submitters.', 'quick-qa-for-woocommerce' ),
 			),
-			'guest_email'   => array(
+			'guest_email'     => array(
 				'required'          => false,
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
 				/* translators: REST API parameter description. */
 				'description'       => __( 'Email for guest submitters (optional; used for answer notifications).', 'quick-qa-for-woocommerce' ),
+			),
+			'recaptcha_token' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
 			),
 		);
 	}
@@ -932,6 +1003,50 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function submit_question( WP_REST_Request $request ) {
+
+		// 0. reCAPTCHA verification (when enabled and configured).
+		$recaptcha_enabled    = (bool) get_option( 'quick_qa_recaptcha_enabled', false );
+		$recaptcha_secret_key = get_option( 'quick_qa_recaptcha_secret_key', '' );
+
+		if ( $recaptcha_enabled && $recaptcha_secret_key ) {
+			$token = $request->get_param( 'recaptcha_token' );
+			if ( empty( $token ) ) {
+				return new WP_Error(
+					'quick_qa_recaptcha_missing',
+					__( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 422 )
+				);
+			}
+
+			$verify = wp_remote_post(
+				'https://www.google.com/recaptcha/api/siteverify',
+				array(
+					'body'    => array(
+						'secret'   => $recaptcha_secret_key,
+						'response' => $token,
+						'remoteip' => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : '',
+					),
+					'timeout' => 10,
+				)
+			);
+
+			if ( is_wp_error( $verify ) ) {
+				return new WP_Error(
+					'quick_qa_recaptcha_error',
+					__( 'reCAPTCHA verification failed. Please try again.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 503 )
+				);
+			}
+
+			$result = json_decode( wp_remote_retrieve_body( $verify ), true );
+			if ( empty( $result['success'] ) ) {
+				return new WP_Error(
+					'quick_qa_recaptcha_failed',
+					__( 'reCAPTCHA verification failed. Please try again.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 422 )
+				);
+			}
+		}
 
 		// 1. Rate limit.
 		$rate_check = $this->check_rate_limit();

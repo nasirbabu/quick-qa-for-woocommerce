@@ -127,6 +127,10 @@ class Quick_Qa_For_Woocommerce_Public {
 			}
 		}
 
+		// reCAPTCHA — show widget only when both enabled and site key is configured.
+		$recaptcha_site_key = (string) get_option( 'quick_qa_recaptcha_site_key', '' );
+		$show_recaptcha     = (bool) get_option( 'quick_qa_recaptcha_enabled', false ) && ! empty( $recaptcha_site_key );
+
 		include plugin_dir_path( __FILE__ ) . 'partials/quick-qa-tab.php';
 	}
 
@@ -378,6 +382,20 @@ class Quick_Qa_For_Woocommerce_Public {
 			true
 		);
 
+		// Conditionally load Google reCAPTCHA v2 API.
+		$recaptcha_enabled  = (bool) get_option( 'quick_qa_recaptcha_enabled', false );
+		$recaptcha_site_key = (string) get_option( 'quick_qa_recaptcha_site_key', '' );
+
+		if ( $recaptcha_enabled && $recaptcha_site_key ) {
+			wp_enqueue_script(
+				'google-recaptcha',
+				'https://www.google.com/recaptcha/api.js',
+				array(),
+				null,
+				true
+			);
+		}
+
 		/**
 		 * Pass REST API URL, nonce, and translatable strings to the frontend JS.
 		 *
@@ -389,20 +407,22 @@ class Quick_Qa_For_Woocommerce_Public {
 			$this->plugin_name,
 			'quickQaSettings',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-				'i18n'    => array(
-					'askQuestion'    => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
-					'cancel'         => __( 'Cancel', 'quick-qa-for-woocommerce' ),
-					'submit'         => __( 'Submit question', 'quick-qa-for-woocommerce' ),
-					'submitting'     => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
-					'minLength'      => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
-					'nameRequired'   => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
-					'errorGeneric'   => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
+				'restUrl'          => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'recaptchaEnabled' => ( $recaptcha_enabled && $recaptcha_site_key ) ? '1' : '0',
+				'i18n'             => array(
+					'askQuestion'      => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
+					'cancel'           => __( 'Cancel', 'quick-qa-for-woocommerce' ),
+					'submit'           => __( 'Submit question', 'quick-qa-for-woocommerce' ),
+					'submitting'       => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
+					'minLength'        => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'nameRequired'     => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'recaptchaRequired' => __( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
+					'errorGeneric'     => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Singular. */
-					'questionCount'  => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
+					'questionCount'    => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Plural. */
-					'questionsCount' => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
+					'questionsCount'   => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
 					'collapse'         => __( 'Collapse', 'quick-qa-for-woocommerce' ),
 					'oneAnswer'        => __( '1 answer', 'quick-qa-for-woocommerce' ),
 					'answers'          => __( 'answers', 'quick-qa-for-woocommerce' ),

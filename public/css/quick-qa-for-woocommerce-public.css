@@ -173,6 +173,11 @@
 	line-height:   1.4;
 }
 
+/* reCAPTCHA widget wrapper */
+.qa-widget .qa-recaptcha-wrap {
+	margin-bottom: 14px;
+}
+
 .qa-widget .qa-form-actions {
 	display:         flex;
 	justify-content: space-between;

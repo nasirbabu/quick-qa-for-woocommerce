@@ -148,6 +148,14 @@ $question_count = count( $questions );
 
 		<input type="hidden" id="qa-product-id" value="<?php echo esc_attr( $product_id ); ?>" />
 
+		<?php if ( $show_recaptcha ) : ?>
+		<div class="qa-recaptcha-wrap">
+			<div class="g-recaptcha"
+				data-sitekey="<?php echo esc_attr( $recaptcha_site_key ); ?>">
+			</div>
+		</div>
+		<?php endif; ?>
+
 		<div class="qa-form-actions">
 			<button type="button" class="qa-form-cancel" id="qa-cancel-ask">
 				<?php esc_html_e( 'Cancel', 'quick-qa-for-woocommerce' ); ?>
