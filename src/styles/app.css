@@ -854,7 +854,7 @@ a { color: var(--coral); text-decoration: none; }
 
 /* Page footer */
 .qq-page-foot {
-  padding: 14px 20px;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -862,6 +862,28 @@ a { color: var(--coral); text-decoration: none; }
   color: var(--text-4);
   border-top: 0.5px solid var(--cream-3);
   flex-shrink: 0;
+}
+.qq-page-nav {
+  display: flex;
+  gap: 4px;
+}
+.qq-page-btn {
+  padding: 4px 10px;
+  border: 0.5px solid var(--cream-3);
+  border-radius: 5px;
+  background: var(--cream-2);
+  color: var(--text-3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.qq-page-btn:hover:not(:disabled) {
+  background: var(--cream-3);
+  color: var(--text);
+}
+.qq-page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* Coming soon placeholder */

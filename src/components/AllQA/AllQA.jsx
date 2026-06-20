@@ -129,6 +129,8 @@ function getProductsInTab(items) {
   return Object.entries(map).sort((a, b) => b[1] - a[1]);
 }
 
+const PAGE_SIZE = 20;
+
 const SORT_OPTIONS = [
   { key: 'recent',  label: 'Most recent' },
   { key: 'upvoted', label: 'Most upvoted' },
@@ -234,6 +236,7 @@ export default function AllQA() {
   const [sortBy,         setSortBy]         = useState('recent');
   const [sortOpen,       setSortOpen]       = useState(false);
   const [selectedIds,    setSelectedIds]    = useState([]);
+  const [page,           setPage]           = useState(1);
   const filterRef = useRef(null);
   const sortRef   = useRef(null);
 
@@ -273,6 +276,9 @@ export default function AllQA() {
 
   const selectedItem = questions.find(q => q.id === selectedId) || null;
   const products     = getProductsInTab(tabItems);
+  const totalPages   = Math.max(1, Math.ceil(visibleItems.length / PAGE_SIZE));
+  const safePage     = Math.min(page, totalPages);
+  const pagedItems   = visibleItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // Close filter popover on outside click.
   useEffect(() => {
@@ -298,19 +304,22 @@ export default function AllQA() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [sortOpen]);
 
-  const bulkMode   = selectedIds.length > 0;
-  const allSelected = selectedIds.length === visibleItems.length && visibleItems.length > 0;
-  const partial     = selectedIds.length > 0 && selectedIds.length < visibleItems.length;
+  // Reset to page 1 whenever the visible set changes.
+  useEffect(() => { setPage(1); }, [activeTab, productFilter, sortBy, search]);
+
+  const bulkMode    = selectedIds.length > 0;
+  const pageIds     = pagedItems.map(q => q.id);
+  const allSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.includes(id));
+  const partial     = !allSelected && pageIds.some(id => selectedIds.includes(id));
 
   function toggleSelect(id) {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
   function handleToggleAll() {
-    const ids = visibleItems.map(q => q.id);
     if (allSelected) {
-      setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
+      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
     } else {
-      setSelectedIds(prev => [...new Set([...prev, ...ids])]);
+      setSelectedIds(prev => [...new Set([...prev, ...pageIds])]);
     }
   }
   function handleSelectAllInTab() {
@@ -567,7 +576,7 @@ export default function AllQA() {
             </div>
           )}
           <QuestionList
-            items={visibleItems}
+            items={pagedItems}
             selectedId={selectedId}
             onSelect={id => { setSelectedId(id); setSelectedIds([]); }}
             showAllBadge={activeTab === 'all'}
@@ -576,7 +585,25 @@ export default function AllQA() {
             bulkMode={bulkMode}
           />
           <div className="qq-page-foot">
-            <span>{visibleItems.length} of {counts[activeTab] ?? questions.length}</span>
+            {totalPages > 1 ? (
+              <>
+                <span>Page {safePage} of {totalPages}</span>
+                <div className="qq-page-nav">
+                  <button
+                    className="qq-page-btn"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={safePage === 1}
+                  >Prev</button>
+                  <button
+                    className="qq-page-btn"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={safePage === totalPages}
+                  >Next</button>
+                </div>
+              </>
+            ) : (
+              <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+            )}
           </div>
         </div>
 
