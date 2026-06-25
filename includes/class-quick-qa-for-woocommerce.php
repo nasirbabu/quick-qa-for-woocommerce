@@ -124,9 +124,17 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-quick-qa-for-woocommerce-public.php';
 
 		/**
-		 * The class responsible for registering and handling all REST API endpoints.
+		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-rest-api.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';
+
+		/**
+		 * REST API resource controllers — one file per resource group.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-questions.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-moderation.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-templates.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-settings.php';
 
 		$this->loader = new Quick_Qa_For_Woocommerce_Loader();
 
@@ -193,9 +201,14 @@ class Quick_Qa_For_Woocommerce {
 	 */
 	private function define_rest_hooks() {
 
-		$rest_api = new Quick_Qa_For_Woocommerce_Rest_Api();
-
-		$this->loader->add_action( 'rest_api_init', $rest_api, 'register_routes' );
+		foreach ( array(
+			new Quick_Qa_Rest_Questions(),
+			new Quick_Qa_Rest_Moderation(),
+			new Quick_Qa_Rest_Templates(),
+			new Quick_Qa_Rest_Settings(),
+		) as $controller ) {
+			$this->loader->add_action( 'rest_api_init', $controller, 'register_routes' );
+		}
 
 	}
 
