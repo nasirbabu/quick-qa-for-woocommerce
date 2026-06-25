@@ -1,4 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(settings.restUrl + path, {
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': settings.nonce,
+    },
+    method: options.method || 'GET',
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Request failed (${res.status})`);
+  }
+  return res.json();
+}
+
+// ── Shared sub-components ─────────────────────────────────────────────────────
 
 function Avatar({ initials, role }) {
   const cls = role === 'staff' ? 'qq-av staff'
@@ -15,10 +36,105 @@ function RoleBadge({ role }) {
   return <span className="qq-msg-role">Customer</span>;
 }
 
+// ── Template picker modal ─────────────────────────────────────────────────────
+
+function TemplatePicker({ onInsert, onClose }) {
+  const [templates, setTemplates] = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [search,    setSearch]    = useState('');
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    apiFetch('admin/templates')
+      .then(data => setTemplates(data || []))
+      .catch(() => setTemplates([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Auto-focus search once templates load.
+  useEffect(() => {
+    if (!loading && searchRef.current) searchRef.current.focus();
+  }, [loading]);
+
+  const filtered = search.trim()
+    ? templates.filter(t =>
+        t.name.toLowerCase().includes(search.toLowerCase()) ||
+        t.content.toLowerCase().includes(search.toLowerCase())
+      )
+    : templates;
+
+  function handleSelect(t) {
+    onInsert(t.content, t.id);
+    onClose();
+  }
+
+  return (
+    <div className="qq-modal-overlay" onClick={onClose}>
+      <div className="qq-modal qq-tpl-picker-modal" onClick={e => e.stopPropagation()}>
+        <div className="qq-modal-head">
+          <div className="qq-modal-head-text">
+            <div className="qq-modal-title">Insert a template</div>
+            <div className="qq-modal-desc">
+              Pick a template to pre-fill the answer field. You can edit it before publishing.
+            </div>
+          </div>
+          <button className="qq-modal-close" onClick={onClose}>&#x2715;</button>
+        </div>
+
+        <div className="qq-tpl-pick-search-wrap">
+          <input
+            ref={searchRef}
+            className="qq-tpl-pick-search"
+            type="text"
+            placeholder="Search templates…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="qq-tpl-pick-list">
+          {loading && (
+            <div className="qq-tpl-pick-empty">Loading templates…</div>
+          )}
+          {!loading && filtered.length === 0 && (
+            <div className="qq-tpl-pick-empty">
+              {search.trim()
+                ? 'No templates match your search.'
+                : 'No templates yet. Create some in Reply Templates.'}
+            </div>
+          )}
+          {!loading && filtered.map(t => (
+            <div key={t.id} className="qq-tpl-pick-item" onClick={() => handleSelect(t)}>
+              <div className="qq-tpl-pick-item-name">
+                {t.name}
+                <span className="qq-tpl-pick-item-cat">{t.category}</span>
+              </div>
+              <div className="qq-tpl-pick-item-preview">
+                {t.content.length > 120 ? t.content.slice(0, 120) + '…' : t.content}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="qq-modal-foot">
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Pending question (needs approval) ────────────────────────────────────────
 
 function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, saving }) {
-  const [reply, setReply] = useState('');
+  const [reply,      setReply]      = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  function handleInsert(content, templateId) {
+    setReply(content);
+    apiFetch(`admin/templates/${templateId}/use`, { method: 'POST' }).catch(() => {});
+  }
+
   return (
     <>
       <div className="qq-conv-head">
@@ -61,7 +177,11 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
             onChange={e => setReply(e.target.value)}
           />
           <div className="qq-bar">
-            <div className="qq-bar-left" />
+            <div className="qq-bar-left">
+              <span className="qq-bar-action" onClick={() => setPickerOpen(true)}>
+                Templates
+              </span>
+            </div>
             <div className="qq-bar-right">
               <button
                 className="btn btn-danger-ghost btn-sm"
@@ -88,6 +208,13 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
           </div>
         </div>
       </div>
+
+      {pickerOpen && (
+        <TemplatePicker
+          onInsert={handleInsert}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </>
   );
 }
@@ -188,12 +315,18 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
 // ── Answered / approved question ─────────────────────────────────────────────
 
 function AnsweredDetail({ item, onPublish, saving }) {
-  const [reply, setReply] = useState('');
+  const [reply,      setReply]      = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   function handleSubmit() {
     if (!reply.trim()) return;
     onPublish(reply);
     setReply('');
+  }
+
+  function handleInsert(content, templateId) {
+    setReply(content);
+    apiFetch(`admin/templates/${templateId}/use`, { method: 'POST' }).catch(() => {});
   }
 
   return (
@@ -262,7 +395,11 @@ function AnsweredDetail({ item, onPublish, saving }) {
             onChange={e => setReply(e.target.value)}
           />
           <div className="qq-bar">
-            <div className="qq-bar-left"><span>Templates</span></div>
+            <div className="qq-bar-left">
+              <span className="qq-bar-action" onClick={() => setPickerOpen(true)}>
+                Templates
+              </span>
+            </div>
             <div className="qq-bar-right">
               <button
                 className="btn btn-primary btn-sm"
@@ -275,11 +412,18 @@ function AnsweredDetail({ item, onPublish, saving }) {
           </div>
         </div>
       </div>
+
+      {pickerOpen && (
+        <TemplatePicker
+          onInsert={handleInsert}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </>
   );
 }
 
-// ── Flagged question (auto-hidden, awaiting admin review) ─────────────────────
+// ── Flagged question ──────────────────────────────────────────────────────────
 
 function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
   return (

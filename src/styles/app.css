@@ -1775,3 +1775,112 @@ a { color: var(--coral); text-decoration: none; }
   from { opacity: 0; transform: translateX(-50%) translateY(8px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+
+/* ==========================================================================
+   Template picker modal (answer composer)
+   ========================================================================== */
+
+.qq-tpl-picker-modal {
+  max-width: 520px;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  padding: 0;
+}
+
+.qq-modal-head-text { flex: 1; min-width: 0; }
+
+.qq-modal-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+.qq-tpl-pick-search-wrap {
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.qq-tpl-pick-search {
+  width: 100%;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+  outline: none;
+}
+.qq-tpl-pick-search:focus { border-color: var(--coral); }
+
+.qq-tpl-pick-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 80px;
+}
+
+.qq-tpl-pick-empty {
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.qq-tpl-pick-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.qq-tpl-pick-item:last-child { border-bottom: none; }
+.qq-tpl-pick-item:hover { background: var(--bg-2, #f7f7f7); }
+
+.qq-tpl-pick-item-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.qq-tpl-pick-item-cat {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-3);
+  background: var(--bg-2, #f0f0f0);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+.qq-tpl-pick-item-preview {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Templates" clickable link in the composer bar */
+.qq-bar-action {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+}
+.qq-bar-action:hover {
+  background: var(--bg-2, #f0f0f0);
+  color: var(--text);
+}

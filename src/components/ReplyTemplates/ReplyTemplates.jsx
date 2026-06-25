@@ -71,15 +71,15 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 				{/* Category filter tabs */}
 				<div className="qq-tpl-cat-tabs">
 					{ catTabs.map( c => {
-						const key   = c.toLowerCase();
-						const count = c === 'All'
+						const tabVal = c === 'All' ? 'all' : c;
+						const count  = c === 'All'
 							? templates.length
 							: templates.filter( t => t.category === c ).length;
 						return (
 							<div
-								key={ key }
-								className={ `qq-tpl-cat-tab${ cat === key ? ' active' : '' }` }
-								onClick={ () => onCatChange( key ) }
+								key={ c }
+								className={ `qq-tpl-cat-tab${ cat === tabVal ? ' active' : '' }` }
+								onClick={ () => onCatChange( tabVal ) }
 							>
 								{ c } <span className="qq-tpl-cat-num">{ count }</span>
 							</div>
@@ -538,7 +538,7 @@ export default function ReplyTemplates() {
 		}
 
 		// If the list view was filtered by the deleted category, reset to All.
-		if ( cat !== 'all' && cat === result.deleted.toLowerCase() ) {
+		if ( cat !== 'all' && cat === result.deleted ) {
 			setCat( 'all' );
 		}
 
