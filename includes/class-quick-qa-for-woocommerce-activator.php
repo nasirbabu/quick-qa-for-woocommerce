@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.1.0';
+	const DB_VERSION = '1.2.0';
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -180,6 +180,28 @@ class Quick_Qa_For_Woocommerce_Activator {
 				PRIMARY KEY  (id),
 				KEY object_idx (object_type,object_id),
 				UNIQUE KEY flag_unique (object_type,object_id,user_id)
+			) {$charset_collate};"
+		);
+
+		// ------------------------------------------------------------------ //
+		// Table: wp_quick_qa_reply_templates
+		// ------------------------------------------------------------------ //
+		// Stores admin-created reply templates that can be loaded into the
+		// answer composer with one click.
+		// uses tracks how many times the template was applied to an answer.
+		// ------------------------------------------------------------------ //
+		$table_templates = $wpdb->prefix . 'quick_qa_reply_templates';
+		dbDelta(
+			"CREATE TABLE {$table_templates} (
+				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				name varchar(200) NOT NULL DEFAULT '',
+				category varchar(50) NOT NULL DEFAULT 'Other',
+				content longtext NOT NULL,
+				uses int(10) UNSIGNED NOT NULL DEFAULT 0,
+				created_at datetime DEFAULT NULL,
+				updated_at datetime DEFAULT NULL,
+				PRIMARY KEY  (id),
+				KEY category (category)
 			) {$charset_collate};"
 		);
 	}

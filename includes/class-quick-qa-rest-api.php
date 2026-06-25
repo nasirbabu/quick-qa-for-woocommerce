@@ -210,6 +210,101 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 			)
 		);
 
+		// ── Reply Templates routes ────────────────────────────────────────────
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'admin_get_templates' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'admin_create_template' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+					'args'                => $this->get_template_args(),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_update_template' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array_merge(
+					array(
+						'id' => array(
+							'required'          => true,
+							'type'              => 'integer',
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+					),
+					$this->get_template_args( false )
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates/(?P<id>\d+)/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_delete_template' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates/(?P<id>\d+)/duplicate',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_duplicate_template' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates/(?P<id>\d+)/use',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_increment_template_use' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/answers',
@@ -682,6 +777,311 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 		$wpdb->delete( $questions_table, array( 'id'          => $id ), array( '%d' ) );
 
 		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
+	}
+
+	// =========================================================================
+	// Reply Templates
+	// =========================================================================
+
+	/**
+	 * Returns the argument schema shared by create and update template routes.
+	 *
+	 * @since  1.2.0
+	 * @param  bool $all_required Whether every field is required (true = create).
+	 * @return array[]
+	 */
+	private function get_template_args( $all_required = true ) {
+		return array(
+			'name'     => array(
+				'required'          => $all_required,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => static function ( $value ) {
+					$len = mb_strlen( trim( $value ) );
+					return $len >= 1 && $len <= 200;
+				},
+			),
+			'category' => array(
+				'required'          => $all_required,
+				'type'              => 'string',
+				'enum'              => array( 'Shipping', 'Returns', 'Sizing', 'Materials', 'Warranty', 'Other' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'content'  => array(
+				'required'          => $all_required,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'validate_callback' => static function ( $value ) {
+					return mb_strlen( $value ) <= 5000;
+				},
+			),
+		);
+	}
+
+	/**
+	 * GET /wp-json/quick-qa/v1/admin/templates
+	 *
+	 * @since  1.2.0
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_get_templates() {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT id, name, category, content, uses, created_at, updated_at FROM {$table} ORDER BY uses DESC, id ASC"
+		);
+
+		return rest_ensure_response( $rows ?: array() );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_create_template( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$now   = current_time( 'mysql', true );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$inserted = $wpdb->insert(
+			$table,
+			array(
+				'name'       => $request->get_param( 'name' ),
+				'category'   => $request->get_param( 'category' ),
+				'content'    => $request->get_param( 'content' ),
+				'uses'       => 0,
+				'created_at' => $now,
+				'updated_at' => $now,
+			),
+			array( '%s', '%s', '%s', '%d', '%s', '%s' )
+		);
+
+		if ( false === $inserted ) {
+			return new WP_Error(
+				'quick_qa_db_error',
+				__( 'Unable to create template. Please try again.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$id = (int) $wpdb->insert_id;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, name, category, content, uses, created_at, updated_at FROM {$table} WHERE id = %d",
+				$id
+			)
+		);
+
+		$response = rest_ensure_response( $row );
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates/{id}
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_update_template( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id FROM {$table} WHERE id = %d",
+				$id
+			)
+		);
+
+		if ( ! $exists ) {
+			return new WP_Error(
+				'quick_qa_not_found',
+				__( 'Template not found.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$data   = array( 'updated_at' => current_time( 'mysql', true ) );
+		$format = array( '%s' );
+
+		if ( null !== $request->get_param( 'name' ) ) {
+			$data['name'] = $request->get_param( 'name' );
+			$format[]     = '%s';
+		}
+		if ( null !== $request->get_param( 'category' ) ) {
+			$data['category'] = $request->get_param( 'category' );
+			$format[]         = '%s';
+		}
+		if ( null !== $request->get_param( 'content' ) ) {
+			$data['content'] = $request->get_param( 'content' );
+			$format[]        = '%s';
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$table,
+			$data,
+			array( 'id' => $id ),
+			$format,
+			array( '%d' )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, name, category, content, uses, created_at, updated_at FROM {$table} WHERE id = %d",
+				$id
+			)
+		);
+
+		return rest_ensure_response( $row );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates/{id}/delete
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_delete_template( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$deleted = $wpdb->delete(
+			$table,
+			array( 'id' => $id ),
+			array( '%d' )
+		);
+
+		if ( false === $deleted ) {
+			return new WP_Error(
+				'quick_qa_db_error',
+				__( 'Unable to delete template.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates/{id}/duplicate
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_duplicate_template( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$original = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT name, category, content FROM {$table} WHERE id = %d",
+				$id
+			)
+		);
+
+		if ( ! $original ) {
+			return new WP_Error(
+				'quick_qa_not_found',
+				__( 'Template not found.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$now = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->insert(
+			$table,
+			array(
+				'name'       => $original->name . ' (copy)',
+				'category'   => $original->category,
+				'content'    => $original->content,
+				'uses'       => 0,
+				'created_at' => $now,
+				'updated_at' => $now,
+			),
+			array( '%s', '%s', '%s', '%d', '%s', '%s' )
+		);
+
+		$new_id = (int) $wpdb->insert_id;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, name, category, content, uses, created_at, updated_at FROM {$table} WHERE id = %d",
+				$new_id
+			)
+		);
+
+		$response = rest_ensure_response( $row );
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates/{id}/use
+	 *
+	 * Increments the `uses` counter when a template is loaded into the composer.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_increment_template_use( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id    = (int) $request->get_param( 'id' );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"UPDATE {$table} SET uses = uses + 1 WHERE id = %d",
+				$id
+			)
+		);
+
+		return rest_ensure_response( array( 'id' => $id, 'incremented' => true ) );
 	}
 
 	// =========================================================================

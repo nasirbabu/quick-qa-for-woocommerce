@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import AllQA    from './components/AllQA/AllQA';
-import Settings from './components/Settings/Settings';
+import AllQA          from './components/AllQA/AllQA';
+import Settings       from './components/Settings/Settings';
+import ReplyTemplates from './components/ReplyTemplates/ReplyTemplates';
 
 const NAV_ITEMS = [
   { key: 'all-qa',    label: 'All Q&A' },
@@ -45,7 +46,7 @@ export default function App() {
 
       {/* Page content */}
       {page === 'all-qa'    && <AllQA />}
-      {page === 'templates' && <ComingSoon label="Reply Templates" />}
+      {page === 'templates' && <ReplyTemplates />}
       {page === 'analytics' && <ComingSoon label="Analytics" />}
       {page === 'settings'  && <Settings />}
       {page === 'docs'      && <ComingSoon label="Documentation" />}
