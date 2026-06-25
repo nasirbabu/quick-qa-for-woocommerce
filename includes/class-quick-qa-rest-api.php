@@ -210,6 +210,58 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 			)
 		);
 
+		// ── Reply Template Categories routes ─────────────────────────────────
+		// NOTE: /admin/template-categories/delete must be registered before the
+		// generic /admin/template-categories route so WordPress matches it first.
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/template-categories/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'delete_template_category' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'name' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => static function ( $value ) {
+							return mb_strlen( trim( $value ) ) >= 1;
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/template-categories',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_template_categories' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_template_category' ),
+					'permission_callback' => array( $this, 'require_admin' ),
+					'args'                => array(
+						'name' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+							'validate_callback' => static function ( $value ) {
+								$len = mb_strlen( trim( $value ) );
+								return $len >= 1 && $len <= 50;
+							},
+						),
+					),
+				),
+			)
+		);
+
 		// ── Reply Templates routes ────────────────────────────────────────────
 
 		register_rest_route(
@@ -777,6 +829,155 @@ class Quick_Qa_For_Woocommerce_Rest_Api {
 		$wpdb->delete( $questions_table, array( 'id'          => $id ), array( '%d' ) );
 
 		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
+	}
+
+	// =========================================================================
+	// Reply Template Categories
+	// =========================================================================
+
+	/**
+	 * Option key that stores the custom category list.
+	 *
+	 * @since 1.2.0
+	 * @var   string
+	 */
+	const CATEGORIES_OPTION = 'quick_qa_template_categories';
+
+	/**
+	 * Built-in default categories seeded on first use.
+	 * 'Other' is the protected fallback and must always be present.
+	 *
+	 * @since 1.2.0
+	 * @var   string[]
+	 */
+	const DEFAULT_CATEGORIES = array( 'Shipping', 'Returns', 'Sizing', 'Materials', 'Warranty', 'Other' );
+
+	/**
+	 * Return the persisted category list, falling back to defaults.
+	 *
+	 * @since  1.2.0
+	 * @return string[]
+	 */
+	private function load_categories() {
+		$cats = get_option( self::CATEGORIES_OPTION, self::DEFAULT_CATEGORIES );
+
+		if ( ! is_array( $cats ) || empty( $cats ) ) {
+			$cats = self::DEFAULT_CATEGORIES;
+		}
+
+		// Guard: 'Other' must always exist (it is the reassignment target).
+		if ( ! in_array( 'Other', $cats, true ) ) {
+			$cats[] = 'Other';
+		}
+
+		return array_values( $cats );
+	}
+
+	/**
+	 * GET /wp-json/quick-qa/v1/admin/template-categories
+	 *
+	 * @since  1.2.0
+	 * @return WP_REST_Response
+	 */
+	public function get_template_categories() {
+		return rest_ensure_response( $this->load_categories() );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/template-categories
+	 *
+	 * Adds a new category. Inserted before 'Other' so 'Other' stays last.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function add_template_category( WP_REST_Request $request ) {
+		$name = trim( $request->get_param( 'name' ) );
+		$cats = $this->load_categories();
+
+		// Reject duplicates (case-insensitive).
+		foreach ( $cats as $existing ) {
+			if ( strtolower( $existing ) === strtolower( $name ) ) {
+				return new WP_Error(
+					'quick_qa_category_exists',
+					__( 'A category with that name already exists.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		// Insert before 'Other' so the protected fallback stays last.
+		$other_idx = array_search( 'Other', $cats, true );
+		if ( false !== $other_idx ) {
+			array_splice( $cats, (int) $other_idx, 0, array( $name ) );
+		} else {
+			$cats[] = $name;
+		}
+
+		update_option( self::CATEGORIES_OPTION, $cats );
+
+		return rest_ensure_response( array_values( $cats ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/template-categories/delete
+	 *
+	 * Deletes a category and reassigns all templates that used it to 'Other'.
+	 * The 'Other' category is protected and cannot be deleted.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function delete_template_category( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$name = trim( $request->get_param( 'name' ) );
+
+		if ( 'Other' === $name ) {
+			return new WP_Error(
+				'quick_qa_protected_category',
+				__( 'The "Other" category cannot be deleted.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$cats = $this->load_categories();
+		$cats = array_values( array_filter( $cats, static function ( $c ) use ( $name ) {
+			return $c !== $name;
+		} ) );
+
+		// Ensure 'Other' is always present after deletion.
+		if ( ! in_array( 'Other', $cats, true ) ) {
+			$cats[] = 'Other';
+		}
+
+		update_option( self::CATEGORIES_OPTION, $cats );
+
+		// Reassign all templates that used the deleted category to 'Other'.
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$reassigned = (int) $wpdb->update(
+			$table,
+			array(
+				'category'   => 'Other',
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'category' => $name ),
+			array( '%s', '%s' ),
+			array( '%s' )
+		);
+
+		return rest_ensure_response(
+			array(
+				'categories' => array_values( $cats ),
+				'reassigned' => $reassigned,
+				'deleted'    => $name,
+			)
+		);
 	}
 
 	// =========================================================================

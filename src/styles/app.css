@@ -1495,9 +1495,13 @@ a { color: var(--coral); text-decoration: none; }
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
 }
 .qq-tpl-cat-pill {
-  padding: 5px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px 5px 14px;
   border-radius: 20px;
   border: 1px solid var(--hairline);
   background: white;
@@ -1506,8 +1510,9 @@ a { color: var(--coral); text-decoration: none; }
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   user-select: none;
+  position: relative;
 }
-.qq-tpl-cat-pill:hover:not(.selected) {
+.qq-tpl-cat-pill:hover:not(.selected):not(.qq-tpl-cat-pill--new):not(.deleting) {
   border-color: #D4CCC2;
   color: var(--text);
 }
@@ -1516,6 +1521,98 @@ a { color: var(--coral); text-decoration: none; }
   background: var(--coral-soft);
   color: var(--coral-text);
   font-weight: 500;
+}
+.qq-tpl-cat-pill.deleting {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* × delete button inside a pill */
+.qq-tpl-cat-pill-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-4);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.qq-tpl-cat-pill-x:hover:not(:disabled) {
+  background: rgba(196, 74, 58, 0.12);
+  color: var(--red);
+}
+.qq-tpl-cat-pill-x:disabled { cursor: not-allowed; }
+.qq-tpl-cat-pill.selected .qq-tpl-cat-pill-x { color: var(--coral-text); }
+.qq-tpl-cat-pill.selected .qq-tpl-cat-pill-x:hover:not(:disabled) {
+  background: rgba(196, 74, 58, 0.15);
+  color: var(--red);
+}
+
+/* "+ New category" pill */
+.qq-tpl-cat-pill--new {
+  border-style: dashed;
+  color: var(--text-3);
+  padding: 5px 14px;
+}
+.qq-tpl-cat-pill--new:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: var(--coral-soft);
+}
+
+/* Inline add-category input pill */
+.qq-tpl-cat-pill--adding {
+  padding: 3px 8px;
+  gap: 4px;
+  cursor: default;
+  border-color: var(--coral);
+  background: var(--coral-soft);
+  flex-wrap: wrap;
+}
+.qq-tpl-cat-pill-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text);
+  width: 110px;
+  font-family: inherit;
+  padding: 0;
+}
+.qq-tpl-cat-pill-input::placeholder { color: var(--text-4); }
+.qq-tpl-cat-pill-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: var(--coral);
+  color: white;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.qq-tpl-cat-pill-confirm:hover:not(:disabled) { background: var(--coral-hover); }
+.qq-tpl-cat-pill-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+.qq-tpl-cat-add-error {
+  width: 100%;
+  font-size: 11px;
+  color: var(--red);
+  padding: 2px 0 0;
 }
 
 /* Content textarea */

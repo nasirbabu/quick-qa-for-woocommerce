@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const CATEGORIES = ['Shipping', 'Returns', 'Sizing', 'Materials', 'Warranty', 'Other'];
-const CAT_TABS   = ['All', ...CATEGORIES];
-
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 
 async function apiFetch( path, options = {} ) {
@@ -13,7 +10,7 @@ async function apiFetch( path, options = {} ) {
 			'X-WP-Nonce':   settings.nonce,
 		},
 		method: options.method || 'GET',
-		...( options.body ? { body: JSON.stringify( options.body ) } : {} ),
+		...( options.body !== undefined ? { body: JSON.stringify( options.body ) } : {} ),
 	} );
 	if ( ! res.ok ) {
 		const err = await res.json().catch( () => ( {} ) );
@@ -32,11 +29,11 @@ function timeLabel( dateStr ) {
 	return `${ Math.floor( diff / 604800 ) }w ago`;
 }
 
-// ── Toast ────────────────────────────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────────────────────
 
 function Toast( { message, onDone } ) {
 	useEffect( () => {
-		const t = setTimeout( onDone, 2200 );
+		const t = setTimeout( onDone, 2400 );
 		return () => clearTimeout( t );
 	}, [ onDone ] );
 	return <div className="qq-tpl-toast">{ message }</div>;
@@ -44,7 +41,8 @@ function Toast( { message, onDone } ) {
 
 // ── Template list ─────────────────────────────────────────────────────────────
 
-function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate, onDelete } ) {
+function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit, onDuplicate, onDelete } ) {
+	const catTabs  = [ 'All', ...categories ];
 	const filtered = cat === 'all'
 		? templates
 		: templates.filter( t => t.category === cat );
@@ -54,7 +52,6 @@ function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate
 
 	return (
 		<div className="qq-tpl-page">
-			{/* Top bar */}
 			<div className="qq-top">
 				<div className="qq-top-left">
 					<span className="qq-page-label">Reply templates</span>
@@ -64,7 +61,6 @@ function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate
 				</div>
 			</div>
 
-			{/* Content */}
 			<div className="qq-tpl-content">
 				<h1 className="qq-tpl-page-title">Reply templates</h1>
 				<p className="qq-tpl-page-sub">
@@ -74,7 +70,7 @@ function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate
 
 				{/* Category filter tabs */}
 				<div className="qq-tpl-cat-tabs">
-					{ CAT_TABS.map( c => {
+					{ catTabs.map( c => {
 						const key   = c.toLowerCase();
 						const count = c === 'All'
 							? templates.length
@@ -113,22 +109,14 @@ function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate
 							<div className="qq-tcard-foot">
 								<div className="qq-tcard-meta">Updated { timeLabel( t.updated_at ) }</div>
 								<div className="qq-tcard-actions">
-									<span
-										onClick={ e => { e.stopPropagation(); onEdit( t ); } }
-									>Edit</span>
-									<span
-										onClick={ e => { e.stopPropagation(); onDuplicate( t ); } }
-									>Duplicate</span>
-									<span
-										className="danger"
-										onClick={ e => { e.stopPropagation(); onDelete( t ); } }
-									>Delete</span>
+									<span onClick={ e => { e.stopPropagation(); onEdit( t ); } }>Edit</span>
+									<span onClick={ e => { e.stopPropagation(); onDuplicate( t ); } }>Duplicate</span>
+									<span className="danger" onClick={ e => { e.stopPropagation(); onDelete( t ); } }>Delete</span>
 								</div>
 							</div>
 						</div>
 					) ) }
 
-					{/* Add card */}
 					<div className="qq-tcard-add" onClick={ onNew }>
 						<div className="qq-tcard-add-plus">+</div>
 						<div className="qq-tcard-add-text">Create a template</div>
@@ -140,18 +128,178 @@ function TemplateList( { templates, cat, onCatChange, onNew, onEdit, onDuplicate
 	);
 }
 
+// ── Category pills with add / delete ─────────────────────────────────────────
+
+function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
+	const [ adding,    setAdding ]    = useState( false );
+	const [ newName,   setNewName ]   = useState( '' );
+	const [ saving,    setSaving ]    = useState( false );
+	const [ addError,  setAddError ]  = useState( '' );
+	const [ deletingCat, setDeletingCat ] = useState( null );
+	const inputRef = useRef( null );
+
+	useEffect( () => {
+		if ( adding && inputRef.current ) {
+			inputRef.current.focus();
+		}
+	}, [ adding ] );
+
+	function openAdd() {
+		setAdding( true );
+		setNewName( '' );
+		setAddError( '' );
+	}
+
+	function cancelAdd() {
+		setAdding( false );
+		setNewName( '' );
+		setAddError( '' );
+	}
+
+	async function commitAdd() {
+		const trimmed = newName.trim();
+		if ( ! trimmed ) {
+			setAddError( 'Name cannot be empty.' );
+			return;
+		}
+		setSaving( true );
+		setAddError( '' );
+		try {
+			const updated = await apiFetch( 'admin/template-categories', {
+				method: 'POST',
+				body:   { name: trimmed },
+			} );
+			setAdding( false );
+			setNewName( '' );
+			onAdd( updated, trimmed );
+		} catch ( err ) {
+			setAddError( err.message );
+		} finally {
+			setSaving( false );
+		}
+	}
+
+	async function handleDelete( catName ) {
+		setDeletingCat( catName );
+		try {
+			const result = await apiFetch( 'admin/template-categories/delete', {
+				method: 'POST',
+				body:   { name: catName },
+			} );
+			onDelete( result );
+		} catch ( err ) {
+			// silently reset — parent toast will not fire; at least unblock UI
+		} finally {
+			setDeletingCat( null );
+		}
+	}
+
+	function handleKeyDown( e ) {
+		if ( e.key === 'Enter' ) {
+			e.preventDefault();
+			commitAdd();
+		}
+		if ( e.key === 'Escape' ) {
+			cancelAdd();
+		}
+	}
+
+	return (
+		<div className="qq-tpl-cat-row">
+			{ categories.map( c => (
+				<span
+					key={ c }
+					className={ `qq-tpl-cat-pill${ selected === c ? ' selected' : '' }${ deletingCat === c ? ' deleting' : '' }` }
+					onClick={ () => deletingCat !== c && onSelect( c ) }
+				>
+					{ c }
+					{ c !== 'Other' && (
+						<button
+							className="qq-tpl-cat-pill-x"
+							title={ `Delete "${ c }" category` }
+							disabled={ deletingCat === c }
+							onClick={ e => {
+								e.stopPropagation();
+								handleDelete( c );
+							} }
+						>
+							{ deletingCat === c ? '…' : '×' }
+						</button>
+					) }
+				</span>
+			) ) }
+
+			{ adding ? (
+				<span className="qq-tpl-cat-pill qq-tpl-cat-pill--adding">
+					<input
+						ref={ inputRef }
+						className="qq-tpl-cat-pill-input"
+						type="text"
+						value={ newName }
+						maxLength={ 50 }
+						placeholder="Category name"
+						onChange={ e => { setNewName( e.target.value ); setAddError( '' ); } }
+						onKeyDown={ handleKeyDown }
+						disabled={ saving }
+					/>
+					<button
+						className="qq-tpl-cat-pill-confirm"
+						onClick={ commitAdd }
+						disabled={ saving || ! newName.trim() }
+						title="Save category"
+					>
+						{ saving ? '…' : '✓' }
+					</button>
+					<button
+						className="qq-tpl-cat-pill-x"
+						onClick={ cancelAdd }
+						disabled={ saving }
+						title="Cancel"
+					>
+						×
+					</button>
+					{ addError && (
+						<span className="qq-tpl-cat-add-error">{ addError }</span>
+					) }
+				</span>
+			) : (
+				<span
+					className="qq-tpl-cat-pill qq-tpl-cat-pill--new"
+					onClick={ openAdd }
+				>
+					+ New category
+				</span>
+			) }
+		</div>
+	);
+}
+
 // ── Template editor ───────────────────────────────────────────────────────────
 
-function TemplateEditor( { template, onBack, onSaved } ) {
-	const isNew        = ! template.id;
-	const [ name,     setName ]     = useState( template.name    || '' );
+function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdded, onCategoryDeleted } ) {
+	const isNew = ! template.id;
+
+	const [ name,     setName ]     = useState( template.name     || '' );
 	const [ category, setCategory ] = useState( template.category || 'Other' );
 	const [ content,  setContent ]  = useState( template.content  || '' );
 	const [ saving,   setSaving ]   = useState( false );
 	const [ error,    setError ]    = useState( null );
 
-	const origRef = useRef( { name: template.name || '', category: template.category || 'Other', content: template.content || '' } );
-	const isDirty = name !== origRef.current.name || category !== origRef.current.category || content !== origRef.current.content;
+	const origRef = useRef( {
+		name:     template.name     || '',
+		category: template.category || 'Other',
+		content:  template.content  || '',
+	} );
+	const isDirty = name !== origRef.current.name
+		|| category !== origRef.current.category
+		|| content  !== origRef.current.content;
+
+	// If the currently selected category was deleted, fall back to 'Other'.
+	useEffect( () => {
+		if ( ! categories.includes( category ) ) {
+			setCategory( 'Other' );
+		}
+	}, [ categories, category ] );
 
 	async function handleSave() {
 		if ( ! name.trim() ) {
@@ -161,18 +309,13 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 		setSaving( true );
 		setError( null );
 		try {
-			let saved;
-			if ( isNew ) {
-				saved = await apiFetch( 'admin/templates', {
-					method: 'POST',
-					body:   { name: name.trim(), category, content },
-				} );
-			} else {
-				saved = await apiFetch( `admin/templates/${ template.id }`, {
-					method: 'POST',
-					body:   { name: name.trim(), category, content },
-				} );
-			}
+			const path = isNew
+				? 'admin/templates'
+				: `admin/templates/${ template.id }`;
+			const saved = await apiFetch( path, {
+				method: 'POST',
+				body:   { name: name.trim(), category, content },
+			} );
 			onSaved( saved, isNew ? 'created' : 'updated' );
 		} catch ( err ) {
 			setError( err.message );
@@ -181,27 +324,28 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 		}
 	}
 
-	function handleDiscard() {
-		onBack();
+	function handleCategoryAdded( newCategories, newName ) {
+		setCategory( newName );
+		onCategoryAdded( newCategories );
+	}
+
+	function handleCategoryDeleted( result ) {
+		// result = { categories, reassigned, deleted }
+		onCategoryDeleted( result );
 	}
 
 	const charCount = content.length;
 
 	return (
 		<div className="qq-tpl-editor-page">
-			{/* Top bar */}
 			<div className="qq-top">
 				<div className="qq-top-left">
 					<span className="qq-page-label">Reply templates</span>
 				</div>
 			</div>
 
-			{/* Editor body */}
 			<div className="qq-tpl-editor-content">
-				<div
-					className="qq-tpl-editor-back"
-					onClick={ handleDiscard }
-				>
+				<div className="qq-tpl-editor-back" onClick={ onBack }>
 					&larr; Back to templates
 				</div>
 
@@ -214,9 +358,7 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 					</p>
 				) }
 
-				{ error && (
-					<div className="qq-tpl-editor-error">{ error }</div>
-				) }
+				{ error && <div className="qq-tpl-editor-error">{ error }</div> }
 
 				<div className="qq-settings-card">
 					{/* Name */}
@@ -236,18 +378,16 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 					{/* Category */}
 					<div className="qq-tpl-field">
 						<label className="qq-tpl-label">Category</label>
-						<div className="qq-tpl-help">Group similar templates so your team finds them quickly.</div>
-						<div className="qq-tpl-cat-row">
-							{ CATEGORIES.map( c => (
-								<span
-									key={ c }
-									className={ `qq-tpl-cat-pill${ category === c ? ' selected' : '' }` }
-									onClick={ () => setCategory( c ) }
-								>
-									{ c }
-								</span>
-							) ) }
+						<div className="qq-tpl-help">
+							Click a category to select it. Use <b>+ New category</b> to add one, or the <b>×</b> to remove it — templates in that category move to Other automatically.
 						</div>
+						<CategoryPills
+							categories={ categories }
+							selected={ category }
+							onSelect={ setCategory }
+							onAdd={ handleCategoryAdded }
+							onDelete={ handleCategoryDeleted }
+						/>
 					</div>
 
 					{/* Content */}
@@ -300,11 +440,7 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 						}
 					</div>
 					<div className="qq-savebar-actions">
-						<button
-							className="btn btn-ghost"
-							onClick={ handleDiscard }
-							disabled={ saving }
-						>
+						<button className="btn btn-ghost" onClick={ onBack } disabled={ saving }>
 							Discard
 						</button>
 						<button
@@ -321,7 +457,7 @@ function TemplateEditor( { template, onBack, onSaved } ) {
 	);
 }
 
-// ── Confirm delete modal ──────────────────────────────────────────────────────
+// ── Confirm delete template modal ─────────────────────────────────────────────
 
 function DeleteModal( { template, onConfirm, onCancel } ) {
 	return (
@@ -338,7 +474,11 @@ function DeleteModal( { template, onConfirm, onCancel } ) {
 				</div>
 				<div className="qq-modal-foot">
 					<button className="btn btn-ghost" onClick={ onCancel }>Cancel</button>
-					<button className="btn" style={ { background: 'var(--red)', color: 'white', border: 'none' } } onClick={ onConfirm }>
+					<button
+						className="btn"
+						style={ { background: 'var(--red)', color: 'white', border: 'none', padding: '9px 16px', borderRadius: 'var(--r-md)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' } }
+						onClick={ onConfirm }
+					>
 						Delete template
 					</button>
 				</div>
@@ -350,17 +490,25 @@ function DeleteModal( { template, onConfirm, onCancel } ) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function ReplyTemplates() {
-	const [ templates,   setTemplates ]   = useState( [] );
-	const [ loading,     setLoading ]     = useState( true );
-	const [ loadError,   setLoadError ]   = useState( null );
-	const [ editing,     setEditing ]     = useState( null );
-	const [ cat,         setCat ]         = useState( 'all' );
-	const [ toast,       setToast ]       = useState( null );
+	const [ templates,    setTemplates ]    = useState( [] );
+	const [ categories,   setCategories ]   = useState( [] );
+	const [ loading,      setLoading ]      = useState( true );
+	const [ loadError,    setLoadError ]    = useState( null );
+	const [ editing,      setEditing ]      = useState( null );
+	const [ cat,          setCat ]          = useState( 'all' );
+	const [ toast,        setToast ]        = useState( null );
 	const [ deleteTarget, setDeleteTarget ] = useState( null );
 
+	// Load templates and categories in parallel on mount.
 	useEffect( () => {
-		apiFetch( 'admin/templates' )
-			.then( data => setTemplates( data ) )
+		Promise.all( [
+			apiFetch( 'admin/templates' ),
+			apiFetch( 'admin/template-categories' ),
+		] )
+			.then( ( [ tpls, cats ] ) => {
+				setTemplates( tpls );
+				setCategories( cats );
+			} )
 			.catch( err => setLoadError( err.message ) )
 			.finally( () => setLoading( false ) );
 	}, [] );
@@ -368,6 +516,39 @@ export default function ReplyTemplates() {
 	function showToast( msg ) {
 		setToast( msg );
 	}
+
+	// ── Category handlers ──────────────────────────────────────────────────────
+
+	function handleCategoryAdded( newCategories ) {
+		setCategories( newCategories );
+		showToast( 'Category created' );
+	}
+
+	function handleCategoryDeleted( result ) {
+		// result = { categories, reassigned, deleted }
+		setCategories( result.categories );
+
+		// Keep template list in sync without a refetch.
+		if ( result.reassigned > 0 ) {
+			setTemplates( prev =>
+				prev.map( t =>
+					t.category === result.deleted ? { ...t, category: 'Other' } : t
+				)
+			);
+		}
+
+		// If the list view was filtered by the deleted category, reset to All.
+		if ( cat !== 'all' && cat === result.deleted.toLowerCase() ) {
+			setCat( 'all' );
+		}
+
+		const msg = result.reassigned > 0
+			? `Category deleted. ${ result.reassigned } template${ result.reassigned !== 1 ? 's' : '' } moved to Other.`
+			: 'Category deleted.';
+		showToast( msg );
+	}
+
+	// ── Template handlers ──────────────────────────────────────────────────────
 
 	function handleNew() {
 		setEditing( { name: '', category: 'Other', content: '' } );
@@ -382,12 +563,11 @@ export default function ReplyTemplates() {
 	}
 
 	function handleSaved( saved, action ) {
-		setTemplates( prev => {
-			if ( action === 'created' ) {
-				return [ ...prev, saved ];
-			}
-			return prev.map( t => String( t.id ) === String( saved.id ) ? saved : t );
-		} );
+		setTemplates( prev =>
+			action === 'created'
+				? [ ...prev, saved ]
+				: prev.map( t => String( t.id ) === String( saved.id ) ? saved : t )
+		);
 		setEditing( null );
 		showToast( action === 'created' ? 'Template created' : 'Template saved' );
 	}
@@ -402,10 +582,6 @@ export default function ReplyTemplates() {
 		}
 	}
 
-	function handleDeleteRequest( t ) {
-		setDeleteTarget( t );
-	}
-
 	async function handleDeleteConfirm() {
 		const t = deleteTarget;
 		setDeleteTarget( null );
@@ -418,6 +594,8 @@ export default function ReplyTemplates() {
 		}
 	}
 
+	// ── Render ─────────────────────────────────────────────────────────────────
+
 	if ( loading ) {
 		return (
 			<div className="qq-page">
@@ -429,7 +607,7 @@ export default function ReplyTemplates() {
 	if ( loadError ) {
 		return (
 			<div className="qq-page">
-				<div className="qq-state-msg qq-state-msg--error">Failed to load templates: { loadError }</div>
+				<div className="qq-state-msg qq-state-msg--error">Failed to load: { loadError }</div>
 			</div>
 		);
 	}
@@ -439,18 +617,22 @@ export default function ReplyTemplates() {
 			{ editing !== null ? (
 				<TemplateEditor
 					template={ editing }
+					categories={ categories }
 					onBack={ handleBack }
 					onSaved={ handleSaved }
+					onCategoryAdded={ handleCategoryAdded }
+					onCategoryDeleted={ handleCategoryDeleted }
 				/>
 			) : (
 				<TemplateList
 					templates={ templates }
+					categories={ categories }
 					cat={ cat }
 					onCatChange={ setCat }
 					onNew={ handleNew }
 					onEdit={ handleEdit }
 					onDuplicate={ handleDuplicate }
-					onDelete={ handleDeleteRequest }
+					onDelete={ t => setDeleteTarget( t ) }
 				/>
 			) }
 
