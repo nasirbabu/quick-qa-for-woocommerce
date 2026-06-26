@@ -14,7 +14,8 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Quick QA for WooCommerce
- * Plugin URI:        https://https://wordpress.org/plugins/quick-qa-for-woocommerce
+ * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
+ * Requires at least: 5.9
  * Description:       Quick Question and Answer Plugin for WooCommerce 
  * Version:           1.0.0
  * Author:            Nashir Uddin

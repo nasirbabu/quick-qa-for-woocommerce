@@ -615,8 +615,8 @@ class Quick_Qa_For_Woocommerce_Public {
 					'cancel'            => __( 'Cancel', 'quick-qa-for-woocommerce' ),
 					'submit'            => __( 'Submit question', 'quick-qa-for-woocommerce' ),
 					'submitting'        => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
-					/* translators: %d: minimum character count for a question */
 					'minLength'         => sprintf(
+						/* translators: %d: minimum character count for a question */
 						__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
 						max( 1, (int) $s['min_length'] )
 					),

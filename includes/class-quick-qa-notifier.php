@@ -177,12 +177,15 @@ class Quick_Qa_Notifier {
 
 		// Instant notification.
 		$body = self::lines( array(
+			/* translators: %s: product name */
 			sprintf( __( 'A customer asked a question on: %s', 'quick-qa-for-woocommerce' ), $product_name ),
+			/* translators: %s: customer display name */
 			sprintf( __( 'Asked by: %s', 'quick-qa-for-woocommerce' ), $asker_name ),
 			'',
 			__( 'Question:', 'quick-qa-for-woocommerce' ),
 			$question_text,
 			'',
+			/* translators: %s: admin dashboard URL */
 			sprintf( __( 'Review and answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
@@ -213,9 +216,11 @@ class Quick_Qa_Notifier {
 			__( 'Question:', 'quick-qa-for-woocommerce' ),
 			$question_text,
 			'',
+			/* translators: %s: community member's display name */
 			sprintf( __( 'Answer by %s:', 'quick-qa-for-woocommerce' ), $responder_name ),
 			$answer_text,
 			'',
+			/* translators: %s: admin dashboard URL */
 			sprintf( __( 'Review in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
@@ -274,14 +279,17 @@ class Quick_Qa_Notifier {
 		);
 		$body = self::lines( array(
 			sprintf(
+				/* translators: %d: number of upvotes */
 				__( 'A question has reached %d upvotes and is a customer priority.', 'quick-qa-for-woocommerce' ),
 				$new_count
 			),
+			/* translators: %s: product name */
 			sprintf( __( 'Product: %s', 'quick-qa-for-woocommerce' ), $product_name ),
 			'',
 			__( 'Question:', 'quick-qa-for-woocommerce' ),
 			$question->question_text,
 			'',
+			/* translators: %s: admin dashboard URL */
 			sprintf( __( 'Answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
@@ -324,6 +332,7 @@ class Quick_Qa_Notifier {
 
 		$lines = array(
 			sprintf(
+				/* translators: %d: number of new questions pending a response */
 				_n(
 					'You have %d new question awaiting your response:',
 					'You have %d new questions awaiting your response:',
@@ -402,6 +411,7 @@ class Quick_Qa_Notifier {
 
 		$lines = array(
 			sprintf(
+				/* translators: %d: number of days since the question was submitted */
 				_n(
 					'The following question has been unanswered for more than %d day:',
 					'The following questions have been unanswered for more than %d days:',
