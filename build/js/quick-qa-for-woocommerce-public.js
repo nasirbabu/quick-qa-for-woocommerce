@@ -272,7 +272,10 @@
 				return;
 			}
 
-			if ( questionText.length < 10 ) {
+			var minLen = ( typeof quickQaSettings !== 'undefined' && quickQaSettings.minLength )
+				? parseInt( quickQaSettings.minLength, 10 )
+				: 10;
+			if ( questionText.length < minLen ) {
 				showFormError( i18n( 'minLength', 'Your question must be at least 10 characters.' ) );
 				questionTextEl.focus();
 				return;
@@ -1066,8 +1069,9 @@
 			btn.disabled    = true;
 			btn.textContent = i18n( 'loadingMore', 'Loading…' );
 
+			var perPage = settings.perPage ? parseInt( settings.perPage, 10 ) : 10;
 			fetch(
-				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=3',
+				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=' + perPage,
 				{
 					credentials: 'same-origin',
 					headers:     { 'X-WP-Nonce': settings.nonce || '' },

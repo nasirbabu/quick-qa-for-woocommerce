@@ -191,6 +191,9 @@ class Quick_Qa_For_Woocommerce {
 		// Register the Q&A tab on WooCommerce product pages.
 		$this->loader->add_filter( 'woocommerce_product_tabs', $plugin_public, 'register_product_tab' );
 
+		// Render Q&A section below the tabs area when position = 'below_reviews'.
+		$this->loader->add_action( 'woocommerce_after_single_product_summary', $plugin_public, 'render_qa_below_reviews', 25 );
+
 	}
 
 	/**

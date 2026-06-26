@@ -53,29 +53,163 @@ class Quick_Qa_For_Woocommerce_Public {
 	}
 
 	/**
+	 * Load and cache plugin settings from the single `quick_qa_settings` option.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @return array
+	 */
+	private function get_settings() {
+		static $cache = null;
+		if ( null !== $cache ) {
+			return $cache;
+		}
+
+		$defaults = array(
+			'enable_scope'        => 'all',
+			'enabled_categories'  => array(),
+			'enabled_products'    => array(),
+			'excluded_products'   => array(),
+			'position'            => 'tab',
+			'tab_name'            => __( 'Questions & Answers', 'quick-qa-for-woocommerce' ),
+			'per_page'            => 10,
+			'default_sort'        => 'recent',
+			'show_search'         => true,
+			'show_filter'         => true,
+			'max_length'          => 500,
+			'min_length'          => 10,
+			'allow_community'     => true,
+			'auto_lock'           => 'never',
+			'pause_submissions'   => false,
+			'recaptcha_enabled'   => false,
+			'recaptcha_site_key'  => '',
+			'recaptcha_secret_key' => '',
+		);
+
+		$saved  = get_option( 'quick_qa_settings', array() );
+		$cache  = array_merge( $defaults, is_array( $saved ) ? $saved : array() );
+		return $cache;
+	}
+
+	/**
+	 * Check whether the Q&A widget should be shown for the given product,
+	 * based on the `enable_scope` setting.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  array $s          Plugin settings array (from get_settings()).
+	 * @param  int   $product_id WooCommerce product post ID.
+	 * @return bool
+	 */
+	private function is_qa_enabled_for_product( $s, $product_id ) {
+		switch ( $s['enable_scope'] ) {
+			case 'categories':
+				if ( empty( $s['enabled_categories'] ) ) {
+					return false;
+				}
+				$term_ids = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+				if ( is_wp_error( $term_ids ) ) {
+					return false;
+				}
+				return ! empty( array_intersect(
+					array_map( 'absint', (array) $term_ids ),
+					array_map( 'absint', (array) $s['enabled_categories'] )
+				) );
+
+			case 'products':
+				return in_array(
+					$product_id,
+					array_map( 'absint', (array) $s['enabled_products'] ),
+					true
+				);
+
+			case 'exclude':
+				return ! in_array(
+					$product_id,
+					array_map( 'absint', (array) $s['excluded_products'] ),
+					true
+				);
+
+			default: // 'all'
+				return true;
+		}
+	}
+
+	/**
 	 * Add the Q&A tab to WooCommerce product tabs.
 	 *
-	 * Hooked onto `woocommerce_product_tabs`. The tab title is configurable
-	 * via the plugin settings (stored as `quick_qa_tab_name`).
+	 * Hooked onto `woocommerce_product_tabs`. Respects scope, position, and
+	 * tab name settings from `quick_qa_settings`. When position is set to
+	 * `below_reviews` the tab is suppressed here and rendered via
+	 * `render_qa_below_reviews()` instead.
 	 *
 	 * @since  1.0.0
 	 * @param  array $tabs Existing WooCommerce product tabs.
 	 * @return array
 	 */
 	public function register_product_tab( $tabs ) {
+		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return $tabs;
+		}
+
+		$s          = $this->get_settings();
+		$product_id = absint( $product->get_id() );
+
+		if ( ! $this->is_qa_enabled_for_product( $s, $product_id ) ) {
+			return $tabs;
+		}
+
+		// 'below_reviews' renders via woocommerce_after_single_product_summary, not as a tab.
+		if ( 'below_reviews' === $s['position'] ) {
+			return $tabs;
+		}
+
+		$tab_name         = ! empty( $s['tab_name'] )
+			? $s['tab_name']
+			: __( 'Questions & Answers', 'quick-qa-for-woocommerce' );
+
 		$tabs['quick_qa'] = array(
-			'title'    => esc_html(
-				get_option(
-					'quick_qa_tab_name',
-					/* translators: WooCommerce product tab label. */
-					__( 'Questions &amp; Answers', 'quick-qa-for-woocommerce' )
-				)
-			),
+			'title'    => esc_html( $tab_name ),
 			'priority' => 50,
 			'callback' => array( $this, 'render_qa_tab' ),
 		);
 
 		return $tabs;
+	}
+
+	/**
+	 * Render the Q&A section below the product tabs / reviews area.
+	 *
+	 * Hooked onto `woocommerce_after_single_product_summary` at priority 25.
+	 * Only outputs when position setting is `below_reviews`.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render_qa_below_reviews() {
+		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+
+		$s = $this->get_settings();
+		if ( 'below_reviews' !== $s['position'] ) {
+			return;
+		}
+
+		$product_id = absint( $product->get_id() );
+		if ( ! $this->is_qa_enabled_for_product( $s, $product_id ) ) {
+			return;
+		}
+
+		$tab_name = ! empty( $s['tab_name'] )
+			? $s['tab_name']
+			: __( 'Questions & Answers', 'quick-qa-for-woocommerce' );
+
+		echo '<section class="qa-below-reviews-wrap">';
+		echo '<h2 class="qa-below-reviews-title">' . esc_html( $tab_name ) . '</h2>';
+		$this->render_qa_tab();
+		echo '</section>';
 	}
 
 	/**
@@ -94,6 +228,7 @@ class Quick_Qa_For_Woocommerce_Public {
 			return;
 		}
 
+		$s            = $this->get_settings();
 		$product_id   = absint( $product->get_id() );
 		$current_user = wp_get_current_user();
 		$is_logged_in = is_user_logged_in();
@@ -101,8 +236,9 @@ class Quick_Qa_For_Woocommerce_Public {
 			absint( $current_user->ID ),
 			$product_id
 		);
-		$per_page    = 3;
-		$questions   = $this->get_approved_questions( $product_id, 0, $per_page );
+
+		$per_page    = max( 1, min( 100, (int) $s['per_page'] ) );
+		$questions   = $this->get_approved_questions( $product_id, 0, $per_page, $s['default_sort'] );
 		$total_count = $this->get_total_approved_questions_count( $product_id );
 		$has_more    = $total_count > count( $questions );
 
@@ -127,35 +263,62 @@ class Quick_Qa_For_Woocommerce_Public {
 			}
 		}
 
+		// Settings-driven template variables.
+		$show_search       = (bool) $s['show_search'];
+		$show_filter       = (bool) $s['show_filter'];
+		$default_sort      = (string) $s['default_sort'];
+		$max_length        = max( 1, (int) $s['max_length'] );
+		$min_length        = max( 1, (int) $s['min_length'] );
+		$allow_community   = (bool) $s['allow_community'];
+		$pause_submissions = (bool) $s['pause_submissions'];
+
+		// Admins can always answer even when community answers are disabled.
+		$is_admin = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
+
 		// reCAPTCHA — show widget only when both enabled and site key is configured.
-		$recaptcha_site_key = (string) get_option( 'quick_qa_recaptcha_site_key', '' );
-		$show_recaptcha     = (bool) get_option( 'quick_qa_recaptcha_enabled', false ) && ! empty( $recaptcha_site_key );
+		$recaptcha_site_key = (string) $s['recaptcha_site_key'];
+		$show_recaptcha     = (bool) $s['recaptcha_enabled'] && ! empty( $recaptcha_site_key );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/quick-qa-tab.php';
 	}
 
 	/**
-	 * Fetch all approved questions for a product, with approved answers attached.
+	 * Fetch approved questions for a product with answers attached.
 	 *
 	 * Executes two queries: one for questions, one for all their answers (to
 	 * avoid N+1). Answers are grouped onto each question object as `->answers`.
 	 *
 	 * @since  1.0.0
 	 * @access private
-	 * @param  int $product_id WooCommerce product post ID.
-	 * @return object[]        Array of question row objects.
+	 * @param  int    $product_id WooCommerce product post ID.
+	 * @param  int    $offset     Number of rows to skip.
+	 * @param  int    $limit      Maximum rows to return.
+	 * @param  string $sort       Order: 'recent' | 'upvoted' | 'oldest'.
+	 * @return object[]
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_questions( $product_id, $offset = 0, $limit = 3 ) {
+	private function get_approved_questions( $product_id, $offset = 0, $limit = 10, $sort = 'recent' ) {
 		global $wpdb;
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+		switch ( $sort ) {
+			case 'upvoted':
+				$order_by = 'upvotes DESC, created_at DESC';
+				break;
+			case 'oldest':
+				$order_by = 'created_at ASC';
+				break;
+			default: // 'recent'
+				$order_by = 'created_at DESC';
+				break;
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$questions = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY {$order_by} LIMIT %d OFFSET %d",
 				$product_id,
 				$limit,
 				$offset
@@ -241,14 +404,11 @@ class Quick_Qa_For_Woocommerce_Public {
 	/**
 	 * Fetch the IDs of questions the given user has upvoted.
 	 *
-	 * Used to set the initial `is-voted` state on upvote buttons without
-	 * requiring a separate per-question query (single IN() query).
-	 *
 	 * @since  1.0.0
 	 * @access private
 	 * @param  int   $user_id      WordPress user ID.
 	 * @param  int[] $question_ids Question IDs to check.
-	 * @return int[]               Subset of $question_ids the user has upvoted.
+	 * @return int[]
 	 * @global wpdb $wpdb
 	 */
 	private function get_user_question_votes( $user_id, array $question_ids ) {
@@ -281,7 +441,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * @access private
 	 * @param  int   $user_id    WordPress user ID.
 	 * @param  int[] $answer_ids Answer IDs to check.
-	 * @return int[]             Subset of $answer_ids the user has voted helpful.
+	 * @return int[]
 	 * @global wpdb $wpdb
 	 */
 	private function get_user_answer_votes( $user_id, array $answer_ids ) {
@@ -309,10 +469,6 @@ class Quick_Qa_For_Woocommerce_Public {
 
 	/**
 	 * Determine whether the current user has purchased this product.
-	 *
-	 * Delegates to WooCommerce's `wc_customer_bought_product()` and caches
-	 * the result in the WordPress object cache for one hour to avoid repeated
-	 * order queries on the same page load or across a short visit.
 	 *
 	 * @since  1.0.0
 	 * @access private
@@ -364,8 +520,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	/**
 	 * Enqueue the public JavaScript — only on single product pages.
 	 *
-	 * Loaded in the footer (`$in_footer = true`) so the DOM is ready and the
-	 * script can query elements without a DOMContentLoaded wrapper.
+	 * Loaded in the footer so the DOM is ready when the script runs.
 	 *
 	 * @since 1.0.0
 	 */
@@ -382,9 +537,10 @@ class Quick_Qa_For_Woocommerce_Public {
 			true
 		);
 
-		// Conditionally load Google reCAPTCHA v2 API.
-		$recaptcha_enabled  = (bool) get_option( 'quick_qa_recaptcha_enabled', false );
-		$recaptcha_site_key = (string) get_option( 'quick_qa_recaptcha_site_key', '' );
+		$s = $this->get_settings();
+
+		$recaptcha_enabled  = (bool) $s['recaptcha_enabled'];
+		$recaptcha_site_key = (string) $s['recaptcha_site_key'];
 
 		if ( $recaptcha_enabled && $recaptcha_site_key ) {
 			wp_enqueue_script(
@@ -396,13 +552,6 @@ class Quick_Qa_For_Woocommerce_Public {
 			);
 		}
 
-		/**
-		 * Pass REST API URL, nonce, and translatable strings to the frontend JS.
-		 *
-		 * The nonce uses the standard WordPress REST cookie (`wp_rest`) so
-		 * WordPress can resolve the current user from the X-WP-Nonce header on
-		 * every fetch() request — no manual session handling required.
-		 */
 		wp_localize_script(
 			$this->plugin_name,
 			'quickQaSettings',
@@ -410,27 +559,35 @@ class Quick_Qa_For_Woocommerce_Public {
 				'restUrl'          => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'recaptchaEnabled' => ( $recaptcha_enabled && $recaptcha_site_key ) ? '1' : '0',
+				'perPage'          => max( 1, (int) $s['per_page'] ),
+				'minLength'        => max( 1, (int) $s['min_length'] ),
+				'maxLength'        => max( 1, (int) $s['max_length'] ),
+				'defaultSort'      => (string) $s['default_sort'],
 				'i18n'             => array(
-					'askQuestion'      => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
-					'cancel'           => __( 'Cancel', 'quick-qa-for-woocommerce' ),
-					'submit'           => __( 'Submit question', 'quick-qa-for-woocommerce' ),
-					'submitting'       => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
-					'minLength'        => __( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
-					'nameRequired'     => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'askQuestion'       => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
+					'cancel'            => __( 'Cancel', 'quick-qa-for-woocommerce' ),
+					'submit'            => __( 'Submit question', 'quick-qa-for-woocommerce' ),
+					'submitting'        => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
+					/* translators: %d: minimum character count for a question */
+					'minLength'         => sprintf(
+						__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
+						max( 1, (int) $s['min_length'] )
+					),
+					'nameRequired'      => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
 					'recaptchaRequired' => __( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
-					'errorGeneric'     => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
+					'errorGeneric'      => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Singular. */
-					'questionCount'    => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
+					'questionCount'     => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Plural. */
-					'questionsCount'   => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
-					'collapse'         => __( 'Collapse', 'quick-qa-for-woocommerce' ),
-					'oneAnswer'        => __( '1 answer', 'quick-qa-for-woocommerce' ),
-					'answers'          => __( 'answers', 'quick-qa-for-woocommerce' ),
-					'noAnswersYet'     => __( 'No answers yet', 'quick-qa-for-woocommerce' ),
-					'answerMinLength'  => __( 'Your answer must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
-					'submitAnswer'     => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
-					'showMore'         => __( 'Show more questions', 'quick-qa-for-woocommerce' ),
-					'loadingMore'      => __( 'Loading…', 'quick-qa-for-woocommerce' ),
+					'questionsCount'    => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
+					'collapse'          => __( 'Collapse', 'quick-qa-for-woocommerce' ),
+					'oneAnswer'         => __( '1 answer', 'quick-qa-for-woocommerce' ),
+					'answers'           => __( 'answers', 'quick-qa-for-woocommerce' ),
+					'noAnswersYet'      => __( 'No answers yet', 'quick-qa-for-woocommerce' ),
+					'answerMinLength'   => __( 'Your answer must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'submitAnswer'      => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
+					'showMore'          => __( 'Show more questions', 'quick-qa-for-woocommerce' ),
+					'loadingMore'       => __( 'Loading…', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);

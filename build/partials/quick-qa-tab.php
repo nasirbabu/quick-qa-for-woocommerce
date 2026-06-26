@@ -4,15 +4,23 @@
  *
  * Variables injected by Quick_Qa_For_Woocommerce_Public::render_qa_tab():
  *
- *   $product_id     (int)      Current WooCommerce product ID.
- *   $questions      (object[]) Approved question rows; each has an ->answers property.
- *   $current_user   (WP_User)  Current visitor's WordPress user object.
- *   $is_logged_in   (bool)     Whether the visitor is authenticated.
- *   $is_verified    (bool)     Whether they have a completed purchase of this product.
- *   $user_voted_ids   (int[])    Question IDs the current user has already upvoted.
- *   $user_helpful_ids (int[])    Answer IDs the current user has marked as helpful.
- *   $total_count      (int)      Total approved questions in DB (may exceed count($questions)).
- *   $has_more         (bool)     Whether more questions exist beyond the initial batch.
+ *   $product_id        (int)      Current WooCommerce product ID.
+ *   $questions         (object[]) Approved question rows; each has an ->answers property.
+ *   $current_user      (WP_User)  Current visitor's WordPress user object.
+ *   $is_logged_in      (bool)     Whether the visitor is authenticated.
+ *   $is_verified       (bool)     Whether they have a completed purchase of this product.
+ *   $is_admin          (bool)     Whether the visitor has manage_options / manage_woocommerce.
+ *   $user_voted_ids    (int[])    Question IDs the current user has already upvoted.
+ *   $user_helpful_ids  (int[])    Answer IDs the current user has marked as helpful.
+ *   $total_count       (int)      Total approved questions in DB (may exceed count($questions)).
+ *   $has_more          (bool)     Whether more questions exist beyond the initial batch.
+ *   $show_search       (bool)     Whether to render the keyword search input.
+ *   $show_filter       (bool)     Whether to render the filter pills (All / Answered / Unanswered).
+ *   $default_sort      (string)   Initial sort order: 'recent' | 'upvoted' | 'oldest'.
+ *   $max_length        (int)      Maximum question character length.
+ *   $min_length        (int)      Minimum question character length.
+ *   $allow_community   (bool)     Whether logged-in customers can submit answers.
+ *   $pause_submissions (bool)     When true, the Ask button and form are hidden.
  *
  * @since   1.0.0
  * @package Quick_Qa_For_Woocommerce
@@ -54,6 +62,7 @@ $question_count = count( $questions );
 			</div>
 		</div>
 
+		<?php if ( ! $pause_submissions ) : ?>
 		<button class="qa-ask-btn"
 			id="qa-toggle-ask"
 			type="button"
@@ -62,11 +71,13 @@ $question_count = count( $questions );
 		>
 			<?php esc_html_e( 'Ask a question', 'quick-qa-for-woocommerce' ); ?>
 		</button>
+	<?php endif; ?>
 	</div>
 
 	<?php // ================================================================ ?>
 	<?php // Ask form — hidden by default, toggled by JS                     ?>
 	<?php // ================================================================ ?>
+	<?php if ( ! $pause_submissions ) : ?>
 	<div class="qa-ask-form"
 		id="qa-ask-form"
 		style="display:none;"
@@ -138,10 +149,10 @@ $question_count = count( $questions );
 				name="qa_question_text"
 				rows="4"
 				placeholder="<?php esc_attr_e( 'What would you like to know?', 'quick-qa-for-woocommerce' ); ?>"
-				maxlength="500"
+				maxlength="<?php echo esc_attr( $max_length ); ?>"
 			></textarea>
 			<div class="qa-form-counter">
-				<span id="qa-char-count">0</span> / 500
+				<span id="qa-char-count">0</span> / <?php echo esc_html( $max_length ); ?>
 			</div>
 			<div class="qa-form-error" id="qa-form-error" role="alert" style="display:none;"></div>
 		</div>
@@ -165,6 +176,7 @@ $question_count = count( $questions );
 			</button>
 		</div>
 	</div>
+	<?php endif; // pause_submissions ?>
 
 	<?php // ================================================================ ?>
 	<?php // Submission confirmation — hidden, shown by JS after submit      ?>
@@ -192,6 +204,7 @@ $question_count = count( $questions );
 		<?php // Controls: search + filter pills + sort                       ?>
 		<?php // ============================================================ ?>
 		<div class="qa-controls">
+			<?php if ( $show_search ) : ?>
 			<div class="qa-search-frontend">
 				<span class="qa-search-icon-frontend" aria-hidden="true">⌕</span>
 				<input
@@ -201,8 +214,10 @@ $question_count = count( $questions );
 					aria-label="<?php esc_attr_e( 'Search questions', 'quick-qa-for-woocommerce' ); ?>"
 				/>
 			</div>
+			<?php endif; ?>
 
 			<div class="qa-controls-right">
+				<?php if ( $show_filter ) : ?>
 				<div class="qa-filter-pills"
 					role="group"
 					aria-label="<?php esc_attr_e( 'Filter questions', 'quick-qa-for-woocommerce' ); ?>"
@@ -217,19 +232,20 @@ $question_count = count( $questions );
 						<?php esc_html_e( 'Unanswered', 'quick-qa-for-woocommerce' ); ?>
 					</button>
 				</div>
+				<?php endif; ?>
 
 				<select
 					class="qa-sort-select"
 					id="qa-sort"
 					aria-label="<?php esc_attr_e( 'Sort questions', 'quick-qa-for-woocommerce' ); ?>"
 				>
-					<option value="recent">
+					<option value="recent"<?php selected( $default_sort, 'recent' ); ?>>
 						<?php esc_html_e( 'Most recent', 'quick-qa-for-woocommerce' ); ?>
 					</option>
-					<option value="upvoted">
+					<option value="upvoted"<?php selected( $default_sort, 'upvoted' ); ?>>
 						<?php esc_html_e( 'Most upvoted', 'quick-qa-for-woocommerce' ); ?>
 					</option>
-					<option value="oldest">
+					<option value="oldest"<?php selected( $default_sort, 'oldest' ); ?>>
 						<?php esc_html_e( 'Oldest first', 'quick-qa-for-woocommerce' ); ?>
 					</option>
 				</select>

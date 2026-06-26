@@ -143,8 +143,15 @@ foreach ( $questions as $question ) :
 			</div>
 		</div>
 
-		<?php // Answers panel: always render for logged-in users (so the form is accessible). ?>
-		<?php if ( ! empty( $question->answers ) || $is_logged_in ) : ?>
+		<?php
+		// Admins can always answer; regular users need allow_community enabled.
+		$can_submit_answer = ( isset( $is_admin ) && $is_admin );
+		if ( ! $can_submit_answer && $is_logged_in && ( ! isset( $allow_community ) || $allow_community ) ) {
+			$can_submit_answer = true;
+		}
+		?>
+		<?php // Answers panel: render when answers exist or the user can submit one. ?>
+		<?php if ( ! empty( $question->answers ) || $can_submit_answer ) : ?>
 			<div class="qa-answers" style="display:none;">
 
 				<?php if ( ! empty( $question->answers ) ) : ?>
@@ -240,7 +247,7 @@ foreach ( $questions as $question ) :
 					<?php endforeach; ?>
 				<?php endif; ?>
 
-				<?php if ( $is_logged_in ) : ?>
+				<?php if ( $can_submit_answer ) : ?>
 
 					<?php // Confirmation shown by JS after a community answer is submitted (pending review). ?>
 					<div class="qa-confirm qa-confirm--pending qa-answer-confirm"

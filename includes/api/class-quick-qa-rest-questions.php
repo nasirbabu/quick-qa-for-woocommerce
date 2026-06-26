@@ -617,6 +617,11 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 		}
 
+		// Load settings so the partial can respect allow_community.
+		$qq_s            = get_option( 'quick_qa_settings', array() );
+		$allow_community = isset( $qq_s['allow_community'] ) ? (bool) $qq_s['allow_community'] : true;
+		$is_admin        = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
+
 		// Render question items HTML using the shared partial template.
 		ob_start();
 		$partial = trailingslashit( dirname( dirname( dirname( __FILE__ ) ) ) ) . 'public/partials/quick-qa-question-items.php';
