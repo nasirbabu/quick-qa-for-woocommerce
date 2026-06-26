@@ -264,6 +264,16 @@
 			}
 
 			var questionText = questionTextEl.value.trim();
+			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+			// Honeypot check: if the hidden field was filled, silently abort (bot).
+			if ( settings.honeypotEnabled === '1' ) {
+				var honeypotEl = document.getElementById( 'qa-website' );
+				if ( honeypotEl && honeypotEl.value ) {
+					closeAskForm( document.getElementById( 'qa-ask-form' ), document.getElementById( 'qa-toggle-ask' ) );
+					return;
+				}
+			}
 
 			// Client-side validation mirrors the server-side rules.
 			if ( guestNameEl && '' === guestNameEl.value.trim() ) {
@@ -272,16 +282,26 @@
 				return;
 			}
 
-			var minLen = ( typeof quickQaSettings !== 'undefined' && quickQaSettings.minLength )
-				? parseInt( quickQaSettings.minLength, 10 )
-				: 10;
+			if ( guestEmailEl ) {
+				var emailVal = guestEmailEl.value.trim();
+				if ( settings.requireEmailForGuests === '1' && ! emailVal ) {
+					showFormError( i18n( 'emailRequired', 'Please enter your email address.' ) );
+					guestEmailEl.focus();
+					return;
+				}
+				if ( emailVal && ! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( emailVal ) ) {
+					showFormError( i18n( 'emailInvalid', 'Please enter a valid email address.' ) );
+					guestEmailEl.focus();
+					return;
+				}
+			}
+
+			var minLen = settings.minLength ? parseInt( settings.minLength, 10 ) : 10;
 			if ( questionText.length < minLen ) {
 				showFormError( i18n( 'minLength', 'Your question must be at least 10 characters.' ) );
 				questionTextEl.focus();
 				return;
 			}
-
-			var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
 
 			// reCAPTCHA check — must be completed before submit.
 			if ( settings.recaptchaEnabled === '1' ) {
@@ -311,6 +331,12 @@
 			// Include reCAPTCHA token when present.
 			if ( settings.recaptchaEnabled === '1' && typeof grecaptcha !== 'undefined' ) {
 				body.recaptcha_token = grecaptcha.getResponse();
+			}
+
+			// Always send honeypot field value; server validates it's empty.
+			var honeypotEl = document.getElementById( 'qa-website' );
+			if ( honeypotEl ) {
+				body.honeypot = honeypotEl.value;
 			}
 
 			fetch( ( settings.restUrl || '' ) + 'questions', {

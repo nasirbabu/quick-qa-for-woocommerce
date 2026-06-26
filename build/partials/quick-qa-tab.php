@@ -19,8 +19,11 @@
  *   $default_sort      (string)   Initial sort order: 'recent' | 'upvoted' | 'oldest'.
  *   $max_length        (int)      Maximum question character length.
  *   $min_length        (int)      Minimum question character length.
- *   $allow_community   (bool)     Whether logged-in customers can submit answers.
- *   $pause_submissions (bool)     When true, the Ask button and form are hidden.
+ *   $allow_community          (bool)   Whether logged-in customers can submit answers.
+ *   $pause_submissions        (bool)   When true, the Ask button and form are hidden.
+ *   $user_can_ask             (bool)   Whether the current visitor is allowed by who_can_ask setting.
+ *   $require_email_for_guests (bool)   Whether guests must provide an email address.
+ *   $enable_honeypot          (bool)   Whether an invisible honeypot field should be rendered.
  *
  * @since   1.0.0
  * @package Quick_Qa_For_Woocommerce
@@ -34,6 +37,8 @@ $question_count = count( $questions );
 	id="quick-qa-widget"
 	data-product-id="<?php echo esc_attr( $product_id ); ?>"
 	data-total="<?php echo esc_attr( $total_count ); ?>"
+	data-card-style="<?php echo esc_attr( $appr_card_style ?? 'bordered' ); ?>"
+	data-avatar-style="<?php echo esc_attr( $appr_avatar_style ?? 'circle' ); ?>"
 >
 
 	<?php // ================================================================ ?>
@@ -62,7 +67,7 @@ $question_count = count( $questions );
 			</div>
 		</div>
 
-		<?php if ( ! $pause_submissions ) : ?>
+		<?php if ( ! $pause_submissions && $user_can_ask ) : ?>
 		<button class="qa-ask-btn"
 			id="qa-toggle-ask"
 			type="button"
@@ -77,7 +82,7 @@ $question_count = count( $questions );
 	<?php // ================================================================ ?>
 	<?php // Ask form — hidden by default, toggled by JS                     ?>
 	<?php // ================================================================ ?>
-	<?php if ( ! $pause_submissions ) : ?>
+	<?php if ( ! $pause_submissions && $user_can_ask ) : ?>
 	<div class="qa-ask-form"
 		id="qa-ask-form"
 		style="display:none;"
@@ -126,9 +131,13 @@ $question_count = count( $questions );
 			<div class="qa-ask-form-field">
 				<label for="qa-guest-email">
 					<?php esc_html_e( 'Email', 'quick-qa-for-woocommerce' ); ?>
-					<span class="qa-label-note">
-						<?php esc_html_e( "(we'll notify you when answered)", 'quick-qa-for-woocommerce' ); ?>
-					</span>
+					<?php if ( $require_email_for_guests ) : ?>
+						<span class="qa-label-required" aria-hidden="true"> *</span>
+					<?php else : ?>
+						<span class="qa-label-note">
+							<?php esc_html_e( "(we'll notify you when answered)", 'quick-qa-for-woocommerce' ); ?>
+						</span>
+					<?php endif; ?>
 				</label>
 				<input
 					type="email"
@@ -136,6 +145,7 @@ $question_count = count( $questions );
 					name="qa_guest_email"
 					placeholder="<?php esc_attr_e( 'you@example.com', 'quick-qa-for-woocommerce' ); ?>"
 					autocomplete="email"
+					<?php if ( $require_email_for_guests ) : ?>required aria-required="true"<?php endif; ?>
 				/>
 			</div>
 		<?php endif; ?>
@@ -158,6 +168,14 @@ $question_count = count( $questions );
 		</div>
 
 		<input type="hidden" id="qa-product-id" value="<?php echo esc_attr( $product_id ); ?>" />
+
+		<?php if ( $enable_honeypot ) : ?>
+		<?php // Honeypot: invisible to humans, filled by bots. Must remain empty on submit. ?>
+		<div class="qa-hp" aria-hidden="true" style="position:absolute;left:-9999px;overflow:hidden;width:1px;height:1px;" tabindex="-1">
+			<label for="qa-website"><?php esc_html_e( 'Leave this field empty', 'quick-qa-for-woocommerce' ); ?></label>
+			<input type="text" id="qa-website" name="qa_website" value="" autocomplete="off" tabindex="-1" />
+		</div>
+		<?php endif; ?>
 
 		<?php if ( $show_recaptcha ) : ?>
 		<div class="qa-recaptcha-wrap">

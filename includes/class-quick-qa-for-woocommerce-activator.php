@@ -129,6 +129,30 @@ class Quick_Qa_For_Woocommerce_Activator {
 	}
 
 	/**
+	 * Update appr_color to match the newly-activated theme's button colour.
+	 *
+	 * Called from the switch_theme action (priority 20, after WordPress has
+	 * flushed its own theme caches). If the new theme exposes no detectable
+	 * button colour the existing appr_color is left unchanged so the admin's
+	 * previous choice is preserved.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function sync_brand_color() {
+		$color = self::detect_theme_button_color();
+		if ( ! $color ) {
+			return; // New theme has no detectable colour; keep existing value.
+		}
+
+		$saved = get_option( 'quick_qa_settings', array() );
+		if ( ! is_array( $saved ) ) {
+			$saved = array();
+		}
+		$saved['appr_color'] = $color;
+		update_option( 'quick_qa_settings', $saved, true );
+	}
+
+	/**
 	 * Seed appr_color from the active theme if it has not been set yet.
 	 *
 	 * Called on activation (new installs) and after plugin updates via

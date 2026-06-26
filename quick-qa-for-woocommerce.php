@@ -63,6 +63,21 @@ function quick_qa_maybe_update_db() {
 add_action( 'plugins_loaded', 'quick_qa_maybe_update_db' );
 
 /**
+ * When the admin switches to a different theme, automatically update the
+ * plugin's brand colour to match the new theme's button / accent colour.
+ *
+ * Priority 20 ensures WordPress has already flushed its own theme caches
+ * (registered at priority 10) before we run colour detection.
+ *
+ * @since 1.0.0
+ */
+function quick_qa_on_switch_theme() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-quick-qa-for-woocommerce-activator.php';
+	Quick_Qa_For_Woocommerce_Activator::sync_brand_color();
+}
+add_action( 'switch_theme', 'quick_qa_on_switch_theme', 20 );
+
+/**
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-quick-qa-for-woocommerce-deactivator.php
  */

@@ -356,6 +356,97 @@
 .qq-tpl-preview-badge { color: var(--coral-text); font-size: 11px; font-weight: 500; margin-right: 2px; }
 .qq-tpl-preview-text  { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
 
+/* ── Template picker modal (opened from AllQA → Approve & answer) ─────────── */
+.qq-modal.qq-tpl-picker-modal {
+  width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Head: allow title + desc sub-text alongside the close button */
+.qq-modal-head-text { flex: 1; }
+.qq-modal-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* Search bar */
+.qq-tpl-pick-search-wrap {
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--hairline);
+  flex-shrink: 0;
+}
+.qq-tpl-pick-search {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--cream);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.qq-tpl-pick-search::placeholder { color: var(--text-4); }
+.qq-tpl-pick-search:focus        { border-color: var(--coral); }
+
+/* Scrollable template list */
+.qq-tpl-pick-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 80px;
+}
+
+/* Empty / loading state */
+.qq-tpl-pick-empty {
+  padding: 32px 22px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+/* Individual template row */
+.qq-tpl-pick-item {
+  padding: 12px 22px;
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--hairline);
+  transition: background 0.1s;
+}
+.qq-tpl-pick-item:last-child { border-bottom: none; }
+.qq-tpl-pick-item:hover      { background: var(--cream-2); }
+
+/* Row: name + category badge */
+.qq-tpl-pick-item-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.qq-tpl-pick-item-cat {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-3);
+  background: var(--cream-3);
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+/* Row: content preview (single line, truncated) */
+.qq-tpl-pick-item-preview {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Modal (shared — used by Delete confirm) */
 .qq-modal-overlay {
   position: fixed;
@@ -376,7 +467,7 @@
 }
 .qq-modal-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 18px 22px 14px;
   border-bottom: 0.5px solid var(--hairline);
