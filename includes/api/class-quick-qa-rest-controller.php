@@ -150,8 +150,7 @@ abstract class Quick_Qa_Rest_Controller {
 			return 'quick_qa_rl_u_' . $user_id;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$raw_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+		$raw_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
 
 		return 'quick_qa_rl_ip_' . md5( $raw_ip );
 	}

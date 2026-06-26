@@ -714,7 +714,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'body'    => array(
 						'secret'   => $recaptcha_secret_key,
 						'response' => $token,
-						'remoteip' => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : '',
+						'remoteip' => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
 					),
 					'timeout' => 10,
 				)
