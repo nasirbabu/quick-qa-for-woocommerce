@@ -37,6 +37,8 @@ $question_count = count( $questions );
 	id="quick-qa-widget"
 	data-product-id="<?php echo esc_attr( $product_id ); ?>"
 	data-total="<?php echo esc_attr( $total_count ); ?>"
+	data-card-style="<?php echo esc_attr( $appr_card_style ?? 'bordered' ); ?>"
+	data-avatar-style="<?php echo esc_attr( $appr_avatar_style ?? 'circle' ); ?>"
 >
 
 	<?php // ================================================================ ?>

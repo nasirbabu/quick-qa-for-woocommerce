@@ -88,6 +88,21 @@ class Quick_Qa_For_Woocommerce_Public {
 			'recaptcha_enabled'        => false,
 			'recaptcha_site_key'       => '',
 			'recaptcha_secret_key'     => '',
+			// Appearance
+			'appr_color'               => '#FF6B4A',
+			'appr_radius'              => 'rounded',
+			'appr_avatar_style'        => 'circle',
+			'appr_card_style'          => 'bordered',
+			'appr_font_mode'           => 'inherit',
+			'appr_font_custom'         => '',
+			'appr_font_size'           => 'medium',
+			'appr_density'             => 'comfortable',
+			'appr_show_upvotes'        => true,
+			'appr_show_helpful'        => true,
+			'appr_show_role_badges'    => true,
+			'appr_show_best_highlight' => true,
+			'appr_show_avatars'        => true,
+			'appr_custom_css'          => '',
 		);
 
 		$saved  = get_option( 'quick_qa_settings', array() );
@@ -294,6 +309,12 @@ class Quick_Qa_For_Woocommerce_Public {
 		// reCAPTCHA — show widget only when both enabled and site key is configured.
 		$recaptcha_site_key = (string) $s['recaptcha_site_key'];
 		$show_recaptcha     = (bool) $s['recaptcha_enabled'] && ! empty( $recaptcha_site_key );
+
+		// Appearance — data attributes used by CSS for discrete variants.
+		$appr_card_style   = in_array( $s['appr_card_style'], array( 'bordered', 'filled', 'minimal' ), true )
+			? $s['appr_card_style'] : 'bordered';
+		$appr_avatar_style = in_array( $s['appr_avatar_style'], array( 'circle', 'square', 'hidden' ), true )
+			? $s['appr_avatar_style'] : 'circle';
 
 		include plugin_dir_path( __FILE__ ) . 'partials/quick-qa-tab.php';
 	}
@@ -531,6 +552,14 @@ class Quick_Qa_For_Woocommerce_Public {
 			$this->version,
 			'all'
 		);
+
+		// Inject appearance settings as inline CSS that overrides the stylesheet's
+		// default custom-property values.
+		$s   = $this->get_settings();
+		$css = $this->build_appearance_css( $s );
+		if ( ! empty( $css ) ) {
+			wp_add_inline_style( $this->plugin_name, $css );
+		}
 	}
 
 	/**
@@ -611,5 +640,154 @@ class Quick_Qa_For_Woocommerce_Public {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Build the dynamic appearance CSS string that overrides the stylesheet's
+	 * default custom-property values and adds data-attribute-scoped variant rules.
+	 *
+	 * The resulting string is passed to wp_add_inline_style() and placed
+	 * immediately after the main public stylesheet so it always wins.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  array $s  Plugin settings (already merged with defaults).
+	 * @return string    CSS ready to inject.
+	 */
+	private function build_appearance_css( $s ) {
+
+		// ── Brand color ───────────────────────────────────────────────────────
+		$color = (string) $s['appr_color'];
+		if ( ! preg_match( '/^#[0-9A-Fa-f]{6}$/', $color ) ) {
+			$color = '#FF6B4A';
+		}
+		$color_dark = $this->darken_hex( $color );
+
+		// ── Corner radius ─────────────────────────────────────────────────────
+		switch ( $s['appr_radius'] ) {
+			case 'sharp': $radius = '0px'; break;
+			case 'pill':  $radius = '999px'; break;
+			default:      $radius = '8px'; break; // 'rounded'
+		}
+
+		// ── Font size ─────────────────────────────────────────────────────────
+		switch ( $s['appr_font_size'] ) {
+			case 'small': $fs_base = '12px'; $fs_small = '10px'; break;
+			case 'large': $fs_base = '16px'; $fs_small = '13px'; break;
+			default:      $fs_base = '14px'; $fs_small = '12px'; break; // 'medium'
+		}
+
+		// ── Density ───────────────────────────────────────────────────────────
+		switch ( $s['appr_density'] ) {
+			case 'compact':  $pad = '10px'; $gap = '8px'; break;
+			case 'spacious': $pad = '24px'; $gap = '20px'; break;
+			default:         $pad = '16px'; $gap = '14px'; break; // 'comfortable'
+		}
+
+		// ── Font family ───────────────────────────────────────────────────────
+		$font_family = null;
+		switch ( $s['appr_font_mode'] ) {
+			case 'system':
+				$font_family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+				break;
+			case 'custom':
+				$raw = trim( (string) $s['appr_font_custom'] );
+				if ( ! empty( $raw ) ) {
+					$font_family = $raw;
+				}
+				break;
+			// 'inherit' — no override needed.
+		}
+
+		// ── Custom properties block ───────────────────────────────────────────
+		$tokens = ".qa-widget {\n"
+			. "\t--qa-color:      {$color};\n"
+			. "\t--qa-color-dark: {$color_dark};\n"
+			. "\t--qa-radius:     {$radius};\n"
+			. "\t--qa-fs-base:    {$fs_base};\n"
+			. "\t--qa-fs-small:   {$fs_small};\n"
+			. "\t--qa-pad:        {$pad};\n"
+			. "\t--qa-gap:        {$gap};\n"
+			. ( $font_family ? "\tfont-family: {$font_family};\n" : '' )
+			. '}';
+
+		// ── Card style variants ───────────────────────────────────────────────
+		$card = <<<'CSS'
+
+/* -- Appearance: card style -- */
+.qa-widget[data-card-style="filled"] .qa-thread {
+	background:   #FAFAF8;
+	border-color: transparent;
+}
+.qa-widget[data-card-style="minimal"] .qa-thread {
+	border:        none;
+	border-bottom: 1px solid #ebebeb;
+	border-radius: 0;
+	padding-left:  0;
+	padding-right: 0;
+}
+.qa-widget[data-card-style="minimal"] .qa-thread.is-expanded {
+	border-color: #ebebeb;
+}
+CSS;
+
+		// ── Avatar style variants ─────────────────────────────────────────────
+		$avatar = <<<'CSS'
+
+/* -- Appearance: avatar style -- */
+.qa-widget[data-avatar-style="square"] .qa-av { border-radius: 6px; }
+.qa-widget[data-avatar-style="hidden"] .qa-av { display: none; }
+CSS;
+
+		// ── Visibility toggles ────────────────────────────────────────────────
+		$visibility = '';
+		if ( empty( $s['appr_show_upvotes'] ) ) {
+			$visibility .= "\n.qa-widget .qa-vote-btn { display: none; }";
+		}
+		if ( empty( $s['appr_show_helpful'] ) ) {
+			$visibility .= "\n.qa-widget .qa-helpful { display: none; }";
+		}
+		if ( empty( $s['appr_show_role_badges'] ) ) {
+			$visibility .= "\n.qa-widget .qa-role { display: none; }";
+		}
+		if ( empty( $s['appr_show_best_highlight'] ) ) {
+			$visibility .= "\n.qa-widget .qa-best-tag { display: none; }";
+		}
+		if ( empty( $s['appr_show_avatars'] ) ) {
+			$visibility .= "\n.qa-widget .qa-av { display: none; }";
+		}
+
+		// ── Custom CSS ────────────────────────────────────────────────────────
+		$custom = '';
+		$raw_custom = trim( (string) $s['appr_custom_css'] );
+		if ( ! empty( $raw_custom ) ) {
+			// Prevent premature </style> tag closure.
+			$raw_custom = str_ireplace( '</style>', '', $raw_custom );
+			$custom     = "\n/* -- Custom CSS -- */\n{$raw_custom}";
+		}
+
+		return $tokens . $card . $avatar . $visibility . $custom;
+	}
+
+	/**
+	 * Return a darkened version of a 6-digit hex colour.
+	 *
+	 * Used to compute --qa-color-dark for hover states.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  string $hex    '#RRGGBB' string.
+	 * @param  float  $amount Fraction to reduce each channel (0–1).
+	 * @return string '#rrggbb' string.
+	 */
+	private function darken_hex( $hex, $amount = 0.2 ) {
+		$hex = ltrim( $hex, '#' );
+		if ( 6 !== strlen( $hex ) ) {
+			return '#cc4a28';
+		}
+		$r = max( 0, (int) round( hexdec( substr( $hex, 0, 2 ) ) * ( 1 - $amount ) ) );
+		$g = max( 0, (int) round( hexdec( substr( $hex, 2, 2 ) ) * ( 1 - $amount ) ) );
+		$b = max( 0, (int) round( hexdec( substr( $hex, 4, 2 ) ) * ( 1 - $amount ) ) );
+		return sprintf( '#%02x%02x%02x', $r, $g, $b );
 	}
 }
