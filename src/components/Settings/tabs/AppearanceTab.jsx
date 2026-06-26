@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './AppearanceTab.css';
 import Toggle from '../components/Toggle';
 import AppearancePreview from '../components/AppearancePreview';
 

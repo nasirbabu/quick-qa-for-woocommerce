@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Settings.css';
 import { DEFAULT_SETTINGS, TABS } from './constants';
 import GeneralTab    from './tabs/GeneralTab';
 import SubmissionTab from './tabs/SubmissionTab';

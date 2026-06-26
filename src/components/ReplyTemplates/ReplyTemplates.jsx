@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './ReplyTemplates.css';
 
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 

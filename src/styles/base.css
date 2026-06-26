@@ -1,0 +1,202 @@
+/* ==========================================================================
+   BASE — CSS variables, reset, root, app shell, nav, shared buttons/states
+   Imported once in index.jsx. Everything here is used across 2+ pages.
+   ========================================================================== */
+
+:root {
+  --coral: #FF6B4A;
+  --coral-hover: #FF5436;
+  --coral-soft: #FFF5F0;
+  --coral-soft-2: #FFE4D8;
+  --coral-text: #993C1D;
+  --cream: #FDFCFA;
+  --cream-2: #FAF6F0;
+  --cream-3: #F5F1EB;
+  --hairline: #EFE9E2;
+  --text: #2A2825;
+  --text-2: #6A655F;
+  --text-3: #8A8580;
+  --text-4: #B8B3AC;
+  --gold: #E8C56C;
+  --gold-soft: #FAEEDA;
+  --gold-text: #8B6914;
+  --green: #6A8E3F;
+  --green-soft: #E5F2DC;
+  --red: #C44A3A;
+  --red-soft: #FCEBEB;
+  --red-soft-2: #FCF4F2;
+  --shadow-sm: 0 1px 0 rgba(255, 107, 74, 0.3);
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Root element — positioning is handled by WP inline override (position: fixed) */
+#quick-qa-root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+button { font-family: inherit; cursor: pointer; }
+input, textarea { font-family: inherit; }
+a { color: var(--coral); text-decoration: none; }
+
+/* App shell */
+.qq-app-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Plugin top nav ── */
+.qq-nav {
+  background: white;
+  border-bottom: 0.5px solid var(--hairline);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  flex-shrink: 0;
+}
+.qq-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 32px;
+}
+.qq-nav-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-md);
+  background: var(--coral);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.qq-nav-item {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  user-select: none;
+}
+.qq-nav-item:hover:not(.active) { color: var(--text); }
+.qq-nav-item.active {
+  color: var(--text);
+  border-bottom-color: var(--coral);
+  font-weight: 500;
+}
+.qq-nav-spacer { flex: 1; }
+.qq-nav-pro {
+  background: linear-gradient(135deg, var(--coral) 0%, #FF8B6F 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+/* ── Shared buttons ── */
+.btn {
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-primary {
+  padding: 9px 22px;
+  font-weight: 500;
+  background: var(--coral);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover { background: var(--coral-hover); }
+.btn-primary:disabled { background: #F0BFAF; cursor: not-allowed; box-shadow: none; }
+.btn-secondary {
+  padding: 9px 16px;
+  background: white;
+  color: var(--text-2);
+  border: 0.5px solid var(--hairline);
+}
+.btn-secondary:hover { color: var(--text); border-color: #D4CCC2; }
+.btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-danger-ghost {
+  padding: 9px 16px;
+  background: white;
+  color: var(--text-2);
+  border: 0.5px solid var(--hairline);
+}
+.btn-danger-ghost:hover { color: var(--red); border-color: var(--red); }
+.btn-danger-ghost:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-danger {
+  padding: 9px 16px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+}
+.btn-danger:hover { background: #8A2D1F; }
+.btn-danger:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-ghost {
+  padding: 9px 16px;
+  background: transparent;
+  color: var(--text-2);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+.btn-ghost:hover { color: var(--text); border-color: #D4CCC2; }
+.btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Shared page states ── */
+.qq-coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  color: var(--text-3);
+}
+.qq-coming-soon h2 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.qq-coming-soon p { font-size: 14px; }
+
+.qq-state-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-size: 14px;
+  color: var(--text-3);
+}
+.qq-state-msg--error { color: var(--red); }

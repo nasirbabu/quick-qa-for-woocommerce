@@ -9,8 +9,6 @@ export default defineConfig({
     rollupOptions: {
       input: resolve(__dirname, 'src/index.jsx'),
       output: {
-        format: 'iife',
-        name: 'QuickQaApp',
         entryFileNames: 'quick-qa-app.js',
         chunkFileNames: 'quick-qa-[name].js',
         assetFileNames: (assetInfo) => {

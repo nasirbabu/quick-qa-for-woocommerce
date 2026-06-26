@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import './AllQA.css';
 import QuestionList from './QuestionList';
 import QuestionDetail from './QuestionDetail';
 

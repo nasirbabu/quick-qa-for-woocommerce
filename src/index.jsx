@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import './styles/app.css';
+import './styles/base.css';
 
 const container = document.getElementById('quick-qa-root');
 if (container) {

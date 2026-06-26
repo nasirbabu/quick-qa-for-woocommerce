@@ -1,0 +1,347 @@
+/* ==========================================================================
+   SETTINGS — layout, sidebar, shared field components
+   (card, field row, toggle, radio, inputs, stacked, textarea, banner, chips)
+   ========================================================================== */
+
+.qq-settings-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: calc(100vh - 48px);
+  background: var(--cream);
+}
+
+/* Sidebar */
+.qq-settings-sidebar {
+  border-right: 0.5px solid var(--hairline);
+  padding: 20px 0;
+  background: white;
+  flex-shrink: 0;
+}
+.qq-settings-sidebar-label {
+  padding: 0 20px 10px;
+  font-size: 11px;
+  color: var(--text-4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.qq-settings-tab {
+  padding: 9px 20px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.1s, color 0.1s;
+}
+.qq-settings-tab:hover:not(.active) { background: var(--cream-2); }
+.qq-settings-tab.active {
+  color: var(--text);
+  background: var(--coral-soft);
+  border-left-color: var(--coral);
+  font-weight: 500;
+}
+
+/* Main content area */
+.qq-settings-main { overflow-y: auto; }
+.qq-settings-content {
+  padding: 32px 40px 100px;
+  max-width: 760px;
+  position: relative;
+}
+
+/* Page title / sub */
+.qq-settings-page-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.qq-settings-page-sub {
+  font-size: 14px;
+  color: var(--text-3);
+  margin: 0 0 32px;
+  line-height: 1.5;
+}
+
+/* Card */
+.qq-settings-card {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 24px 26px;
+  margin-bottom: 20px;
+}
+.qq-settings-card-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.qq-settings-card-desc {
+  font-size: 13px;
+  color: var(--text-3);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+/* Field row */
+.qq-settings-field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 0.5px solid var(--cream-3);
+}
+.qq-settings-field:first-of-type { border-top: none; padding-top: 0; }
+.qq-settings-field-info  { flex: 1; }
+.qq-settings-field-label { font-size: 14px; color: var(--text); margin-bottom: 4px; font-weight: 500; }
+.qq-settings-field-help  { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.qq-settings-field-control {
+  flex-shrink: 0;
+  min-width: 160px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Toggle switch */
+.qq-settings-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--cream-3);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.qq-settings-toggle.on { background: var(--coral); }
+.qq-settings-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.qq-settings-toggle.on::after { left: 18px; }
+
+/* Radio cards */
+.qq-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.qq-radio-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  align-items: flex-start;
+  transition: border-color 0.15s, background 0.15s;
+}
+.qq-radio-card:hover:not(.selected) { border-color: #D4CCC2; }
+.qq-radio-card.selected {
+  border-color: var(--coral);
+  background: var(--coral-soft);
+}
+.qq-radio-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cream-3);
+  margin-top: 2px;
+  position: relative;
+  flex-shrink: 0;
+}
+.qq-radio-card.selected .qq-radio-circle { border-color: var(--coral); }
+.qq-radio-card.selected .qq-radio-circle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+.qq-radio-text  { flex: 1; }
+.qq-radio-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.qq-radio-help  { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.qq-muted       { color: var(--text-3); font-weight: 400; }
+
+/* Subfield — expands below a selected radio card */
+.qq-subfield {
+  margin: 0 0 4px 28px;
+  padding: 12px 14px;
+  border: 0.5px solid var(--hairline);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  background: var(--cream-2);
+}
+.qq-subfield-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-4);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+
+/* reCAPTCHA key fields */
+.qq-settings-recaptcha-keys {
+  border-top: 0.5px solid var(--cream-3);
+  padding-top: 16px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qq-settings-recaptcha-hint { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.qq-settings-link            { color: var(--coral); text-decoration: none; }
+.qq-settings-link:hover      { text-decoration: underline; }
+.qq-settings-key-field       { display: flex; flex-direction: column; gap: 5px; }
+.qq-settings-key-label       { font-size: 12px; font-weight: 500; color: var(--text-2); }
+
+/* Inputs */
+.qq-settings-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text);
+  background: white;
+  outline: none;
+  font-family: monospace;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.qq-settings-input:focus      { border-color: var(--coral); }
+.qq-settings-input--short     { width: 72px;  font-family: inherit; }
+.qq-settings-input--md        { width: 200px; font-family: inherit; }
+.qq-settings-input--time      { width: 110px; font-family: inherit; }
+.qq-settings-input--full      { width: 100%;  font-family: inherit; }
+.qq-settings-input-wrap       { display: flex; align-items: center; gap: 8px; }
+.qq-settings-input-unit       { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+/* Select */
+.qq-settings-select {
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text);
+  background: white;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 160px;
+  transition: border-color 0.15s;
+}
+.qq-settings-select:focus { border-color: var(--coral); }
+
+/* Stacked field — label + help + control stacked vertically */
+.qq-settings-field-stacked { display: block; padding: 16px 0; border-top: 0.5px solid var(--cream-3); }
+.qq-settings-field-stacked--solo          { border-top: none; padding-top: 0; }
+.qq-settings-field-stacked .qq-settings-field-label { margin-bottom: 4px; }
+.qq-settings-field-stacked .qq-settings-field-help  { margin-bottom: 12px; }
+
+/* Textarea */
+.qq-settings-textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 9px 12px;
+  font-size: 13px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  background: white;
+  color: var(--text);
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.qq-settings-textarea:focus       { border-color: var(--coral); }
+.qq-settings-textarea::placeholder { color: var(--text-4); }
+
+/* Warning/info banner */
+.qq-settings-banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.qq-settings-banner--warn   { background: #FFF8E6; border: 0.5px solid #F5D97A; color: #6B5300; }
+.qq-settings-banner-mark    { font-size: 15px; flex-shrink: 0; }
+.qq-settings-banner-body    { flex: 1; }
+
+/* Save bar */
+.qq-savebar {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 0.5px solid var(--hairline);
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-top: 30px;
+}
+.qq-savebar-msg         { font-size: 13px; color: var(--text-3); }
+.qq-savebar-msg b       { color: var(--text); font-weight: 500; }
+.qq-savebar-error       { color: #c0392b !important; }
+.qq-savebar-actions     { display: flex; gap: 10px; }
+
+/* Coming soon inside settings */
+.qq-settings-coming-soon       { padding: 60px 0; text-align: center; color: var(--text-3); }
+.qq-settings-coming-soon-title { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+
+/* Chip multiselect */
+.qq-chip-multiselect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.qq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: 20px;
+  padding: 3px 8px 3px 10px;
+  font-size: 12px;
+  color: var(--text);
+}
+.qq-chip-x              { cursor: pointer; font-size: 14px; color: var(--text-4); line-height: 1; padding: 0 1px; }
+.qq-chip-x:hover        { color: var(--red); }
+.qq-chip-input {
+  border: 0.5px dashed var(--hairline);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.qq-chip-input:focus { border-color: var(--coral); }
