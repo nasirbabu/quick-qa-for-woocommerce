@@ -26,6 +26,22 @@ export const DEFAULT_SETTINGS = {
   // General — operations
   pause_submissions:   false,
 
+  // Appearance
+  appr_color:              '#FF6B4A',
+  appr_radius:             'rounded',
+  appr_avatar_style:       'circle',
+  appr_card_style:         'bordered',
+  appr_font_mode:          'inherit',
+  appr_font_custom:        '',
+  appr_font_size:          'medium',
+  appr_density:            'comfortable',
+  appr_show_upvotes:       true,
+  appr_show_helpful:       true,
+  appr_show_role_badges:   true,
+  appr_show_best_highlight: true,
+  appr_show_avatars:       true,
+  appr_custom_css:         '',
+
   // Notifications
   notify_new_question:       true,
   new_question_recipients:   '',

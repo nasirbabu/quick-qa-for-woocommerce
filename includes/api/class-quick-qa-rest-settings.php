@@ -130,6 +130,22 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			// General — operations
 			'pause_submissions'      => (bool) $s['pause_submissions'],
 
+			// Appearance
+			'appr_color'              => (string) $s['appr_color'],
+			'appr_radius'             => (string) $s['appr_radius'],
+			'appr_avatar_style'       => (string) $s['appr_avatar_style'],
+			'appr_card_style'         => (string) $s['appr_card_style'],
+			'appr_font_mode'          => (string) $s['appr_font_mode'],
+			'appr_font_custom'        => (string) $s['appr_font_custom'],
+			'appr_font_size'          => (string) $s['appr_font_size'],
+			'appr_density'            => (string) $s['appr_density'],
+			'appr_show_upvotes'       => (bool) $s['appr_show_upvotes'],
+			'appr_show_helpful'       => (bool) $s['appr_show_helpful'],
+			'appr_show_role_badges'   => (bool) $s['appr_show_role_badges'],
+			'appr_show_best_highlight' => (bool) $s['appr_show_best_highlight'],
+			'appr_show_avatars'       => (bool) $s['appr_show_avatars'],
+			'appr_custom_css'         => (string) $s['appr_custom_css'],
+
 			// Notifications
 			'notify_new_question'       => (bool) $s['notify_new_question'],
 			'new_question_recipients'   => (string) $s['new_question_recipients'],
@@ -178,6 +194,12 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 
 		// Enum fields — only accept values from the allow-list.
 		$enums = array(
+			'appr_radius'            => array( 'sharp', 'rounded', 'pill' ),
+			'appr_avatar_style'      => array( 'circle', 'square', 'hidden' ),
+			'appr_card_style'        => array( 'bordered', 'filled', 'minimal' ),
+			'appr_font_mode'         => array( 'inherit', 'system', 'custom' ),
+			'appr_font_size'         => array( 'small', 'medium', 'large' ),
+			'appr_density'           => array( 'compact', 'comfortable', 'spacious' ),
 			'enable_scope'           => array( 'all', 'categories', 'products', 'exclude' ),
 			'position'               => array( 'tab', 'below_reviews' ),
 			'default_sort'           => array( 'recent', 'upvoted', 'oldest' ),
@@ -199,15 +221,23 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			}
 		}
 
+		// Hex color (appr_color) — validate format before storing.
+		if ( array_key_exists( 'appr_color', $body ) ) {
+			$color = trim( $body['appr_color'] );
+			if ( preg_match( '/^#[0-9A-Fa-f]{6}$/', $color ) ) {
+				$patch['appr_color'] = strtoupper( $color );
+			}
+		}
+
 		// Single-line text fields.
-		foreach ( array( 'tab_name', 'digest_time', 'slack_webhook', 'recaptcha_site_key', 'recaptcha_secret_key' ) as $key ) {
+		foreach ( array( 'tab_name', 'appr_font_custom', 'digest_time', 'slack_webhook', 'recaptcha_site_key', 'recaptcha_secret_key' ) as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
 				$patch[ $key ] = sanitize_text_field( $body[ $key ] );
 			}
 		}
 
 		// Multi-line text fields (newlines preserved).
-		foreach ( array( 'profanity_words', 'email_blocklist', 'email_allowlist', 'new_question_recipients' ) as $key ) {
+		foreach ( array( 'appr_custom_css', 'profanity_words', 'email_blocklist', 'email_allowlist', 'new_question_recipients' ) as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
 				$patch[ $key ] = sanitize_textarea_field( $body[ $key ] );
 			}
@@ -215,6 +245,8 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 
 		// Boolean fields.
 		$bool_keys = array(
+			'appr_show_upvotes', 'appr_show_helpful', 'appr_show_role_badges',
+			'appr_show_best_highlight', 'appr_show_avatars',
 			'show_search', 'show_filter', 'allow_community', 'pause_submissions',
 			'profanity_filter', 'auto_reject_short',
 			'notify_new_question', 'notify_community_answer',
@@ -353,6 +385,22 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 
 			// General — operations
 			'pause_submissions'      => false,
+
+			// Appearance
+			'appr_color'               => '#FF6B4A',
+			'appr_radius'              => 'rounded',
+			'appr_avatar_style'        => 'circle',
+			'appr_card_style'          => 'bordered',
+			'appr_font_mode'           => 'inherit',
+			'appr_font_custom'         => '',
+			'appr_font_size'           => 'medium',
+			'appr_density'             => 'comfortable',
+			'appr_show_upvotes'        => true,
+			'appr_show_helpful'        => true,
+			'appr_show_role_badges'    => true,
+			'appr_show_best_highlight' => true,
+			'appr_show_avatars'        => true,
+			'appr_custom_css'          => '',
 
 			// Notifications
 			'notify_new_question'        => true,

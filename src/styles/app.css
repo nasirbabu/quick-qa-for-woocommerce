@@ -1905,6 +1905,382 @@ a { color: var(--coral); text-decoration: none; }
 }
 
 /* ==========================================================================
+   APPEARANCE TAB
+   ========================================================================== */
+
+/* Two-column grid: controls (left) + sticky preview (right) */
+.qq-appr-grid {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.qq-appr-main    { flex: 1; min-width: 0; }
+.qq-appr-sidebar { width: 300px; flex-shrink: 0; position: sticky; top: 20px; }
+
+/* Section card */
+.qq-appr-section {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.qq-appr-section-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.qq-appr-section-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* Row: fixed-width label + controls */
+.qq-appr-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 0.5px solid var(--cream-3);
+}
+.qq-appr-row:first-of-type { border-top: none; padding-top: 0; }
+.qq-appr-row-label { font-size: 13px; color: var(--text-2); width: 130px; flex-shrink: 0; }
+
+/* Color swatch grid */
+.qq-color-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.qq-color-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.qq-color-swatch:hover   { transform: scale(1.15); }
+.qq-color-swatch.selected { outline: 2.5px solid var(--text); outline-offset: 2px; }
+
+/* Hex input row */
+.qq-color-hex-row { display: flex; align-items: center; gap: 10px; }
+.qq-color-hex-input {
+  width: 90px;
+  padding: 6px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-family: monospace;
+  color: var(--text);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.qq-color-hex-input:focus { border-color: var(--coral); }
+.qq-color-hex-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  border: 0.5px solid var(--hairline);
+  flex-shrink: 0;
+}
+.qq-color-hex-note { font-size: 12px; color: var(--text-3); }
+
+/* Swatch button group */
+.qq-swatch-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.qq-swatch-btn {
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  padding: 0;
+}
+.qq-swatch-btn:hover   { border-color: #D4CCC2; color: var(--text); }
+.qq-swatch-btn.selected { border-color: var(--coral); color: var(--coral); background: var(--coral-soft); }
+
+/* Corner-radius shape demos */
+.qq-swatch-shape {
+  width: 20px;
+  height: 13px;
+  background: currentColor;
+  display: block;
+}
+.qq-swatch-shape.sharp   { border-radius: 0; }
+.qq-swatch-shape.rounded { border-radius: 4px; }
+.qq-swatch-shape.pill    { border-radius: 20px; }
+
+/* Avatar shape demos */
+.qq-swatch-shape.circle { width: 18px; height: 18px; border-radius: 50%; }
+.qq-swatch-shape.square { width: 18px; height: 18px; border-radius: 2px; }
+.qq-swatch-shape.hidden {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: none;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.qq-swatch-shape.hidden::after { content: '×'; }
+
+/* Card-style demos */
+.qq-swatch-card-demo {
+  width: 26px;
+  height: 18px;
+  border-radius: 3px;
+  display: block;
+}
+.qq-swatch-card-demo.bordered { border: 1.5px solid currentColor; }
+.qq-swatch-card-demo.filled   { background: currentColor; opacity: 0.25; }
+.qq-swatch-card-demo.minimal  { border-bottom: 2px solid currentColor; border-radius: 0; }
+
+/* Density demos */
+.qq-swatch-density {
+  display: flex;
+  flex-direction: column;
+  width: 18px;
+}
+.qq-swatch-density span { display: block; height: 2px; background: currentColor; border-radius: 1px; }
+.qq-swatch-density.compact     span { margin-bottom: 1px; }
+.qq-swatch-density.comfortable span { margin-bottom: 3px; }
+.qq-swatch-density.spacious    span { margin-bottom: 5px; }
+
+/* Visibility toggle list */
+.qq-visibility-list { display: flex; flex-direction: column; }
+.qq-visibility-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 0.5px solid var(--cream-3);
+}
+.qq-visibility-row:first-child { border-top: none; padding-top: 0; }
+.qq-visibility-row-label { font-size: 13px; color: var(--text); }
+
+/* Custom CSS collapsible */
+.qq-css-collapsible {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.qq-css-collapsible-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.qq-css-collapsible-head:hover { background: var(--cream-2); }
+.qq-css-collapsible-title { font-size: 14px; font-weight: 500; color: var(--text); margin-right: 8px; }
+.qq-css-collapsible-sub   { font-size: 12px; color: var(--text-3); }
+.qq-css-collapsible-icon {
+  font-size: 20px;
+  color: var(--text-3);
+  transition: transform 0.2s;
+  line-height: 1;
+}
+.qq-css-collapsible.open .qq-css-collapsible-icon { transform: rotate(90deg); }
+.qq-css-collapsible-body { display: none; padding: 0 20px 18px; border-top: 0.5px solid var(--cream-3); }
+.qq-css-collapsible.open .qq-css-collapsible-body { display: block; }
+.qq-css-collapsible-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  padding-top: 14px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.qq-css-code-tag {
+  font-size: 11px;
+  padding: 1px 5px;
+  background: var(--cream-3);
+  border: 0.5px solid var(--hairline);
+  border-radius: 3px;
+  font-family: monospace;
+}
+.qq-custom-css-area {
+  width: 100%;
+  min-height: 140px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  background: var(--cream-2);
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.qq-custom-css-area:focus { border-color: var(--coral); }
+.qq-css-collapsible-warn { margin-top: 8px; font-size: 11px; color: var(--text-4); }
+
+/* Preview card (sidebar) */
+.qq-preview-card {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.qq-preview-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 0.5px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+.qq-preview-state-tabs { display: flex; gap: 2px; }
+.qq-preview-state-tab {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+.qq-preview-state-tab.active { background: var(--coral-soft); color: var(--coral-text); font-weight: 500; }
+.qq-preview-card-body { padding: 14px; background: var(--cream-2); }
+.qq-preview-guest-note {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 8px;
+  padding: 0 4px;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Preview widget — simulated Q&A widget in the sidebar
+   All visual properties driven by CSS custom properties set inline.
+   ========================================================================== */
+.qq-pw {
+  font-family: var(--pw-font, inherit);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.qq-pw.fs-small  { font-size: 12px; }
+.qq-pw.fs-medium { font-size: 13px; }
+.qq-pw.fs-large  { font-size: 14px; }
+
+.qq-pw-q-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+.qq-pw-ask-btn {
+  background: var(--pw-color, var(--coral));
+  color: white;
+  border: none;
+  border-radius: var(--pw-radius, 6px);
+  padding: 5px 11px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.qq-pw-thread { display: flex; flex-direction: column; gap: 8px; }
+.qq-pw.density-compact     .qq-pw-thread { gap: 4px; }
+.qq-pw.density-comfortable .qq-pw-thread { gap: 8px; }
+.qq-pw.density-spacious    .qq-pw-thread { gap: 14px; }
+
+.qq-pw-msg {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--pw-radius, 6px);
+}
+.qq-pw.card-bordered .qq-pw-msg { border: 0.5px solid var(--hairline); }
+.qq-pw.card-filled   .qq-pw-msg { background: white; }
+.qq-pw.card-minimal  .qq-pw-msg { padding: 8px 0; border-radius: 0; border-bottom: 0.5px solid var(--cream-3); }
+
+.qq-pw-msg.best { background: var(--gold-soft) !important; border-color: var(--gold) !important; }
+
+.qq-pw-av {
+  width: 26px;
+  height: 26px;
+  font-size: 9px;
+  font-weight: 600;
+  color: white;
+  background: var(--pw-color, var(--coral));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.qq-pw-av.shape-circle { border-radius: 50%; }
+.qq-pw-av.shape-square { border-radius: 3px; }
+.qq-pw-av.shape-hidden { display: none; }
+
+.qq-pw-msg-body    { flex: 1; min-width: 0; }
+.qq-pw-msg-meta    { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; font-size: 10px; color: var(--text-3); margin-bottom: 3px; }
+.qq-pw-msg-meta b  { color: var(--text); font-size: 11px; }
+.qq-pw-msg-text    { font-size: 11px; color: var(--text); line-height: 1.5; }
+.qq-pw-msg-foot    { margin-top: 5px; display: flex; gap: 8px; }
+
+.qq-pw-role        { font-size: 9px; padding: 1px 4px; border-radius: 3px; background: var(--cream-3); color: var(--text-3); }
+.qq-pw-role.staff  { background: var(--coral-soft); color: var(--coral-text); }
+.qq-pw-best-tag    { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: var(--gold-soft); color: var(--gold-text); }
+
+.qq-pw-vote        { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--text-3); }
+.qq-pw-vote-btn    { color: var(--pw-color, var(--coral)); font-size: 9px; }
+.qq-pw-helpful     { font-size: 10px; color: var(--pw-color, var(--coral)); }
+.qq-pw-divider     { font-size: 10px; color: var(--text-4); padding: 2px 0; font-weight: 500; }
+
+.qq-pw-login-prompt {
+  text-align: center;
+  padding: 14px 10px;
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--pw-radius, 6px);
+  margin-bottom: 10px;
+}
+.qq-pw-login-mark    { font-size: 18px; margin-bottom: 5px; }
+.qq-pw-login-title   { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.qq-pw-login-text    { font-size: 10px; color: var(--text-3); margin-bottom: 9px; line-height: 1.5; }
+.qq-pw-login-actions { display: flex; gap: 5px; justify-content: center; margin-bottom: 8px; }
+.qq-pw-login-btn {
+  padding: 5px 12px;
+  font-size: 11px;
+  border-radius: var(--pw-radius, 6px);
+  border: none;
+  background: var(--pw-color, var(--coral));
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+}
+.qq-pw-login-btn.secondary { background: white; color: var(--text); border: 0.5px solid var(--hairline); }
+.qq-pw-login-note { font-size: 9px; color: var(--text-4); line-height: 1.4; }
+
+/* ==========================================================================
    Template picker modal (answer composer)
    ========================================================================== */
 
