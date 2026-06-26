@@ -173,7 +173,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'submission_rate_limit'    => (int) $s['submission_rate_limit'],
 			'recaptcha_enabled'        => (bool) $s['recaptcha_enabled'],
 			'recaptcha_site_key'       => (string) $s['recaptcha_site_key'],
-			'recaptcha_secret_key'     => (string) $s['recaptcha_secret_key'],
+			'recaptcha_secret_key'     => ! empty( $s['recaptcha_secret_key'] ) ? '**redacted**' : '',
 
 			// Community
 			'allow_verified_buyers'     => (bool) $s['allow_verified_buyers'],
@@ -242,10 +242,15 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 		}
 
 		// Single-line text fields.
-		foreach ( array( 'tab_name', 'appr_font_custom', 'digest_time', 'slack_webhook', 'recaptcha_site_key', 'recaptcha_secret_key' ) as $key ) {
+		foreach ( array( 'tab_name', 'appr_font_custom', 'digest_time', 'slack_webhook', 'recaptcha_site_key' ) as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
 				$patch[ $key ] = sanitize_text_field( $body[ $key ] );
 			}
+		}
+
+		// Secret key: skip the redacted sentinel so a GET→save round-trip never overwrites with '**redacted**'.
+		if ( array_key_exists( 'recaptcha_secret_key', $body ) && '**redacted**' !== $body['recaptcha_secret_key'] ) {
+			$patch['recaptcha_secret_key'] = sanitize_text_field( $body['recaptcha_secret_key'] );
 		}
 
 		// Multi-line text fields (newlines preserved).

@@ -510,7 +510,10 @@ class Quick_Qa_Notifier {
 		$raw = trim( $s['new_question_recipients'] ?? '' );
 
 		if ( ! empty( $raw ) ) {
-			$recipients = array_filter( array_map( 'trim', explode( "\n", $raw ) ) );
+			$recipients = array_filter(
+				array_map( 'sanitize_email', array_map( 'trim', explode( "\n", $raw ) ) ),
+				'is_email'
+			);
 		} else {
 			$recipients = array( get_option( 'admin_email' ) );
 		}

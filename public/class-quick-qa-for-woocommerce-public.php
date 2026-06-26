@@ -701,7 +701,8 @@ class Quick_Qa_For_Woocommerce_Public {
 			case 'custom':
 				$raw = trim( (string) $s['appr_font_custom'] );
 				if ( ! empty( $raw ) ) {
-					$font_family = $raw;
+					// Strip CSS structural characters to prevent property injection.
+					$font_family = preg_replace( '/[{};]/', '', $raw );
 				}
 				break;
 			// 'inherit' — no override needed.
@@ -769,8 +770,8 @@ CSS;
 		$custom = '';
 		$raw_custom = trim( (string) $s['appr_custom_css'] );
 		if ( ! empty( $raw_custom ) ) {
-			// Prevent premature </style> tag closure.
-			$raw_custom = str_ireplace( '</style>', '', $raw_custom );
+			// Prevent </style> tag closure in all its whitespace variants.
+			$raw_custom = preg_replace( '#</\s*style\s*>#i', '', $raw_custom );
 			$custom     = "\n/* -- Custom CSS -- */\n{$raw_custom}";
 		}
 
