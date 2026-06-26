@@ -31,8 +31,8 @@ export default function CommunityTab({ draft, onChange }) {
           </div>
           <div className="qq-settings-field-control">
             <Toggle
-              on={draft.allow_verified_buyers}
-              onClick={() => set('allow_verified_buyers', !draft.allow_verified_buyers)}
+              checked={draft.allow_verified_buyers}
+              onChange={v => set('allow_verified_buyers', v)}
             />
           </div>
         </div>
@@ -46,8 +46,8 @@ export default function CommunityTab({ draft, onChange }) {
           </div>
           <div className="qq-settings-field-control">
             <Toggle
-              on={draft.allow_logged_in_customers}
-              onClick={() => set('allow_logged_in_customers', !draft.allow_logged_in_customers)}
+              checked={draft.allow_logged_in_customers}
+              onChange={v => set('allow_logged_in_customers', v)}
             />
           </div>
         </div>
@@ -134,8 +134,8 @@ export default function CommunityTab({ draft, onChange }) {
           </div>
           <div className="qq-settings-field-control">
             <Toggle
-              on={draft.enable_trust_tier}
-              onClick={() => set('enable_trust_tier', !draft.enable_trust_tier)}
+              checked={draft.enable_trust_tier}
+              onChange={v => set('enable_trust_tier', v)}
             />
           </div>
         </div>
