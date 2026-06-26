@@ -103,8 +103,11 @@ abstract class Quick_Qa_Rest_Controller {
 	 * @return true|WP_Error
 	 */
 	protected function check_rate_limit() {
-		$count = (int) get_transient( $this->rate_limit_key() );
-		$limit = max( 1, (int) get_option( 'quick_qa_submission_rate_limit', self::RATE_LIMIT ) );
+		$count    = (int) get_transient( $this->rate_limit_key() );
+		$settings = get_option( 'quick_qa_settings', array() );
+		$limit    = isset( $settings['submission_rate_limit'] )
+			? max( 1, (int) $settings['submission_rate_limit'] )
+			: self::RATE_LIMIT;
 
 		if ( $count >= $limit ) {
 			return new WP_Error(

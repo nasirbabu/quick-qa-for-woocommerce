@@ -66,24 +66,28 @@ class Quick_Qa_For_Woocommerce_Public {
 		}
 
 		$defaults = array(
-			'enable_scope'        => 'all',
-			'enabled_categories'  => array(),
-			'enabled_products'    => array(),
-			'excluded_products'   => array(),
-			'position'            => 'tab',
-			'tab_name'            => __( 'Questions & Answers', 'quick-qa-for-woocommerce' ),
-			'per_page'            => 10,
-			'default_sort'        => 'recent',
-			'show_search'         => true,
-			'show_filter'         => true,
-			'max_length'          => 500,
-			'min_length'          => 10,
-			'allow_community'     => true,
-			'auto_lock'           => 'never',
-			'pause_submissions'   => false,
-			'recaptcha_enabled'   => false,
-			'recaptcha_site_key'  => '',
-			'recaptcha_secret_key' => '',
+			'enable_scope'             => 'all',
+			'enabled_categories'       => array(),
+			'enabled_products'         => array(),
+			'excluded_products'        => array(),
+			'position'                 => 'tab',
+			'tab_name'                 => __( 'Questions & Answers', 'quick-qa-for-woocommerce' ),
+			'per_page'                 => 10,
+			'default_sort'             => 'recent',
+			'show_search'              => true,
+			'show_filter'              => true,
+			'max_length'               => 500,
+			'min_length'               => 10,
+			'allow_community'          => true,
+			'auto_lock'                => 'never',
+			'pause_submissions'        => false,
+			'who_can_ask'              => 'both',
+			'require_email_for_guests' => true,
+			'enable_honeypot'          => false,
+			'submission_rate_limit'    => 3,
+			'recaptcha_enabled'        => false,
+			'recaptcha_site_key'       => '',
+			'recaptcha_secret_key'     => '',
 		);
 
 		$saved  = get_option( 'quick_qa_settings', array() );
@@ -264,13 +268,25 @@ class Quick_Qa_For_Woocommerce_Public {
 		}
 
 		// Settings-driven template variables.
-		$show_search       = (bool) $s['show_search'];
-		$show_filter       = (bool) $s['show_filter'];
-		$default_sort      = (string) $s['default_sort'];
-		$max_length        = max( 1, (int) $s['max_length'] );
-		$min_length        = max( 1, (int) $s['min_length'] );
-		$allow_community   = (bool) $s['allow_community'];
-		$pause_submissions = (bool) $s['pause_submissions'];
+		$show_search               = (bool) $s['show_search'];
+		$show_filter               = (bool) $s['show_filter'];
+		$default_sort              = (string) $s['default_sort'];
+		$max_length                = max( 1, (int) $s['max_length'] );
+		$min_length                = max( 1, (int) $s['min_length'] );
+		$allow_community           = (bool) $s['allow_community'];
+		$pause_submissions         = (bool) $s['pause_submissions'];
+		$who_can_ask               = (string) $s['who_can_ask'];
+		$require_email_for_guests  = (bool) $s['require_email_for_guests'];
+		$enable_honeypot           = (bool) $s['enable_honeypot'];
+
+		// Derived: whether the current visitor is allowed to ask questions.
+		if ( 'logged-in' === $who_can_ask ) {
+			$user_can_ask = $is_logged_in;
+		} elseif ( 'guests' === $who_can_ask ) {
+			$user_can_ask = ! $is_logged_in;
+		} else {
+			$user_can_ask = true; // 'both'
+		}
 
 		// Admins can always answer even when community answers are disabled.
 		$is_admin = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
@@ -559,10 +575,12 @@ class Quick_Qa_For_Woocommerce_Public {
 				'restUrl'          => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'recaptchaEnabled' => ( $recaptcha_enabled && $recaptcha_site_key ) ? '1' : '0',
-				'perPage'          => max( 1, (int) $s['per_page'] ),
-				'minLength'        => max( 1, (int) $s['min_length'] ),
-				'maxLength'        => max( 1, (int) $s['max_length'] ),
-				'defaultSort'      => (string) $s['default_sort'],
+				'perPage'                 => max( 1, (int) $s['per_page'] ),
+				'minLength'               => max( 1, (int) $s['min_length'] ),
+				'maxLength'               => max( 1, (int) $s['max_length'] ),
+				'defaultSort'             => (string) $s['default_sort'],
+				'requireEmailForGuests'   => ( 'logged-in' !== $s['who_can_ask'] && $s['require_email_for_guests'] ) ? '1' : '0',
+				'honeypotEnabled'         => (bool) $s['enable_honeypot'] ? '1' : '0',
 				'i18n'             => array(
 					'askQuestion'       => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
 					'cancel'            => __( 'Cancel', 'quick-qa-for-woocommerce' ),
@@ -574,6 +592,8 @@ class Quick_Qa_For_Woocommerce_Public {
 						max( 1, (int) $s['min_length'] )
 					),
 					'nameRequired'      => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'emailRequired'     => __( 'Please enter your email address.', 'quick-qa-for-woocommerce' ),
+					'emailInvalid'      => __( 'Please enter a valid email address.', 'quick-qa-for-woocommerce' ),
 					'recaptchaRequired' => __( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
 					'errorGeneric'      => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Singular. */

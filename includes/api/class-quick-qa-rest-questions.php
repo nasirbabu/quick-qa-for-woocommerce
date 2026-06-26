@@ -141,9 +141,9 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'limit'      => array(
 						'required'          => false,
 						'type'              => 'integer',
-						'default'           => 3,
+						'default'           => 10,
 						'minimum'           => 1,
-						'maximum'           => 10,
+						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
 					),
 				),
@@ -658,10 +658,43 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	 */
 	public function submit_question( WP_REST_Request $request ) {
 
-		// 1. reCAPTCHA verification (when enabled and configured).
-		$recaptcha_enabled    = (bool) get_option( 'quick_qa_recaptcha_enabled', false );
-		$recaptcha_secret_key = get_option( 'quick_qa_recaptcha_secret_key', '' );
+		// Load all relevant submission settings from the single option key.
+		$qq_s                    = get_option( 'quick_qa_settings', array() );
+		$recaptcha_enabled       = (bool) ( $qq_s['recaptcha_enabled']       ?? false );
+		$recaptcha_secret_key    = (string) ( $qq_s['recaptcha_secret_key']  ?? '' );
+		$who_can_ask             = (string) ( $qq_s['who_can_ask']            ?? 'both' );
+		$req_email               = (bool) ( $qq_s['require_email_for_guests'] ?? true );
+		$honeypot_enabled        = (bool) ( $qq_s['enable_honeypot']          ?? false );
 
+		// 0. Honeypot check — must be empty; non-empty means bot submission.
+		if ( $honeypot_enabled ) {
+			$honeypot_value = $request->get_param( 'honeypot' );
+			if ( ! empty( $honeypot_value ) ) {
+				// Return a plausible success to avoid giving bots feedback.
+				return rest_ensure_response(
+					array( 'id' => 0, 'status' => 'pending', 'message' => '' )
+				);
+			}
+		}
+
+		// 0b. who_can_ask enforcement.
+		$is_currently_logged_in = is_user_logged_in();
+		if ( 'logged-in' === $who_can_ask && ! $is_currently_logged_in ) {
+			return new WP_Error(
+				'quick_qa_login_required',
+				__( 'You must be logged in to ask a question.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 401 )
+			);
+		}
+		if ( 'guests' === $who_can_ask && $is_currently_logged_in ) {
+			return new WP_Error(
+				'quick_qa_guests_only',
+				__( 'Only guest visitors can submit questions.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// 1. reCAPTCHA verification (when enabled and configured).
 		if ( $recaptcha_enabled && $recaptcha_secret_key ) {
 			$token = $request->get_param( 'recaptcha_token' );
 			if ( empty( $token ) ) {
@@ -725,6 +758,14 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				return new WP_Error(
 					'quick_qa_name_required',
 					__( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 422 )
+				);
+			}
+
+			if ( $req_email && empty( $guest_email ) ) {
+				return new WP_Error(
+					'quick_qa_email_required',
+					__( 'Please enter your email address.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -968,6 +1009,12 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			'honeypot'        => array(
+				'required'          => false,
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
 		);
 	}
 
@@ -1011,20 +1058,31 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	 * @return true|WP_Error
 	 */
 	public function validate_question_text( $value, $request, $param ) {
-		$length = mb_strlen( sanitize_textarea_field( (string) $value ) );
+		$length   = mb_strlen( sanitize_textarea_field( (string) $value ) );
+		$settings = get_option( 'quick_qa_settings', array() );
+		$min      = max( 1, (int) ( $settings['min_length'] ?? 10 ) );
+		$max      = max( 1, (int) ( $settings['max_length'] ?? 500 ) );
 
-		if ( $length < 10 ) {
+		if ( $length < $min ) {
 			return new WP_Error(
 				'quick_qa_too_short',
-				__( 'Your question must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+				sprintf(
+					/* translators: %d: minimum character count */
+					__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
+					$min
+				),
 				array( 'status' => 422 )
 			);
 		}
 
-		if ( $length > 500 ) {
+		if ( $length > $max ) {
 			return new WP_Error(
 				'quick_qa_too_long',
-				__( 'Your question must be 500 characters or fewer.', 'quick-qa-for-woocommerce' ),
+				sprintf(
+					/* translators: %d: maximum character count */
+					__( 'Your question must be %d characters or fewer.', 'quick-qa-for-woocommerce' ),
+					$max
+				),
 				array( 'status' => 422 )
 			);
 		}
