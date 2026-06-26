@@ -219,6 +219,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// is_verified_buyer is set when user_id has a completed order for product_id.
 		// ------------------------------------------------------------------ //
 		$table_questions = $wpdb->prefix . 'quick_qa_questions';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		dbDelta(
 			"CREATE TABLE {$table_questions} (
 				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -245,6 +246,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// status mirrors questions: 'pending' | 'approved' | 'rejected'.
 		// ------------------------------------------------------------------ //
 		$table_answers = $wpdb->prefix . 'quick_qa_answers';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		dbDelta(
 			"CREATE TABLE {$table_answers} (
 				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -269,6 +271,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// vote per user per item at the database level.
 		// ------------------------------------------------------------------ //
 		$table_votes = $wpdb->prefix . 'quick_qa_votes';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		dbDelta(
 			"CREATE TABLE {$table_votes} (
 				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -291,6 +294,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// 'flagged' and it is hidden from the public thread list.
 		// ------------------------------------------------------------------ //
 		$table_flags = $wpdb->prefix . 'quick_qa_flags';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		dbDelta(
 			"CREATE TABLE {$table_flags} (
 				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -313,6 +317,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// uses tracks how many times the template was applied to an answer.
 		// ------------------------------------------------------------------ //
 		$table_templates = $wpdb->prefix . 'quick_qa_reply_templates';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		dbDelta(
 			"CREATE TABLE {$table_templates} (
 				id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,

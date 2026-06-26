@@ -242,10 +242,21 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 		}
 
 		// Single-line text fields.
-		foreach ( array( 'tab_name', 'appr_font_custom', 'digest_time', 'slack_webhook', 'recaptcha_site_key' ) as $key ) {
+		foreach ( array( 'tab_name', 'appr_font_custom', 'digest_time', 'recaptcha_site_key' ) as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
 				$patch[ $key ] = sanitize_text_field( $body[ $key ] );
 			}
+		}
+
+		// Slack webhook — must be a valid HTTPS URL to prevent SSRF via non-secure transports.
+		if ( array_key_exists( 'slack_webhook', $body ) ) {
+			$webhook = sanitize_text_field( $body['slack_webhook'] );
+			if ( '' === $webhook ) {
+				$patch['slack_webhook'] = '';
+			} elseif ( filter_var( $webhook, FILTER_VALIDATE_URL ) && 0 === strpos( $webhook, 'https://' ) ) {
+				$patch['slack_webhook'] = $webhook;
+			}
+			// Silently drop non-HTTPS or invalid URLs — keep the existing saved value.
 		}
 
 		// Secret key: skip the redacted sentinel so a GET→save round-trip never overwrites with '**redacted**'.
