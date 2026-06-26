@@ -18,6 +18,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Resolve avatar shape from appearance settings. Falls back to 'circle' when
+// $appr_avatar_style is not in scope (e.g. included from a REST context that
+// hasn't set it yet — REST endpoint now sets it explicitly).
+$qa_av_style = ( isset( $appr_avatar_style ) && in_array( $appr_avatar_style, array( 'circle', 'square', 'hidden' ), true ) )
+	? $appr_avatar_style
+	: 'circle';
+
 foreach ( $questions as $question ) :
 	$answer_count = count( $question->answers );
 	$is_answered  = $answer_count > 0;
@@ -60,9 +67,11 @@ foreach ( $questions as $question ) :
 	>
 		<?php // Question row — click to expand answers. ?>
 		<div class="qa-q-row" data-action="toggle-thread">
-			<div class="qa-av qa-av--circle" aria-hidden="true">
+			<?php if ( 'hidden' !== $qa_av_style ) : ?>
+			<div class="qa-av qa-av--<?php echo esc_attr( $qa_av_style ); ?>" aria-hidden="true">
 				<?php echo esc_html( $initials ); ?>
 			</div>
+			<?php endif; ?>
 
 			<div class="qa-q-body">
 				<div class="qa-q-meta">
@@ -192,9 +201,11 @@ foreach ( $questions as $question ) :
 						$is_helpful_voted = in_array( (int) $answer->id, $user_helpful_ids, true );
 						?>
 						<div class="qa-answer <?php echo $is_staff ? 'qa-answer--staff' : ''; ?>">
-							<div class="qa-av qa-av--circle <?php echo $is_staff ? 'qa-av--staff' : 'qa-av--verified'; ?>" aria-hidden="true">
+							<?php if ( 'hidden' !== $qa_av_style ) : ?>
+							<div class="qa-av qa-av--<?php echo esc_attr( $qa_av_style ); ?> <?php echo $is_staff ? 'qa-av--staff' : 'qa-av--verified'; ?>" aria-hidden="true">
 								<?php echo esc_html( $ans_initials ); ?>
 							</div>
+							<?php endif; ?>
 
 							<div class="qa-answer-body">
 								<?php if ( $is_best ) : ?>

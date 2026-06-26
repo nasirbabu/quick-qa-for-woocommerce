@@ -617,10 +617,13 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 		}
 
-		// Load settings so the partial can respect allow_community.
+		// Load settings so the partial can respect allow_community and appearance.
 		$qq_s            = get_option( 'quick_qa_settings', array() );
 		$allow_community = isset( $qq_s['allow_community'] ) ? (bool) $qq_s['allow_community'] : true;
 		$is_admin        = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
+		$appr_avatar_style = ( isset( $qq_s['appr_avatar_style'] ) && in_array( $qq_s['appr_avatar_style'], array( 'circle', 'square', 'hidden' ), true ) )
+			? $qq_s['appr_avatar_style']
+			: 'circle';
 
 		// Render question items HTML using the shared partial template.
 		ob_start();
