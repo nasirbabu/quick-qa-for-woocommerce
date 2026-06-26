@@ -663,6 +663,14 @@ class Quick_Qa_For_Woocommerce_Public {
 		}
 		$color_dark = $this->darken_hex( $color );
 
+		// Avatar: light tint background + darkened text from the primary colour.
+		// :not() excludes .qa-av--staff and .qa-av--verified so their role colours
+		// (orange / green) are never overridden.
+		$av_bg   = $this->tint_hex( $color );
+		$av_text = $this->darken_hex( $color, 0.35 );
+		$avatar_color = "\n\n/* -- Appearance: avatar colour -- */\n"
+			. ".qa-widget .qa-av:not(.qa-av--staff):not(.qa-av--verified) { background: {$av_bg}; color: {$av_text}; }";
+
 		// ── Corner radius ─────────────────────────────────────────────────────
 		switch ( $s['appr_radius'] ) {
 			case 'sharp': $radius = '0px'; break;
@@ -766,7 +774,7 @@ CSS;
 			$custom     = "\n/* -- Custom CSS -- */\n{$raw_custom}";
 		}
 
-		return $tokens . $card . $avatar . $visibility . $custom;
+		return $tokens . $avatar_color . $card . $avatar . $visibility . $custom;
 	}
 
 	/**
@@ -789,5 +797,27 @@ CSS;
 		$g = max( 0, (int) round( hexdec( substr( $hex, 2, 2 ) ) * ( 1 - $amount ) ) );
 		$b = max( 0, (int) round( hexdec( substr( $hex, 4, 2 ) ) * ( 1 - $amount ) ) );
 		return sprintf( '#%02x%02x%02x', $r, $g, $b );
+	}
+
+	/**
+	 * Return a light tint of a 6-digit hex colour (mix toward white).
+	 *
+	 * Used to generate the avatar background colour from the primary brand colour.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  string $hex    '#RRGGBB' string.
+	 * @param  float  $amount Fraction to mix toward white (0 = original, 1 = white).
+	 * @return string '#rrggbb' string.
+	 */
+	private function tint_hex( $hex, $amount = 0.85 ) {
+		$hex = ltrim( $hex, '#' );
+		if ( 6 !== strlen( $hex ) ) {
+			return '#F2EDE8';
+		}
+		$r = (int) round( hexdec( substr( $hex, 0, 2 ) ) + ( 255 - hexdec( substr( $hex, 0, 2 ) ) ) * $amount );
+		$g = (int) round( hexdec( substr( $hex, 2, 2 ) ) + ( 255 - hexdec( substr( $hex, 2, 2 ) ) ) * $amount );
+		$b = (int) round( hexdec( substr( $hex, 4, 2 ) ) + ( 255 - hexdec( substr( $hex, 4, 2 ) ) ) * $amount );
+		return sprintf( '#%02x%02x%02x', min( 255, $r ), min( 255, $g ), min( 255, $b ) );
 	}
 }
