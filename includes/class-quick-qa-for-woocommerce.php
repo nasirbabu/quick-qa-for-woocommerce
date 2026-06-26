@@ -79,6 +79,7 @@ class Quick_Qa_For_Woocommerce {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 		$this->define_rest_hooks();
+		$this->define_notification_hooks();
 
 	}
 
@@ -135,6 +136,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-moderation.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-templates.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-settings.php';
+
+		/**
+		 * Notification dispatcher — email alerts, digest, Slack, and WP Cron jobs.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-notifier.php';
 
 		$this->loader = new Quick_Qa_For_Woocommerce_Loader();
 
@@ -194,6 +200,22 @@ class Quick_Qa_For_Woocommerce {
 		// Render Q&A section below the tabs area when position = 'below_reviews'.
 		$this->loader->add_action( 'woocommerce_after_single_product_summary', $plugin_public, 'render_qa_below_reviews', 25 );
 
+	}
+
+	/**
+	 * Register WP Cron callbacks and the init hook that ensures cron events are
+	 * scheduled according to the current notification settings.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_notification_hooks() {
+		// Cron callbacks — must be registered on every request so WP Cron can fire them.
+		add_action( Quick_Qa_Notifier::DIGEST_HOOK,   array( 'Quick_Qa_Notifier', 'send_digest' ) );
+		add_action( Quick_Qa_Notifier::REMINDER_HOOK, array( 'Quick_Qa_Notifier', 'send_unanswered_reminder' ) );
+
+		// Lazily schedule missing cron events once the site is initialised.
+		add_action( 'init', array( 'Quick_Qa_Notifier', 'ensure_crons' ) );
 	}
 
 	/**

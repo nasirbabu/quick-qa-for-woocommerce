@@ -341,6 +341,11 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 			)
 		);
 
+		// Fire the upvote-threshold notification for questions (not answers).
+		if ( $voted && 'question' === $object_type ) {
+			Quick_Qa_Notifier::check_upvote_threshold( (int) $object_id, $count );
+		}
+
 		return rest_ensure_response(
 			array(
 				'voted' => $voted,

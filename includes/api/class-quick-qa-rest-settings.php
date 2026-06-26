@@ -291,6 +291,12 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 		// Merge validated patch over the current settings and write one option.
 		update_option( self::OPTION_KEY, array_merge( $current, $patch ) );
 
+		// Reschedule notification crons immediately so the new timing/on-off
+		// state takes effect without waiting for the next 'init' call.
+		if ( class_exists( 'Quick_Qa_Notifier' ) ) {
+			Quick_Qa_Notifier::schedule_crons();
+		}
+
 		return $this->get_settings( $request );
 	}
 

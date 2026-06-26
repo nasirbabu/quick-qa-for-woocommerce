@@ -873,7 +873,13 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		// 8. Bump the rate-limit counter.
 		$this->increment_rate_limit();
 
-		// 9. Respond.
+		// 9. Notify admin of the new question.
+		$asker_name = $is_logged_in
+			? ( $user_data ? $user_data->display_name : __( 'Customer', 'quick-qa-for-woocommerce' ) )
+			: ( $guest_name ?: __( 'Guest', 'quick-qa-for-woocommerce' ) );
+		Quick_Qa_Notifier::new_question( $question_id, $product_id, $question_text, $asker_name );
+
+		// 10. Respond.
 		$message = ( 'approved' === $status )
 			? __( 'Your question has been published.', 'quick-qa-for-woocommerce' )
 			: __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' );
@@ -951,6 +957,25 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'quick_qa_db_error',
 				__( 'Unable to save your answer. Please try again.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 500 )
+			);
+		}
+
+		// Notify admin when a community answer is waiting for review.
+		if ( 'community' === $answer_type ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$q_row = $wpdb->get_row(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT question_text FROM {$questions_table} WHERE id = %d",
+					$question_id
+				)
+			);
+			$responder    = get_userdata( $user_id );
+			$responder_name = $responder ? $responder->display_name : __( 'Customer', 'quick-qa-for-woocommerce' );
+			Quick_Qa_Notifier::community_answer(
+				$q_row ? $q_row->question_text : '',
+				$answer_text,
+				$responder_name
 			);
 		}
 
