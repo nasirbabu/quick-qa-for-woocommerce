@@ -174,6 +174,15 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'recaptcha_enabled'        => (bool) $s['recaptcha_enabled'],
 			'recaptcha_site_key'       => (string) $s['recaptcha_site_key'],
 			'recaptcha_secret_key'     => (string) $s['recaptcha_secret_key'],
+
+			// Community
+			'allow_verified_buyers'     => (bool) $s['allow_verified_buyers'],
+			'allow_logged_in_customers' => (bool) $s['allow_logged_in_customers'],
+			'verified_buyer_approval'   => (string) $s['verified_buyer_approval'],
+			'community_approval'        => (string) $s['community_approval'],
+			'followup_approval'         => (string) $s['followup_approval'],
+			'enable_trust_tier'         => (bool) $s['enable_trust_tier'],
+			'trust_helpful_threshold'   => (int) $s['trust_helpful_threshold'],
 		) );
 	}
 
@@ -194,19 +203,22 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 
 		// Enum fields — only accept values from the allow-list.
 		$enums = array(
-			'appr_radius'            => array( 'sharp', 'rounded', 'pill' ),
-			'appr_avatar_style'      => array( 'circle', 'square', 'hidden' ),
-			'appr_card_style'        => array( 'bordered', 'filled', 'minimal' ),
-			'appr_font_mode'         => array( 'inherit', 'system', 'custom' ),
-			'appr_font_size'         => array( 'small', 'medium', 'large' ),
-			'appr_density'           => array( 'compact', 'comfortable', 'spacious' ),
-			'enable_scope'           => array( 'all', 'categories', 'products', 'exclude' ),
-			'position'               => array( 'tab', 'below_reviews' ),
-			'default_sort'           => array( 'recent', 'upvoted', 'oldest' ),
-			'auto_lock'              => array( 'never', '30', '60', '90' ),
-			'question_approval_mode' => array( 'manual', 'auto', 'trust-tiered' ),
-			'who_can_ask'            => array( 'both', 'logged-in', 'guests' ),
-			'notify_mode'            => array( 'instant', 'digest' ),
+			'appr_radius'             => array( 'sharp', 'rounded', 'pill' ),
+			'appr_avatar_style'       => array( 'circle', 'square', 'hidden' ),
+			'appr_card_style'         => array( 'bordered', 'filled', 'minimal' ),
+			'appr_font_mode'          => array( 'inherit', 'system', 'custom' ),
+			'appr_font_size'          => array( 'small', 'medium', 'large' ),
+			'appr_density'            => array( 'compact', 'comfortable', 'spacious' ),
+			'enable_scope'            => array( 'all', 'categories', 'products', 'exclude' ),
+			'position'                => array( 'tab', 'below_reviews' ),
+			'default_sort'            => array( 'recent', 'upvoted', 'oldest' ),
+			'auto_lock'               => array( 'never', '30', '60', '90' ),
+			'question_approval_mode'  => array( 'manual', 'auto', 'trust-tiered' ),
+			'who_can_ask'             => array( 'both', 'logged-in', 'guests' ),
+			'notify_mode'             => array( 'instant', 'digest' ),
+			'verified_buyer_approval' => array( 'require', 'auto' ),
+			'community_approval'      => array( 'always', 'auto_trusted' ),
+			'followup_approval'       => array( 'auto', 'require' ),
 		);
 		foreach ( $enums as $key => $allowed ) {
 			if ( isset( $body[ $key ] ) && in_array( $body[ $key ], $allowed, true ) ) {
@@ -252,6 +264,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'notify_new_question', 'notify_community_answer',
 			'notify_upvote_threshold', 'notify_unanswered_reminder',
 			'require_email_for_guests', 'enable_honeypot', 'recaptcha_enabled',
+			'allow_verified_buyers', 'allow_logged_in_customers', 'enable_trust_tier',
 		);
 		foreach ( $bool_keys as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -267,6 +280,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'upvote_threshold_value'   => array( 1, 999 ),
 			'unanswered_reminder_days' => array( 1, 365 ),
 			'submission_rate_limit'    => array( 1, 100 ),
+			'trust_helpful_threshold'  => array( 1, 50 ),
 		);
 		foreach ( $int_fields as $key => $range ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -430,6 +444,15 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'recaptcha_enabled'        => false,
 			'recaptcha_site_key'       => '',
 			'recaptcha_secret_key'     => '',
+
+			// Community
+			'allow_verified_buyers'     => true,
+			'allow_logged_in_customers' => true,
+			'verified_buyer_approval'   => 'require',
+			'community_approval'        => 'always',
+			'followup_approval'         => 'auto',
+			'enable_trust_tier'         => false,
+			'trust_helpful_threshold'   => 3,
 		);
 	}
 

@@ -70,6 +70,15 @@ export const DEFAULT_SETTINGS = {
   recaptcha_enabled:        false,
   recaptcha_site_key:       '',
   recaptcha_secret_key:     '',
+
+  // Community
+  allow_verified_buyers:    true,
+  allow_logged_in_customers: true,
+  verified_buyer_approval:  'require',
+  community_approval:       'always',
+  followup_approval:        'auto',
+  enable_trust_tier:        false,
+  trust_helpful_threshold:  3,
 };
 
 export const TABS = [
@@ -77,5 +86,6 @@ export const TABS = [
   { key: 'submission',    label: 'Submission' },
   { key: 'moderation',    label: 'Moderation' },
   { key: 'notifications', label: 'Notifications' },
+  { key: 'community',     label: 'Community' },
   { key: 'appearance',    label: 'Appearance' },
 ];

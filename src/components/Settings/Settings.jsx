@@ -5,6 +5,7 @@ import GeneralTab    from './tabs/GeneralTab';
 import SubmissionTab from './tabs/SubmissionTab';
 import ModerationTab    from './tabs/ModerationTab';
 import NotificationsTab from './tabs/NotificationsTab';
+import CommunityTab    from './tabs/CommunityTab';
 import AppearanceTab   from './tabs/AppearanceTab';
 
 async function apiFetch(path, options = {}) {
@@ -103,6 +104,8 @@ export default function Settings() {
         return <ModerationTab draft={draft} onChange={setDraft} />;
       case 'notifications':
         return <NotificationsTab draft={draft} onChange={setDraft} />;
+      case 'community':
+        return <CommunityTab draft={draft} onChange={setDraft} />;
       case 'appearance':
         return <AppearanceTab draft={draft} onChange={setDraft} />;
       default: {

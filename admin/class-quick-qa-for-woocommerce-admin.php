@@ -88,7 +88,8 @@ class Quick_Qa_For_Woocommerce_Admin {
 				$this->version,
 				true
 			);
-			wp_script_add_data( 'quick-qa-react-app', 'type', 'module' );
+
+			add_filter( 'script_loader_tag', array( $this, 'set_module_type' ), 10, 2 );
 
 			wp_localize_script(
 				'quick-qa-react-app',
@@ -99,15 +100,16 @@ class Quick_Qa_For_Woocommerce_Admin {
 				)
 			);
 		}
+	}
 
-		$css_file = $this->plugin_root_path() . 'build/quick-qa-app.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'quick-qa-react-app',
-				$this->plugin_root_url() . 'build/quick-qa-app.css',
-				array(),
-				$this->version
-			);
+	/**
+	 * Add type="module" to the React app script tag so top-level const/let
+	 * declarations are scoped to the module and cannot collide with window.wp.
+	 */
+	public function set_module_type( $tag, $handle ) {
+		if ( 'quick-qa-react-app' === $handle ) {
+			return str_replace( ' src=', ' type="module" src=', $tag );
 		}
+		return $tag;
 	}
 }
