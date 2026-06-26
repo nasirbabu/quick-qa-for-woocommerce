@@ -781,16 +781,81 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		// 4. Verified-buyer check — determines the badge shown on the saved question.
 		$is_verified = false;
-		if ( $is_logged_in ) {
-			$user_data   = get_userdata( $user_id );
-			$is_verified = $user_data
-				? (bool) wc_customer_bought_product( $user_data->user_email, $user_id, $product_id )
-				: false;
+		$user_data   = $is_logged_in ? get_userdata( $user_id ) : null;
+		if ( $is_logged_in && $user_data ) {
+			$is_verified = (bool) wc_customer_bought_product( $user_data->user_email, $user_id, $product_id );
 		}
 
-		$status = 'pending';
+		// 5. Moderation checks (all settings from $qq_s loaded at the top of this method).
+		$approval_mode     = (string) ( $qq_s['question_approval_mode'] ?? 'manual' );
+		$profanity_enabled = (bool)   ( $qq_s['profanity_filter']       ?? true );
+		$profanity_words   = (string) ( $qq_s['profanity_words']        ?? 'spam, scam, fake' );
+		$auto_reject_short = (bool)   ( $qq_s['auto_reject_short']      ?? true );
+		$min_length        = max( 1, (int) ( $qq_s['min_length']        ?? 10 ) );
+		$email_blocklist   = (string) ( $qq_s['email_blocklist']        ?? '' );
+		$email_allowlist   = (string) ( $qq_s['email_allowlist']        ?? '' );
 
-		// 5. Persist.
+		// Resolve the submitter's email for list checks.
+		if ( $is_logged_in && $user_data ) {
+			$submitter_email = strtolower( trim( $user_data->user_email ) );
+		} else {
+			$submitter_email = strtolower( trim( $guest_email ) );
+		}
+
+		// 5a. Email blocklist — silently generic error (no useful info to the sender).
+		if ( ! empty( $email_blocklist ) && $this->email_matches_list( $submitter_email, $email_blocklist ) ) {
+			return new WP_Error(
+				'quick_qa_submission_error',
+				__( 'Unable to process your submission.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		// 5b. Email allowlist — overrides approval mode; allowlisted senders auto-publish.
+		$on_allowlist = ! empty( $email_allowlist )
+			&& $this->email_matches_list( $submitter_email, $email_allowlist );
+
+		if ( ! $on_allowlist ) {
+			// 5c. Profanity filter — auto-reject questions containing blocklist words.
+			if ( $profanity_enabled && ! empty( $profanity_words ) ) {
+				$words = array_filter( array_map( 'trim', explode( ',', $profanity_words ) ) );
+				foreach ( $words as $word ) {
+					if ( ! empty( $word ) && false !== stripos( $question_text, $word ) ) {
+						return new WP_Error(
+							'quick_qa_profanity',
+							__( 'Your question contains content that is not allowed.', 'quick-qa-for-woocommerce' ),
+							array( 'status' => 422 )
+						);
+					}
+				}
+			}
+
+			// 5d. Auto-reject short questions silently (no error exposed to the sender).
+			if ( $auto_reject_short && mb_strlen( $question_text ) < $min_length ) {
+				$this->insert_question( $product_id, $user_id, $guest_name, $guest_email, $question_text, $is_verified, 'rejected' );
+				$this->increment_rate_limit();
+				return rest_ensure_response( array(
+					'id'      => 0,
+					'status'  => 'pending',
+					/* translators: Shown when the question requires manual approval. */
+					'message' => __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' ),
+				) );
+			}
+		}
+
+		// 6. Determine final approval status.
+		if ( $on_allowlist ) {
+			$status = 'approved'; // Trusted senders bypass the queue.
+		} elseif ( 'auto' === $approval_mode ) {
+			$status = 'approved';
+		} elseif ( 'trust-tiered' === $approval_mode ) {
+			// Verified buyers and logged-in customers auto-publish; guests need approval.
+			$status = ( $is_verified || $is_logged_in ) ? 'approved' : 'pending';
+		} else { // 'manual'
+			$status = 'pending';
+		}
+
+		// 7. Persist.
 		$question_id = $this->insert_question(
 			$product_id,
 			$user_id,
@@ -805,16 +870,13 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			return $question_id;
 		}
 
-		// 6. Bump the rate-limit counter.
+		// 8. Bump the rate-limit counter.
 		$this->increment_rate_limit();
 
-		// 7. Respond.
-		if ( 'approved' === $status ) {
-			$message = __( 'Your question has been published.', 'quick-qa-for-woocommerce' );
-		} else {
-			/* translators: Shown when the question requires manual approval. */
-			$message = __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' );
-		}
+		// 9. Respond.
+		$message = ( 'approved' === $status )
+			? __( 'Your question has been published.', 'quick-qa-for-woocommerce' )
+			: __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' );
 
 		return rest_ensure_response(
 			array(
@@ -1060,10 +1122,15 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	public function validate_question_text( $value, $request, $param ) {
 		$length   = mb_strlen( sanitize_textarea_field( (string) $value ) );
 		$settings = get_option( 'quick_qa_settings', array() );
-		$min      = max( 1, (int) ( $settings['min_length'] ?? 10 ) );
-		$max      = max( 1, (int) ( $settings['max_length'] ?? 500 ) );
+		$min      = max( 1, (int) ( $settings['min_length']      ?? 10 ) );
+		$max      = max( 1, (int) ( $settings['max_length']      ?? 500 ) );
+		$silent   = (bool) ( $settings['auto_reject_short']       ?? true );
 
 		if ( $length < $min ) {
+			if ( $silent ) {
+				// When auto_reject_short is on, let it reach submit_question() for silent rejection.
+				return true;
+			}
 			return new WP_Error(
 				'quick_qa_too_short',
 				sprintf(
@@ -1088,5 +1155,44 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check whether an email address matches any entry in a newline-delimited list.
+	 *
+	 * Each line may be:
+	 *   - A full address: sam@example.com  (exact match, case-insensitive)
+	 *   - A domain:       @spamdomain.net  (any address ending in that domain)
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @param  string $email     Lowercase trimmed email to test.
+	 * @param  string $list_text Raw textarea value — one entry per line.
+	 * @return bool
+	 */
+	private function email_matches_list( $email, $list_text ) {
+		if ( '' === $email || '' === $list_text ) {
+			return false;
+		}
+
+		$lines = array_filter( array_map( 'trim', explode( "\n", $list_text ) ) );
+
+		foreach ( $lines as $entry ) {
+			$entry = strtolower( $entry );
+			if ( '' === $entry ) {
+				continue;
+			}
+
+			if ( '@' === $entry[0] ) {
+				// Domain match: entry is "@domain.com", check email ends with it.
+				if ( substr( $email, -strlen( $entry ) ) === $entry ) {
+					return true;
+				}
+			} elseif ( $email === $entry ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
