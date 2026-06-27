@@ -277,6 +277,36 @@
 }
 
 /* ============================================================
+   Operational banner (pause-submissions notice, etc.)
+   ============================================================ */
+.qa-widget .qa-banner {
+	display:       flex;
+	gap:           10px;
+	align-items:   flex-start;
+	padding:       12px 16px;
+	margin-bottom: 18px;
+	border-radius: var(--qa-radius);
+	border:        1px solid #F5E1B5;
+	background:    #FFF8EC;
+	color:         #6B5817;
+	font-size:     13px;
+	line-height:   1.5;
+}
+
+.qa-widget .qa-banner span[aria-hidden] {
+	flex-shrink: 0;
+	font-size:   15px;
+	line-height: 1.4;
+}
+
+.qa-widget .qa-banner b {
+	display:       block;
+	font-weight:   600;
+	margin-bottom: 2px;
+	color:         #4a3a08;
+}
+
+/* ============================================================
    Controls row (search / filter / sort)
    ============================================================ */
 .qa-widget .qa-controls {

@@ -668,6 +668,16 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$who_can_ask             = (string) ( $qq_s['who_can_ask']            ?? 'both' );
 		$req_email               = (bool) ( $qq_s['require_email_for_guests'] ?? true );
 		$honeypot_enabled        = (bool) ( $qq_s['enable_honeypot']          ?? false );
+		$pause_submissions       = (bool) ( $qq_s['pause_submissions']        ?? false );
+
+		// 0. Pause-submissions gate — reject before any other processing.
+		if ( $pause_submissions ) {
+			return new WP_Error(
+				'quick_qa_submissions_paused',
+				__( 'New question submissions are temporarily paused. Please check back later.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 503 )
+			);
+		}
 
 		// 0. Honeypot check — must be empty; non-empty means bot submission.
 		if ( $honeypot_enabled ) {

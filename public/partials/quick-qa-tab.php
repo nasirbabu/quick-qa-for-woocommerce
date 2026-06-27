@@ -80,6 +80,19 @@ $question_count = count( $questions );
 	</div>
 
 	<?php // ================================================================ ?>
+	<?php // Pause-submissions banner — shown instead of the ask form        ?>
+	<?php // ================================================================ ?>
+	<?php if ( $pause_submissions ) : ?>
+	<div class="qa-banner" role="status">
+		<span aria-hidden="true">ℹ</span>
+		<div>
+			<b><?php esc_html_e( "We're not accepting new questions right now.", 'quick-qa-for-woocommerce' ); ?></b>
+			<?php esc_html_e( 'Please check back later. You can still browse existing Q&amp;A below.', 'quick-qa-for-woocommerce' ); ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<?php // ================================================================ ?>
 	<?php // Ask form — hidden by default, toggled by JS                     ?>
 	<?php // ================================================================ ?>
 	<?php if ( ! $pause_submissions && $user_can_ask ) : ?>
