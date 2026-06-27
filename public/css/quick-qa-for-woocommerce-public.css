@@ -7,6 +7,27 @@
  */
 
 /* ============================================================
+   Tab count badge (WooCommerce product tab navigation)
+   ============================================================ */
+.qa-tab-count {
+	display:          inline-flex;
+	align-items:      center;
+	justify-content:  center;
+	min-width:        18px;
+	height:           18px;
+	padding:          0 5px;
+	margin-left:      5px;
+	border-radius:    9px;
+	background:       #FF6B4A;
+	color:            #fff;
+	font-size:        11px;
+	font-weight:      600;
+	line-height:      1;
+	vertical-align:   middle;
+	box-sizing:       border-box;
+}
+
+/* ============================================================
    CSS custom properties (design tokens)
    ============================================================ */
 .qa-widget {

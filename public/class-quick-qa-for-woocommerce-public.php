@@ -186,12 +186,18 @@ class Quick_Qa_For_Woocommerce_Public {
 			return $tabs;
 		}
 
-		$tab_name         = ! empty( $s['tab_name'] )
+		$tab_name = ! empty( $s['tab_name'] )
 			? $s['tab_name']
 			: __( 'Questions & Answers', 'quick-qa-for-woocommerce' );
 
+		$count = $this->get_total_approved_questions_count( $product_id );
+		$title = esc_html( $tab_name );
+		if ( $count > 0 ) {
+			$title .= ' <span class="qa-tab-count">' . absint( $count ) . '</span>';
+		}
+
 		$tabs['quick_qa'] = array(
-			'title'    => esc_html( $tab_name ),
+			'title'    => $title,
 			'priority' => 50,
 			'callback' => array( $this, 'render_qa_tab' ),
 		);
