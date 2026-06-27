@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.2.0';
+	const DB_VERSION = '1.0.0';
 
 	/**
 	 * Option key used to store the installed schema version.
