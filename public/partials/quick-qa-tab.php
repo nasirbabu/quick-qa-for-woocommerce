@@ -21,6 +21,7 @@
  *   $min_length        (int)      Minimum question character length.
  *   $allow_community          (bool)   Whether logged-in customers can submit answers.
  *   $pause_submissions        (bool)   When true, the Ask button and form are hidden.
+ *   $who_can_ask              (string) Submission scope: 'both' | 'logged-in' | 'guests'.
  *   $user_can_ask             (bool)   Whether the current visitor is allowed by who_can_ask setting.
  *   $require_email_for_guests (bool)   Whether guests must provide an email address.
  *   $enable_honeypot          (bool)   Whether an invisible honeypot field should be rendered.
@@ -88,6 +89,34 @@ $question_count = count( $questions );
 		<div>
 			<b><?php esc_html_e( "We're not accepting new questions right now.", 'quick-qa-for-woocommerce' ); ?></b>
 			<?php esc_html_e( 'Please check back later. You can still browse existing Q&amp;A below.', 'quick-qa-for-woocommerce' ); ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<?php // ================================================================ ?>
+	<?php // Login prompt — shown when who_can_ask=logged-in, visitor is out ?>
+	<?php // ================================================================ ?>
+	<?php if ( ! $pause_submissions && ! $is_logged_in && 'logged-in' === $who_can_ask ) : ?>
+	<div class="qa-login-prompt">
+		<div class="qa-login-mark" aria-hidden="true">💬</div>
+		<div class="qa-login-title">
+			<?php esc_html_e( 'Have a question about this product?', 'quick-qa-for-woocommerce' ); ?>
+		</div>
+		<div class="qa-login-text">
+			<?php esc_html_e( 'Log in or create a free account to ask. It only takes a minute.', 'quick-qa-for-woocommerce' ); ?>
+		</div>
+		<div class="qa-login-actions">
+			<a href="<?php echo esc_url( wp_login_url( get_permalink() . '#quick-qa-widget' ) ); ?>"
+				class="qa-login-btn qa-login-btn--primary">
+				<?php esc_html_e( 'Log in', 'quick-qa-for-woocommerce' ); ?>
+			</a>
+			<a href="<?php echo esc_url( wp_registration_url() ); ?>"
+				class="qa-login-btn qa-login-btn--secondary">
+				<?php esc_html_e( 'Create account', 'quick-qa-for-woocommerce' ); ?>
+			</a>
+		</div>
+		<div class="qa-login-note">
+			<?php esc_html_e( 'Already a customer? Your purchase history makes your answers more useful to other buyers.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 	</div>
 	<?php endif; ?>
@@ -233,7 +262,9 @@ $question_count = count( $questions );
 
 		<?php // ============================================================ ?>
 		<?php // Controls: search + filter pills + sort                       ?>
+		<?php // Hidden when anonymous visitor is blocked by login-required.  ?>
 		<?php // ============================================================ ?>
+		<?php if ( $is_logged_in || 'logged-in' !== $who_can_ask ) : ?>
 		<div class="qa-controls">
 			<?php if ( $show_search ) : ?>
 			<div class="qa-search-frontend">
@@ -282,6 +313,7 @@ $question_count = count( $questions );
 				</select>
 			</div>
 		</div>
+		<?php endif; // logged-in check for controls ?>
 
 		<?php // ============================================================ ?>
 		<?php // Question list                                                ?>

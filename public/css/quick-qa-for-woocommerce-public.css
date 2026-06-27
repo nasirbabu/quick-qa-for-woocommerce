@@ -307,6 +307,86 @@
 }
 
 /* ============================================================
+   Login prompt (who_can_ask = logged-in, visitor is anonymous)
+   ============================================================ */
+.qa-widget .qa-login-prompt {
+	background:    white;
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       32px 22px;
+	text-align:    center;
+	margin-bottom: 18px;
+}
+
+.qa-widget .qa-login-mark {
+	width:           48px;
+	height:          48px;
+	border-radius:   50%;
+	background:      #FAFAF8;
+	display:         flex;
+	align-items:     center;
+	justify-content: center;
+	margin:          0 auto 14px;
+	font-size:       22px;
+}
+
+.qa-widget .qa-login-title {
+	font-size:     16px;
+	font-weight:   600;
+	color:         #1f1d1a;
+	margin-bottom: 6px;
+}
+
+.qa-widget .qa-login-text {
+	font-size:   13px;
+	color:       #666;
+	max-width:   320px;
+	margin:      0 auto 16px;
+	line-height: 1.5;
+}
+
+.qa-widget .qa-login-actions {
+	display:         flex;
+	gap:             10px;
+	justify-content: center;
+}
+
+.qa-widget .qa-login-btn {
+	display:         inline-block;
+	padding:         8px 18px;
+	border-radius:   var(--qa-radius);
+	font-size:       13px;
+	font-weight:     500;
+	cursor:          pointer;
+	font-family:     inherit;
+	border:          none;
+	text-decoration: none;
+}
+
+.qa-widget .qa-login-btn--primary {
+	background: var(--qa-color);
+	color:      white;
+}
+
+.qa-widget .qa-login-btn--secondary {
+	background: white;
+	color:      #1f1d1a;
+	border:     1px solid #d8d8d8;
+}
+
+.qa-widget .qa-login-note {
+	font-size:    11px;
+	color:        #888;
+	margin-top:   14px;
+	padding-top:  14px;
+	border-top:   1px solid #ebebeb;
+	max-width:    360px;
+	margin-left:  auto;
+	margin-right: auto;
+	line-height:  1.5;
+}
+
+/* ============================================================
    Controls row (search / filter / sort)
    ============================================================ */
 .qa-widget .qa-controls {
