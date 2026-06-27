@@ -12,6 +12,15 @@
  *   $user_voted_ids   (int[])    — question IDs already upvoted by current user.
  *   $user_helpful_ids (int[])    — answer IDs already marked helpful.
  *
+ * Optional variables (set by render_qa_tab(); may be absent in REST context):
+ *   $is_admin                  (bool) — can always answer, ignores community settings.
+ *   $is_verified               (bool) — current user is a verified buyer of this product.
+ *   $allow_community           (bool) — master community-answers toggle.
+ *   $allow_verified_buyers     (bool) — verified buyers may submit answers.
+ *   $allow_logged_in_customers (bool) — any logged-in user may submit answers.
+ *   $appr_show_upvotes         (bool) — render upvote button on questions.
+ *   $appr_show_role_badges     (bool) — render Customer / Verified buyer / Staff role pills.
+ *
  * @since   1.0.0
  * @package Quick_Qa_For_Woocommerce
  */
@@ -77,14 +86,16 @@ foreach ( $questions as $question ) :
 				<div class="qa-q-meta">
 					<b><?php echo esc_html( $asker_name ); ?></b>
 
-					<?php if ( $question->is_verified_buyer ) : ?>
-						<span class="qa-role qa-role--verified">
-							<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
-						</span>
-					<?php else : ?>
-						<span class="qa-role">
-							<?php esc_html_e( 'Customer', 'quick-qa-for-woocommerce' ); ?>
-						</span>
+					<?php if ( ! isset( $appr_show_role_badges ) || $appr_show_role_badges ) : ?>
+						<?php if ( $question->is_verified_buyer ) : ?>
+							<span class="qa-role qa-role--verified">
+								<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
+							</span>
+						<?php else : ?>
+							<span class="qa-role">
+								<?php esc_html_e( 'Customer', 'quick-qa-for-woocommerce' ); ?>
+							</span>
+						<?php endif; ?>
 					<?php endif; ?>
 
 					<span>· <?php echo esc_html( $time_ago ); ?></span>
@@ -101,7 +112,7 @@ foreach ( $questions as $question ) :
 				</div>
 
 				<div class="qa-q-foot">
-					<?php if ( $is_logged_in ) : ?>
+					<?php if ( $is_logged_in && ( ! isset( $appr_show_upvotes ) || $appr_show_upvotes ) ) : ?>
 						<?php $user_has_voted = in_array( (int) $question->id, $user_voted_ids, true ); ?>
 						<button class="qa-vote-btn<?php echo $user_has_voted ? ' is-voted' : ''; ?>"
 							type="button"
@@ -153,14 +164,22 @@ foreach ( $questions as $question ) :
 		</div>
 
 		<?php
-		// Admins can always answer; regular users need allow_community enabled.
+		// Admins can always answer.
 		$can_submit_answer = ( isset( $is_admin ) && $is_admin );
-		if ( ! $can_submit_answer && $is_logged_in && ( ! isset( $allow_community ) || $allow_community ) ) {
-			$can_submit_answer = true;
+		$allow_comm        = isset( $allow_community ) ? (bool) $allow_community : true;
+		if ( ! $can_submit_answer && $is_logged_in && $allow_comm ) {
+			$av              = isset( $allow_verified_buyers )     ? (bool) $allow_verified_buyers     : true;
+			$alc             = isset( $allow_logged_in_customers ) ? (bool) $allow_logged_in_customers : true;
+			$cur_is_verified = isset( $is_verified ) && $is_verified;
+			if ( ( $cur_is_verified && $av ) || $alc ) {
+				$can_submit_answer = true;
+			}
 		}
+		// Show "thread closed" note when community answers are globally disabled.
+		$thread_locked = $is_logged_in && ! $can_submit_answer && ! $allow_comm;
 		?>
-		<?php // Answers panel: render when answers exist or the user can submit one. ?>
-		<?php if ( ! empty( $question->answers ) || $can_submit_answer ) : ?>
+		<?php // Answers panel: render when answers exist, user can submit, or thread is shown as locked. ?>
+		<?php if ( ! empty( $question->answers ) || $can_submit_answer || $thread_locked ) : ?>
 			<div class="qa-answers" style="display:none;">
 
 				<?php if ( ! empty( $question->answers ) ) : ?>
@@ -216,14 +235,16 @@ foreach ( $questions as $question ) :
 
 								<div class="qa-q-meta">
 									<b><?php echo esc_html( $ans_name ); ?></b>
-									<?php if ( $is_staff ) : ?>
-										<span class="qa-role qa-role--staff">
-											<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
-										</span>
-									<?php else : ?>
-										<span class="qa-role qa-role--verified">
-											<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
-										</span>
+									<?php if ( ! isset( $appr_show_role_badges ) || $appr_show_role_badges ) : ?>
+										<?php if ( $is_staff ) : ?>
+											<span class="qa-role qa-role--staff">
+												<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
+											</span>
+										<?php else : ?>
+											<span class="qa-role qa-role--verified">
+												<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
+											</span>
+										<?php endif; ?>
 									<?php endif; ?>
 									<span>· <?php echo esc_html( $ans_time ); ?></span>
 								</div>
@@ -258,7 +279,11 @@ foreach ( $questions as $question ) :
 					<?php endforeach; ?>
 				<?php endif; ?>
 
-				<?php if ( $can_submit_answer ) : ?>
+				<?php if ( $thread_locked ) : ?>
+					<p class="qa-thread-closed">
+						<?php esc_html_e( 'This thread is closed for new answers.', 'quick-qa-for-woocommerce' ); ?>
+					</p>
+				<?php elseif ( $can_submit_answer ) : ?>
 
 					<?php // Confirmation shown by JS after a community answer is submitted (pending review). ?>
 					<div class="qa-confirm qa-confirm--pending qa-answer-confirm"

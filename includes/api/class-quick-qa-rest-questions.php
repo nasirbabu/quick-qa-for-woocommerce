@@ -617,13 +617,42 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 		}
 
-		// Load settings so the partial can respect allow_community and appearance.
-		$qq_s            = get_option( 'quick_qa_settings', array() );
-		$allow_community = isset( $qq_s['allow_community'] ) ? (bool) $qq_s['allow_community'] : true;
-		$is_admin        = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
+		// Load settings so the partial can respect community and appearance settings.
+		$qq_s                      = get_option( 'quick_qa_settings', array() );
+		$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
+		$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
+		$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
+		$appr_show_upvotes         = isset( $qq_s['appr_show_upvotes'] )         ? (bool) $qq_s['appr_show_upvotes']         : true;
+		$appr_show_role_badges     = isset( $qq_s['appr_show_role_badges'] )     ? (bool) $qq_s['appr_show_role_badges']     : true;
+		$is_admin          = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
 		$appr_avatar_style = ( isset( $qq_s['appr_avatar_style'] ) && in_array( $qq_s['appr_avatar_style'], array( 'circle', 'square', 'hidden' ), true ) )
 			? $qq_s['appr_avatar_style']
 			: 'circle';
+
+		// Determine if the current user is a verified buyer of this product (affects CTA visibility).
+		$is_verified = false;
+		if ( $is_logged_in && ! $is_admin ) {
+			$current_uid = get_current_user_id();
+			$orders      = wc_get_orders(
+				array(
+					'customer_id' => $current_uid,
+					'status'      => array( 'wc-completed' ),
+					'limit'       => -1,
+					'return'      => 'ids',
+				)
+			);
+			foreach ( $orders as $order_id ) {
+				$order = wc_get_order( $order_id );
+				if ( $order ) {
+					foreach ( $order->get_items() as $item ) {
+						if ( (int) $item->get_product_id() === (int) $product_id ) {
+							$is_verified = true;
+							break 2;
+						}
+					}
+				}
+			}
+		}
 
 		// Render question items HTML using the shared partial template.
 		ob_start();
@@ -942,7 +971,66 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			);
 		}
 
-		$is_admin    = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
+		$is_admin = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
+
+		if ( ! $is_admin ) {
+			$qq_s = get_option( 'quick_qa_settings', array() );
+
+			$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
+			$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
+			$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
+
+			if ( ! $allow_community ) {
+				return new WP_Error(
+					'quick_qa_community_disabled',
+					__( 'Community answers are currently closed for this product.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+
+			// Determine if the current user is a verified buyer of this product.
+			$is_verified = false;
+			if ( $allow_verified_buyers ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$q_row = $wpdb->get_row(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT product_id FROM {$questions_table} WHERE id = %d",
+						$question_id
+					)
+				);
+				if ( $q_row ) {
+					$orders = wc_get_orders(
+						array(
+							'customer_id' => $user_id,
+							'status'      => array( 'wc-completed' ),
+							'limit'       => 1,
+							'return'      => 'ids',
+						)
+					);
+					foreach ( $orders as $order_id ) {
+						$order = wc_get_order( $order_id );
+						if ( $order ) {
+							foreach ( $order->get_items() as $item ) {
+								if ( (int) $item->get_product_id() === (int) $q_row->product_id ) {
+									$is_verified = true;
+									break 2;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if ( ! $is_verified && ! $allow_logged_in_customers ) {
+				return new WP_Error(
+					'quick_qa_not_permitted',
+					__( 'You are not permitted to submit an answer for this product.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+		}
+
 		$answer_type = $is_admin ? 'admin' : 'community';
 		$status      = 'pending';
 

@@ -78,7 +78,9 @@ class Quick_Qa_For_Woocommerce_Public {
 			'show_filter'              => true,
 			'max_length'               => 500,
 			'min_length'               => 10,
-			'allow_community'          => true,
+			'allow_community'           => true,
+			'allow_verified_buyers'    => true,
+			'allow_logged_in_customers' => true,
 			'auto_lock'                => 'never',
 			'pause_submissions'        => false,
 			'who_can_ask'              => 'both',
@@ -288,11 +290,16 @@ class Quick_Qa_For_Woocommerce_Public {
 		$default_sort              = (string) $s['default_sort'];
 		$max_length                = max( 1, (int) $s['max_length'] );
 		$min_length                = max( 1, (int) $s['min_length'] );
-		$allow_community           = (bool) $s['allow_community'];
+		$allow_community            = (bool) $s['allow_community'];
+		$allow_verified_buyers     = (bool) $s['allow_verified_buyers'];
+		$allow_logged_in_customers = (bool) $s['allow_logged_in_customers'];
 		$pause_submissions         = (bool) $s['pause_submissions'];
 		$who_can_ask               = (string) $s['who_can_ask'];
 		$require_email_for_guests  = (bool) $s['require_email_for_guests'];
 		$enable_honeypot           = (bool) $s['enable_honeypot'];
+		$appr_show_upvotes         = (bool) $s['appr_show_upvotes'];
+		$appr_show_role_badges     = (bool) $s['appr_show_role_badges'];
+		$current_user_id           = $is_logged_in ? absint( $current_user->ID ) : 0;
 
 		// Derived: whether the current visitor is allowed to ask questions.
 		if ( 'logged-in' === $who_can_ask ) {

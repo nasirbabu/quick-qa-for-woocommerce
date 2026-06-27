@@ -19,12 +19,17 @@
  *   $default_sort      (string)   Initial sort order: 'recent' | 'upvoted' | 'oldest'.
  *   $max_length        (int)      Maximum question character length.
  *   $min_length        (int)      Minimum question character length.
- *   $allow_community          (bool)   Whether logged-in customers can submit answers.
- *   $pause_submissions        (bool)   When true, the Ask button and form are hidden.
- *   $who_can_ask              (string) Submission scope: 'both' | 'logged-in' | 'guests'.
- *   $user_can_ask             (bool)   Whether the current visitor is allowed by who_can_ask setting.
- *   $require_email_for_guests (bool)   Whether guests must provide an email address.
- *   $enable_honeypot          (bool)   Whether an invisible honeypot field should be rendered.
+ *   $allow_community            (bool)   Master toggle — false means only admins can answer.
+ *   $allow_verified_buyers     (bool)   Allow buyers of this product to submit community answers.
+ *   $allow_logged_in_customers (bool)   Allow any logged-in user to submit community answers.
+ *   $pause_submissions         (bool)   When true, the Ask button and form are hidden.
+ *   $who_can_ask               (string) Submission scope: 'both' | 'logged-in' | 'guests'.
+ *   $user_can_ask              (bool)   Whether the current visitor is allowed by who_can_ask setting.
+ *   $require_email_for_guests  (bool)   Whether guests must provide an email address.
+ *   $enable_honeypot           (bool)   Whether an invisible honeypot field should be rendered.
+ *   $appr_show_upvotes         (bool)   Whether the upvote button is visible on questions.
+ *   $appr_show_role_badges     (bool)   Whether role badges (Customer / Verified buyer / Staff) are shown.
+ *   $current_user_id           (int)    WP user ID of the logged-in visitor, or 0 for guests.
  *
  * @since   1.0.0
  * @package Quick_Qa_For_Woocommerce

@@ -387,6 +387,18 @@
 }
 
 /* ============================================================
+   Thread-locked notice (allow_community = false)
+   ============================================================ */
+.qa-widget .qa-thread-closed {
+	font-size:     13px;
+	color:         #888;
+	font-style:    italic;
+	margin:        12px 0 4px;
+	padding-top:   12px;
+	border-top:    1px solid #ebebeb;
+}
+
+/* ============================================================
    Controls row (search / filter / sort)
    ============================================================ */
 .qa-widget .qa-controls {
