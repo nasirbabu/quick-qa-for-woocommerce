@@ -13,9 +13,8 @@
  * @package           Quick_Qa_For_Woocommerce
  *
  * @wordpress-plugin
- * Plugin Name:       Quick QA — Product Questions & Answers for WooCommerce
+ * Plugin Name:       Quick QA for WooCommerce
  * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
- * Requires at least: 5.9
  * Description:       A calm, focused Q&A plugin that helps you answer customer questions before they abandon their cart. Built for WooCommerce, priced for real stores.
  * Version:           1.0.0
  * Author:            WP Easy Soft
@@ -24,7 +23,17 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       quick-qa-for-woocommerce
  * Domain Path:       /languages
- */
+ *
+ * WP Requirement & Test
+ * Requires at least: 5.9
+ * Tested up to: 7.0
+ * Requires PHP: 5.6
+ * Requires Plugins: woocommerce
+ *
+ * WC Requirement & Test
+ * WC requires at least: 3.3
+ * WC tested up to: 8.7.0 
+ * */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
