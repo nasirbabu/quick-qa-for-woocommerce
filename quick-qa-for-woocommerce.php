@@ -13,13 +13,13 @@
  * @package           Quick_Qa_For_Woocommerce
  *
  * @wordpress-plugin
- * Plugin Name:       Quick QA for WooCommerce
+ * Plugin Name:       Quick QA — Product Questions & Answers for WooCommerce
  * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
  * Requires at least: 5.9
- * Description:       Quick Question and Answer Plugin for WooCommerce 
+ * Description:       A calm, focused Q&A plugin that helps you answer customer questions before they abandon their cart. Built for WooCommerce, priced for real stores.
  * Version:           1.0.0
- * Author:            Nashir Uddin
- * Author URI:        https://profiles.wordpress.org/nashirbabu//
+ * Author:            WP Easy Soft
+ * Author URI:        https://wpeasysoft.com/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       quick-qa-for-woocommerce
