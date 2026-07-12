@@ -32,7 +32,7 @@
  *
  * WC Requirement & Test
  * WC requires at least: 3.3
- * WC tested up to: 8.7.0 
+ * WC tested up to: 10.4.4 
  * */
 
 // If this file is called directly, abort.

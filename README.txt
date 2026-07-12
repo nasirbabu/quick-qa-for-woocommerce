@@ -1,6 +1,4 @@
 === Quick QA for WooCommerce ===
-Author:            WP Easy Soft
-Author URI:        https://wpeasysoft.com/
 Contributors: nashirbabu
 Donate link: https://wpeasysoft.com/
 Tags: woocommerce, questions, answers, product qa, q&a
