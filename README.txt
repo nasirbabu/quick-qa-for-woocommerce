@@ -1,8 +1,8 @@
-=== Quick QA for WooCommerce ===
+=== Askora – Product Questions & Answers for WooCommerce ===
 Contributors: nashirbabu
-Donate link: https://wpeasysoft.com/
+Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
-Requires at least: 5.9
+Requires at least: 7.0
 Tested up to: 7.0
 Stable tag: 1.0.0
 Requires PHP: 5.6
@@ -35,6 +35,67 @@ A customer asks a question, as a guest with a name and email or as a logged-in c
 * Works on WordPress Multisite
 
 Free forever — no upgrade prompts, no locked features.
+
+== Third-Party Services ==
+
+This plugin uses the following third-party services:
+
+= Google reCAPTCHA =
+
+This plugin uses Google reCAPTCHA to protect the Q&A submission form from spam
+and abusive submissions. When a user submits a question on a WooCommerce product
+page, the following occurs:
+
+* The Google reCAPTCHA JavaScript library is loaded from:
+  https://www.google.com/recaptcha/api.js
+
+* The user's reCAPTCHA response token is sent to Google's verification server at:
+  https://www.google.com/recaptcha/api/siteverify
+
+* The user's IP address is transmitted to Google as part of the verification process.
+
+This means data (including IP address and reCAPTCHA response tokens) is sent to
+Google's servers when a user interacts with the Q&A submission form.
+
+This service is provided by Google LLC.
+
+* Google reCAPTCHA Terms of Service: https://policies.google.com/terms
+* Google Privacy Policy: https://policies.google.com/privacy
+* Google reCAPTCHA Documentation: https://developers.google.com/recaptcha
+
+== Development ==
+
+The complete source code is on GitHub: https://github.com/nasirbabu/quick-qa-for-woocommerce. The git tag matching each https://wordpress.org/ version is the exact source used for that release ZIP.
+
+= Requirements =
+* Node.js 18+
+* npm 9+
+
+= Available Commands =
+
+    npm install     — Install dependencies
+    npm run dev     — Start development server
+    npm run build   — Build for production
+    npm run preview — Preview production build
+
+= Development Workflow =
+
+1. Install dependencies:
+
+    npm install
+
+2. Start development server:
+
+    npm run dev
+
+3. Build for production:
+
+    npm run build
+
+= Tech Stack =
+* React 18
+* Vite 5
+* WordPress Plugin API
 
 == Installation ==
 
