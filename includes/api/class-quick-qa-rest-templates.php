@@ -245,7 +245,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 			if ( strtolower( $existing ) === strtolower( $name ) ) {
 				return new WP_Error(
 					'quick_qa_category_exists',
-					__( 'A category with that name already exists.', 'quick-qa-for-woocommerce' ),
+					__( 'A category with that name already exists.', 'askora-product-qa-for-woocommerce' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -283,7 +283,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		if ( 'Other' === $name ) {
 			return new WP_Error(
 				'quick_qa_protected_category',
-				__( 'The "Other" category cannot be deleted.', 'quick-qa-for-woocommerce' ),
+				__( 'The "Other" category cannot be deleted.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -379,7 +379,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		if ( false === $inserted ) {
 			return new WP_Error(
 				'quick_qa_db_error',
-				__( 'Unable to create template. Please try again.', 'quick-qa-for-woocommerce' ),
+				__( 'Unable to create template. Please try again.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -427,7 +427,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		if ( ! $exists ) {
 			return new WP_Error(
 				'quick_qa_not_found',
-				__( 'Template not found.', 'quick-qa-for-woocommerce' ),
+				__( 'Template not found.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -493,7 +493,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		if ( false === $deleted ) {
 			return new WP_Error(
 				'quick_qa_db_error',
-				__( 'Unable to delete template.', 'quick-qa-for-woocommerce' ),
+				__( 'Unable to delete template.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -527,7 +527,7 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		if ( ! $original ) {
 			return new WP_Error(
 				'quick_qa_not_found',
-				__( 'Template not found.', 'quick-qa-for-woocommerce' ),
+				__( 'Template not found.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 404 )
 			);
 		}

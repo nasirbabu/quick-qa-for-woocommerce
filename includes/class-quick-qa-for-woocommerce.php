@@ -72,7 +72,7 @@ class Quick_Qa_For_Woocommerce {
 		} else {
 			$this->version = '1.0.0';
 		}
-		$this->plugin_name = 'quick-qa-for-woocommerce';
+		$this->plugin_name = 'askora-product-qa-for-woocommerce';
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();

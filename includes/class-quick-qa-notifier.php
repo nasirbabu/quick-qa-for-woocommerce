@@ -160,7 +160,7 @@ class Quick_Qa_Notifier {
 		$product_name = self::product_name( $product_id );
 		$subject      = sprintf(
 			/* translators: %s: first few words of the question */
-			__( '[New Question] %s', 'quick-qa-for-woocommerce' ),
+			__( '[New Question] %s', 'askora-product-qa-for-woocommerce' ),
 			wp_trim_words( $question_text, 8, '…' )
 		);
 
@@ -178,15 +178,15 @@ class Quick_Qa_Notifier {
 		// Instant notification.
 		$body = self::lines( array(
 			/* translators: %s: product name */
-			sprintf( __( 'A customer asked a question on: %s', 'quick-qa-for-woocommerce' ), $product_name ),
+			sprintf( __( 'A customer asked a question on: %s', 'askora-product-qa-for-woocommerce' ), $product_name ),
 			/* translators: %s: customer display name */
-			sprintf( __( 'Asked by: %s', 'quick-qa-for-woocommerce' ), $asker_name ),
+			sprintf( __( 'Asked by: %s', 'askora-product-qa-for-woocommerce' ), $asker_name ),
 			'',
-			__( 'Question:', 'quick-qa-for-woocommerce' ),
+			__( 'Question:', 'askora-product-qa-for-woocommerce' ),
 			$question_text,
 			'',
 			/* translators: %s: admin dashboard URL */
-			sprintf( __( 'Review and answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
+			sprintf( __( 'Review and answer in your dashboard: %s', 'askora-product-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
 		self::send_email( $s, $subject, $body );
@@ -209,19 +209,19 @@ class Quick_Qa_Notifier {
 			return;
 		}
 
-		$subject = __( '[Community Answer] Review required', 'quick-qa-for-woocommerce' );
+		$subject = __( '[Community Answer] Review required', 'askora-product-qa-for-woocommerce' );
 		$body    = self::lines( array(
-			__( 'A community member submitted an answer that needs your review.', 'quick-qa-for-woocommerce' ),
+			__( 'A community member submitted an answer that needs your review.', 'askora-product-qa-for-woocommerce' ),
 			'',
-			__( 'Question:', 'quick-qa-for-woocommerce' ),
+			__( 'Question:', 'askora-product-qa-for-woocommerce' ),
 			$question_text,
 			'',
 			/* translators: %s: community member's display name */
-			sprintf( __( 'Answer by %s:', 'quick-qa-for-woocommerce' ), $responder_name ),
+			sprintf( __( 'Answer by %s:', 'askora-product-qa-for-woocommerce' ), $responder_name ),
 			$answer_text,
 			'',
 			/* translators: %s: admin dashboard URL */
-			sprintf( __( 'Review in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
+			sprintf( __( 'Review in your dashboard: %s', 'askora-product-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
 		self::send_email( $s, $subject, $body );
@@ -274,23 +274,23 @@ class Quick_Qa_Notifier {
 		$product_name = self::product_name( $question->product_id );
 		$subject      = sprintf(
 			/* translators: %d: upvote count that triggered the alert */
-			__( '[Priority Question] %d upvotes — needs your answer', 'quick-qa-for-woocommerce' ),
+			__( '[Priority Question] %d upvotes — needs your answer', 'askora-product-qa-for-woocommerce' ),
 			$new_count
 		);
 		$body = self::lines( array(
 			sprintf(
 				/* translators: %d: number of upvotes */
-				__( 'A question has reached %d upvotes and is a customer priority.', 'quick-qa-for-woocommerce' ),
+				__( 'A question has reached %d upvotes and is a customer priority.', 'askora-product-qa-for-woocommerce' ),
 				$new_count
 			),
 			/* translators: %s: product name */
-			sprintf( __( 'Product: %s', 'quick-qa-for-woocommerce' ), $product_name ),
+			sprintf( __( 'Product: %s', 'askora-product-qa-for-woocommerce' ), $product_name ),
 			'',
-			__( 'Question:', 'quick-qa-for-woocommerce' ),
+			__( 'Question:', 'askora-product-qa-for-woocommerce' ),
 			$question->question_text,
 			'',
 			/* translators: %s: admin dashboard URL */
-			sprintf( __( 'Answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
+			sprintf( __( 'Answer in your dashboard: %s', 'askora-product-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
 
 		self::send_email( $s, $subject, $body );
@@ -325,7 +325,7 @@ class Quick_Qa_Notifier {
 				'[Daily Digest] %d new question awaiting your response',
 				'[Daily Digest] %d new questions awaiting your response',
 				$count,
-				'quick-qa-for-woocommerce'
+				'askora-product-qa-for-woocommerce'
 			),
 			$count
 		);
@@ -337,7 +337,7 @@ class Quick_Qa_Notifier {
 					'You have %d new question awaiting your response:',
 					'You have %d new questions awaiting your response:',
 					$count,
-					'quick-qa-for-woocommerce'
+					'askora-product-qa-for-woocommerce'
 				),
 				$count
 			),
@@ -403,7 +403,7 @@ class Quick_Qa_Notifier {
 				'[Reminder] %1$d question unanswered for %2$d+ days',
 				'[Reminder] %1$d questions unanswered for %2$d+ days',
 				$count,
-				'quick-qa-for-woocommerce'
+				'askora-product-qa-for-woocommerce'
 			),
 			$count,
 			$days
@@ -416,7 +416,7 @@ class Quick_Qa_Notifier {
 					'The following question has been unanswered for more than %d day:',
 					'The following questions have been unanswered for more than %d days:',
 					$days,
-					'quick-qa-for-woocommerce'
+					'askora-product-qa-for-woocommerce'
 				),
 				$days
 			),
@@ -489,7 +489,7 @@ class Quick_Qa_Notifier {
 		}
 		return sprintf(
 			/* translators: %d: product ID */
-			__( 'Product #%d', 'quick-qa-for-woocommerce' ),
+			__( 'Product #%d', 'askora-product-qa-for-woocommerce' ),
 			(int) $product_id
 		);
 	}

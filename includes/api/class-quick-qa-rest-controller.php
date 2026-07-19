@@ -63,7 +63,7 @@ abstract class Quick_Qa_Rest_Controller {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
 				'quick_qa_login_required',
-				__( 'You must be logged in to perform this action.', 'quick-qa-for-woocommerce' ),
+				__( 'You must be logged in to perform this action.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -81,7 +81,7 @@ abstract class Quick_Qa_Rest_Controller {
 		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'quick_qa_forbidden',
-				__( 'You do not have permission to perform this action.', 'quick-qa-for-woocommerce' ),
+				__( 'You do not have permission to perform this action.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -112,7 +112,7 @@ abstract class Quick_Qa_Rest_Controller {
 		if ( $count >= $limit ) {
 			return new WP_Error(
 				'quick_qa_rate_limited',
-				__( "You've reached the hourly question limit. Please try again later.", 'quick-qa-for-woocommerce' ),
+				__( "You've reached the hourly question limit. Please try again later.", 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 429 )
 			);
 		}

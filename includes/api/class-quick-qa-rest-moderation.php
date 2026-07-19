@@ -93,7 +93,7 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 						'enum'              => array( 'question', 'answer' ),
 						'sanitize_callback' => 'sanitize_key',
 						/* translators: REST API parameter description. */
-						'description'       => __( 'What is being voted on.', 'quick-qa-for-woocommerce' ),
+						'description'       => __( 'What is being voted on.', 'askora-product-qa-for-woocommerce' ),
 					),
 					'object_id'   => array(
 						'required'          => true,
@@ -101,7 +101,7 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
 						/* translators: REST API parameter description. */
-						'description'       => __( 'ID of the question or answer.', 'quick-qa-for-woocommerce' ),
+						'description'       => __( 'ID of the question or answer.', 'askora-product-qa-for-woocommerce' ),
 					),
 				),
 			)
@@ -197,7 +197,7 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		if ( ! $exists ) {
 			return new WP_Error(
 				'quick_qa_not_found',
-				__( 'The item you are trying to flag does not exist.', 'quick-qa-for-woocommerce' ),
+				__( 'The item you are trying to flag does not exist.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -287,7 +287,7 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		if ( ! $exists ) {
 			return new WP_Error(
 				'quick_qa_not_found',
-				__( 'The item you are trying to vote on does not exist.', 'quick-qa-for-woocommerce' ),
+				__( 'The item you are trying to vote on does not exist.', 'askora-product-qa-for-woocommerce' ),
 				array( 'status' => 404 )
 			);
 		}

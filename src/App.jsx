@@ -18,7 +18,7 @@ export default function App() {
       <div className="qq-nav">
         <div className="qq-nav-brand">
           <span className="qq-nav-mark">Q</span>
-          Quick QA
+          Askora QA
         </div>
         {NAV_ITEMS.map(item => (
           <div
