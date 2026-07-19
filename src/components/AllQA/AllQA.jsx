@@ -440,7 +440,7 @@ export default function AllQA() {
         if (remaining.length === 0) setActiveTab('all');
       }
     } catch (err) {
-      console.error('Quick QA action failed:', err.message);
+      console.error('Askora QA action failed:', err.message);
     } finally {
       setSaving(false);
     }

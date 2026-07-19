@@ -26,8 +26,7 @@
  */
 class Quick_Qa_For_Woocommerce_i18n {
 
-
-	/**
+    /**
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
@@ -41,7 +40,4 @@ class Quick_Qa_For_Woocommerce_i18n {
 		);
 
 	}
-
-
-
 }

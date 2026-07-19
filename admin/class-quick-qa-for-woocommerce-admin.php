@@ -22,12 +22,12 @@ class Quick_Qa_For_Woocommerce_Admin {
 	}
 
 	/**
-	 * Register the "Quick QA" top-level admin menu.
+	 * Register the "Askora QA" top-level admin menu.
 	 */
 	public function register_admin_menu() {
 		add_menu_page(
-			__( 'Quick QA', 'quick-qa-for-woocommerce' ),
-			__( 'Quick QA', 'quick-qa-for-woocommerce' ),
+			__( 'Askora QA', 'quick-qa-for-woocommerce' ),
+			__( 'Askora QA', 'quick-qa-for-woocommerce' ),
 			'manage_options',
 			'quick-qa',
 			array( $this, 'render_admin_page' ),
@@ -49,7 +49,7 @@ class Quick_Qa_For_Woocommerce_Admin {
 	}
 
 	/**
-	 * Enqueue the React app assets only on the Quick QA admin page.
+	 * Enqueue the React app assets only on the Askora QA admin page.
 	 */
 	private function plugin_root_url() {
 		return plugin_dir_url( dirname( dirname( __FILE__ ) ) . '/quick-qa-for-woocommerce.php' );
