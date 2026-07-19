@@ -26,8 +26,8 @@ class Quick_Qa_For_Woocommerce_Admin {
 	 */
 	public function register_admin_menu() {
 		add_menu_page(
-			__( 'Askora QA', 'askora-product-qa-for-woocommerce' ),
-			__( 'Askora QA', 'askora-product-qa-for-woocommerce' ),
+			__( 'Askora QA', 'quick-qa-for-woocommerce' ),
+			__( 'Askora QA', 'quick-qa-for-woocommerce' ),
 			'manage_options',
 			'quick-qa',
 			array( $this, 'render_admin_page' ),

@@ -14,14 +14,14 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Askora – Product Questions & Answers for WooCommerce
- * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
+ * Plugin URI:        https://wordpress.org/plugins/askora-product-qa-for-woocommerce 
  * Description:       A calm, focused Q&A plugin that helps you answer customer questions before they abandon their cart. Built for WooCommerce, priced for real stores.
  * Version:           1.0.0
  * Author:            Nashir Uddin
  * Author URI:        https://profiles.wordpress.org/nashirbabu/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       askora-product-qa-for-woocommerce
+ * Text Domain:       quick-qa-for-woocommerce
  * Domain Path:       /languages
  *
  * WP Requirement & Test

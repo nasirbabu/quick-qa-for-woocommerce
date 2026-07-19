@@ -53,7 +53,7 @@ $question_count = count( $questions );
 	<div class="qa-head">
 		<div class="qa-head-info">
 			<h3 class="qa-head-title">
-				<?php esc_html_e( 'Questions &amp; answers', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Questions &amp; answers', 'quick-qa-for-woocommerce' ); ?>
 			</h3>
 			<div class="qa-head-sub">
 				<?php
@@ -64,7 +64,7 @@ $question_count = count( $questions );
 							'%d question about this product',
 							'%d questions about this product',
 							$total_count,
-							'askora-product-qa-for-woocommerce'
+							'quick-qa-for-woocommerce'
 						),
 						$total_count
 					)
@@ -80,7 +80,7 @@ $question_count = count( $questions );
 			aria-expanded="false"
 			aria-controls="qa-ask-form"
 		>
-			<?php esc_html_e( 'Ask a question', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Ask a question', 'quick-qa-for-woocommerce' ); ?>
 		</button>
 	<?php endif; ?>
 	</div>
@@ -92,8 +92,8 @@ $question_count = count( $questions );
 	<div class="qa-banner" role="status">
 		<span aria-hidden="true">ℹ</span>
 		<div>
-			<b><?php esc_html_e( "We're not accepting new questions right now.", 'askora-product-qa-for-woocommerce' ); ?></b>
-			<?php esc_html_e( 'Please check back later. You can still browse existing Q&amp;A below.', 'askora-product-qa-for-woocommerce' ); ?>
+			<b><?php esc_html_e( "We're not accepting new questions right now.", 'quick-qa-for-woocommerce' ); ?></b>
+			<?php esc_html_e( 'Please check back later. You can still browse existing Q&amp;A below.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 	</div>
 	<?php endif; ?>
@@ -105,23 +105,23 @@ $question_count = count( $questions );
 	<div class="qa-login-prompt">
 		<div class="qa-login-mark" aria-hidden="true">💬</div>
 		<div class="qa-login-title">
-			<?php esc_html_e( 'Have a question about this product?', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Have a question about this product?', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 		<div class="qa-login-text">
-			<?php esc_html_e( 'Log in or create a free account to ask. It only takes a minute.', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Log in or create a free account to ask. It only takes a minute.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 		<div class="qa-login-actions">
 			<a href="<?php echo esc_url( wp_login_url( get_permalink() . '#quick-qa-widget' ) ); ?>"
 				class="qa-login-btn qa-login-btn--primary">
-				<?php esc_html_e( 'Log in', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Log in', 'quick-qa-for-woocommerce' ); ?>
 			</a>
 			<a href="<?php echo esc_url( wp_registration_url() ); ?>"
 				class="qa-login-btn qa-login-btn--secondary">
-				<?php esc_html_e( 'Create account', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Create account', 'quick-qa-for-woocommerce' ); ?>
 			</a>
 		</div>
 		<div class="qa-login-note">
-			<?php esc_html_e( 'Already a customer? Your purchase history makes your answers more useful to other buyers.', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Already a customer? Your purchase history makes your answers more useful to other buyers.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 	</div>
 	<?php endif; ?>
@@ -136,22 +136,22 @@ $question_count = count( $questions );
 		aria-hidden="true"
 	>
 		<div class="qa-ask-form-title">
-			<?php esc_html_e( 'Ask a question', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Ask a question', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 		<div class="qa-ask-form-sub">
-			<?php esc_html_e( 'Our team and other customers will be notified. Most questions are answered within 24 hours.', 'askora-product-qa-for-woocommerce' ); ?>
+			<?php esc_html_e( 'Our team and other customers will be notified. Most questions are answered within 24 hours.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 
 		<?php if ( $is_logged_in ) : ?>
 			<?php
 			$display_label = $current_user->display_name;
 			if ( $is_verified ) {
-				$display_label .= ' — ' . __( 'Verified buyer', 'askora-product-qa-for-woocommerce' );
+				$display_label .= ' — ' . __( 'Verified buyer', 'quick-qa-for-woocommerce' );
 			}
 			?>
 			<div class="qa-ask-form-field">
 				<label for="qa-asking-as">
-					<?php esc_html_e( 'Asking as', 'askora-product-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Asking as', 'quick-qa-for-woocommerce' ); ?>
 				</label>
 				<input
 					type="text"
@@ -165,24 +165,24 @@ $question_count = count( $questions );
 		<?php else : ?>
 			<div class="qa-ask-form-field">
 				<label for="qa-guest-name">
-					<?php esc_html_e( 'Your name', 'askora-product-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Your name', 'quick-qa-for-woocommerce' ); ?>
 				</label>
 				<input
 					type="text"
 					id="qa-guest-name"
 					name="qa_guest_name"
-					placeholder="<?php esc_attr_e( 'e.g. Sarah K.', 'askora-product-qa-for-woocommerce' ); ?>"
+					placeholder="<?php esc_attr_e( 'e.g. Sarah K.', 'quick-qa-for-woocommerce' ); ?>"
 					autocomplete="name"
 				/>
 			</div>
 			<div class="qa-ask-form-field">
 				<label for="qa-guest-email">
-					<?php esc_html_e( 'Email', 'askora-product-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Email', 'quick-qa-for-woocommerce' ); ?>
 					<?php if ( $require_email_for_guests ) : ?>
 						<span class="qa-label-required" aria-hidden="true"> *</span>
 					<?php else : ?>
 						<span class="qa-label-note">
-							<?php esc_html_e( "(we'll notify you when answered)", 'askora-product-qa-for-woocommerce' ); ?>
+							<?php esc_html_e( "(we'll notify you when answered)", 'quick-qa-for-woocommerce' ); ?>
 						</span>
 					<?php endif; ?>
 				</label>
@@ -190,7 +190,7 @@ $question_count = count( $questions );
 					type="email"
 					id="qa-guest-email"
 					name="qa_guest_email"
-					placeholder="<?php esc_attr_e( 'you@example.com', 'askora-product-qa-for-woocommerce' ); ?>"
+					placeholder="<?php esc_attr_e( 'you@example.com', 'quick-qa-for-woocommerce' ); ?>"
 					autocomplete="email"
 					<?php if ( $require_email_for_guests ) : ?>required aria-required="true"<?php endif; ?>
 				/>
@@ -199,13 +199,13 @@ $question_count = count( $questions );
 
 		<div class="qa-ask-form-field">
 			<label for="qa-question-text">
-				<?php esc_html_e( 'Your question', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Your question', 'quick-qa-for-woocommerce' ); ?>
 			</label>
 			<textarea
 				id="qa-question-text"
 				name="qa_question_text"
 				rows="4"
-				placeholder="<?php esc_attr_e( 'What would you like to know?', 'askora-product-qa-for-woocommerce' ); ?>"
+				placeholder="<?php esc_attr_e( 'What would you like to know?', 'quick-qa-for-woocommerce' ); ?>"
 				maxlength="<?php echo esc_attr( $max_length ); ?>"
 			></textarea>
 			<div class="qa-form-counter">
@@ -219,7 +219,7 @@ $question_count = count( $questions );
 		<?php if ( $enable_honeypot ) : ?>
 		<?php // Honeypot: invisible to humans, filled by bots. Must remain empty on submit. ?>
 		<div class="qa-hp" aria-hidden="true" style="position:absolute;left:-9999px;overflow:hidden;width:1px;height:1px;" tabindex="-1">
-			<label for="qa-website"><?php esc_html_e( 'Leave this field empty', 'askora-product-qa-for-woocommerce' ); ?></label>
+			<label for="qa-website"><?php esc_html_e( 'Leave this field empty', 'quick-qa-for-woocommerce' ); ?></label>
 			<input type="text" id="qa-website" name="qa_website" value="" autocomplete="off" tabindex="-1" />
 		</div>
 		<?php endif; ?>
@@ -234,10 +234,10 @@ $question_count = count( $questions );
 
 		<div class="qa-form-actions">
 			<button type="button" class="qa-form-cancel" id="qa-cancel-ask">
-				<?php esc_html_e( 'Cancel', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Cancel', 'quick-qa-for-woocommerce' ); ?>
 			</button>
 			<button type="button" class="qa-form-submit" id="qa-submit-question">
-				<?php esc_html_e( 'Submit question', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Submit question', 'quick-qa-for-woocommerce' ); ?>
 			</button>
 		</div>
 	</div>
@@ -255,10 +255,10 @@ $question_count = count( $questions );
 		<div class="qa-confirm-mark" aria-hidden="true">⌛</div>
 		<div class="qa-confirm-body">
 			<div class="qa-confirm-title">
-				<?php esc_html_e( 'Your question is being reviewed', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Your question is being reviewed', 'quick-qa-for-woocommerce' ); ?>
 			</div>
 			<div class="qa-confirm-text">
-				<?php esc_html_e( "It will appear here once approved. We'll notify you when it's answered.", 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( "It will appear here once approved. We'll notify you when it's answered.", 'quick-qa-for-woocommerce' ); ?>
 			</div>
 		</div>
 	</div>
@@ -277,8 +277,8 @@ $question_count = count( $questions );
 				<input
 					type="search"
 					id="qa-search"
-					placeholder="<?php esc_attr_e( 'Search questions', 'askora-product-qa-for-woocommerce' ); ?>"
-					aria-label="<?php esc_attr_e( 'Search questions', 'askora-product-qa-for-woocommerce' ); ?>"
+					placeholder="<?php esc_attr_e( 'Search questions', 'quick-qa-for-woocommerce' ); ?>"
+					aria-label="<?php esc_attr_e( 'Search questions', 'quick-qa-for-woocommerce' ); ?>"
 				/>
 			</div>
 			<?php endif; ?>
@@ -287,16 +287,16 @@ $question_count = count( $questions );
 				<?php if ( $show_filter ) : ?>
 				<div class="qa-filter-pills"
 					role="group"
-					aria-label="<?php esc_attr_e( 'Filter questions', 'askora-product-qa-for-woocommerce' ); ?>"
+					aria-label="<?php esc_attr_e( 'Filter questions', 'quick-qa-for-woocommerce' ); ?>"
 				>
 					<button class="qa-filter-pill active" data-filter="all" type="button">
-						<?php esc_html_e( 'All', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'All', 'quick-qa-for-woocommerce' ); ?>
 					</button>
 					<button class="qa-filter-pill" data-filter="answered" type="button">
-						<?php esc_html_e( 'Answered', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Answered', 'quick-qa-for-woocommerce' ); ?>
 					</button>
 					<button class="qa-filter-pill" data-filter="unanswered" type="button">
-						<?php esc_html_e( 'Unanswered', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Unanswered', 'quick-qa-for-woocommerce' ); ?>
 					</button>
 				</div>
 				<?php endif; ?>
@@ -304,16 +304,16 @@ $question_count = count( $questions );
 				<select
 					class="qa-sort-select"
 					id="qa-sort"
-					aria-label="<?php esc_attr_e( 'Sort questions', 'askora-product-qa-for-woocommerce' ); ?>"
+					aria-label="<?php esc_attr_e( 'Sort questions', 'quick-qa-for-woocommerce' ); ?>"
 				>
 					<option value="recent"<?php selected( $default_sort, 'recent' ); ?>>
-						<?php esc_html_e( 'Most recent', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Most recent', 'quick-qa-for-woocommerce' ); ?>
 					</option>
 					<option value="upvoted"<?php selected( $default_sort, 'upvoted' ); ?>>
-						<?php esc_html_e( 'Most upvoted', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Most upvoted', 'quick-qa-for-woocommerce' ); ?>
 					</option>
 					<option value="oldest"<?php selected( $default_sort, 'oldest' ); ?>>
-						<?php esc_html_e( 'Oldest first', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Oldest first', 'quick-qa-for-woocommerce' ); ?>
 					</option>
 				</select>
 			</div>
@@ -335,7 +335,7 @@ $question_count = count( $questions );
 					id="qa-show-more"
 					data-offset="<?php echo esc_attr( count( $questions ) ); ?>"
 				>
-					<?php esc_html_e( 'Show more questions', 'askora-product-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Show more questions', 'quick-qa-for-woocommerce' ); ?>
 				</button>
 			</div>
 		<?php endif; ?>
@@ -349,14 +349,14 @@ $question_count = count( $questions );
 		>
 			<div class="qa-empty-mark" aria-hidden="true">⌕</div>
 			<div class="qa-empty-title">
-				<?php esc_html_e( 'No matching questions', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'No matching questions', 'quick-qa-for-woocommerce' ); ?>
 			</div>
 			<p>
-				<?php esc_html_e( 'Try a different keyword, or', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Try a different keyword, or', 'quick-qa-for-woocommerce' ); ?>
 				<button type="button" class="qa-link" id="qa-clear-search">
-					<?php esc_html_e( 'clear the search', 'askora-product-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'clear the search', 'quick-qa-for-woocommerce' ); ?>
 				</button>
-				<?php esc_html_e( 'to see all.', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'to see all.', 'quick-qa-for-woocommerce' ); ?>
 			</p>
 		</div>
 
@@ -368,10 +368,10 @@ $question_count = count( $questions );
 		<div class="qa-empty">
 			<div class="qa-empty-mark" aria-hidden="true">💬</div>
 			<div class="qa-empty-title">
-				<?php esc_html_e( 'No questions yet', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'No questions yet', 'quick-qa-for-woocommerce' ); ?>
 			</div>
 			<p>
-				<?php esc_html_e( 'Be the first to ask about this product. Our team typically responds within 24 hours.', 'askora-product-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Be the first to ask about this product. Our team typically responds within 24 hours.', 'quick-qa-for-woocommerce' ); ?>
 			</p>
 		</div>
 

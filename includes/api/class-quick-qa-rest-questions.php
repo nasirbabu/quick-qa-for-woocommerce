@@ -182,7 +182,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
 						/* translators: REST API parameter description. */
-						'description'       => __( 'ID of the question being answered.', 'askora-product-qa-for-woocommerce' ),
+						'description'       => __( 'ID of the question being answered.', 'quick-qa-for-woocommerce' ),
 					),
 					'answer_text' => array(
 						'required'          => true,
@@ -193,7 +193,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 							return $len >= 10 && $len <= 2000;
 						},
 						/* translators: REST API parameter description. */
-						'description'       => __( 'The answer text (10–2000 characters).', 'askora-product-qa-for-woocommerce' ),
+						'description'       => __( 'The answer text (10–2000 characters).', 'quick-qa-for-woocommerce' ),
 					),
 				),
 			)
@@ -703,7 +703,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( $pause_submissions ) {
 			return new WP_Error(
 				'quick_qa_submissions_paused',
-				__( 'New question submissions are temporarily paused. Please check back later.', 'askora-product-qa-for-woocommerce' ),
+				__( 'New question submissions are temporarily paused. Please check back later.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -724,14 +724,14 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( 'logged-in' === $who_can_ask && ! $is_currently_logged_in ) {
 			return new WP_Error(
 				'quick_qa_login_required',
-				__( 'You must be logged in to ask a question.', 'askora-product-qa-for-woocommerce' ),
+				__( 'You must be logged in to ask a question.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 401 )
 			);
 		}
 		if ( 'guests' === $who_can_ask && $is_currently_logged_in ) {
 			return new WP_Error(
 				'quick_qa_guests_only',
-				__( 'Only guest visitors can submit questions.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Only guest visitors can submit questions.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -742,7 +742,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( empty( $token ) ) {
 				return new WP_Error(
 					'quick_qa_recaptcha_missing',
-					__( 'Please complete the reCAPTCHA check.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -762,7 +762,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( is_wp_error( $verify ) ) {
 				return new WP_Error(
 					'quick_qa_recaptcha_error',
-					__( 'reCAPTCHA verification failed. Please try again.', 'askora-product-qa-for-woocommerce' ),
+					__( 'reCAPTCHA verification failed. Please try again.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 503 )
 				);
 			}
@@ -771,7 +771,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( empty( $result['success'] ) ) {
 				return new WP_Error(
 					'quick_qa_recaptcha_failed',
-					__( 'reCAPTCHA verification failed. Please try again.', 'askora-product-qa-for-woocommerce' ),
+					__( 'reCAPTCHA verification failed. Please try again.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -799,7 +799,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( empty( $guest_name ) ) {
 				return new WP_Error(
 					'quick_qa_name_required',
-					__( 'Please enter your name.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -807,7 +807,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( $req_email && empty( $guest_email ) ) {
 				return new WP_Error(
 					'quick_qa_email_required',
-					__( 'Please enter your email address.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Please enter your email address.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -815,7 +815,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( ! empty( $guest_email ) && ! is_email( $guest_email ) ) {
 				return new WP_Error(
 					'quick_qa_invalid_email',
-					__( 'Please enter a valid email address.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Please enter a valid email address.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -848,7 +848,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( ! empty( $email_blocklist ) && $this->email_matches_list( $submitter_email, $email_blocklist ) ) {
 			return new WP_Error(
 				'quick_qa_submission_error',
-				__( 'Unable to process your submission.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Unable to process your submission.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -865,7 +865,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					if ( ! empty( $word ) && false !== stripos( $question_text, $word ) ) {
 						return new WP_Error(
 							'quick_qa_profanity',
-							__( 'Your question contains content that is not allowed.', 'askora-product-qa-for-woocommerce' ),
+							__( 'Your question contains content that is not allowed.', 'quick-qa-for-woocommerce' ),
 							array( 'status' => 422 )
 						);
 					}
@@ -880,7 +880,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'id'      => 0,
 					'status'  => 'pending',
 					/* translators: Shown when the question requires manual approval. */
-					'message' => __( 'Your question has been submitted and is pending review.', 'askora-product-qa-for-woocommerce' ),
+					'message' => __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' ),
 				) );
 			}
 		}
@@ -917,14 +917,14 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		// 9. Notify admin of the new question.
 		$asker_name = $is_logged_in
-			? ( $user_data ? $user_data->display_name : __( 'Customer', 'askora-product-qa-for-woocommerce' ) )
-			: ( $guest_name ?: __( 'Guest', 'askora-product-qa-for-woocommerce' ) );
+			? ( $user_data ? $user_data->display_name : __( 'Customer', 'quick-qa-for-woocommerce' ) )
+			: ( $guest_name ?: __( 'Guest', 'quick-qa-for-woocommerce' ) );
 		Quick_Qa_Notifier::new_question( $question_id, $product_id, $question_text, $asker_name );
 
 		// 10. Respond.
 		$message = ( 'approved' === $status )
-			? __( 'Your question has been published.', 'askora-product-qa-for-woocommerce' )
-			: __( 'Your question has been submitted and is pending review.', 'askora-product-qa-for-woocommerce' );
+			? __( 'Your question has been published.', 'quick-qa-for-woocommerce' )
+			: __( 'Your question has been submitted and is pending review.', 'quick-qa-for-woocommerce' );
 
 		return rest_ensure_response(
 			array(
@@ -966,7 +966,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( ! $question_exists ) {
 			return new WP_Error(
 				'quick_qa_not_found',
-				__( 'Question not found.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Question not found.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -983,7 +983,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( ! $allow_community ) {
 				return new WP_Error(
 					'quick_qa_community_disabled',
-					__( 'Community answers are currently closed for this product.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Community answers are currently closed for this product.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -1025,7 +1025,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( ! $is_verified && ! $allow_logged_in_customers ) {
 				return new WP_Error(
 					'quick_qa_not_permitted',
-					__( 'You are not permitted to submit an answer for this product.', 'askora-product-qa-for-woocommerce' ),
+					__( 'You are not permitted to submit an answer for this product.', 'quick-qa-for-woocommerce' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -1056,7 +1056,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( false === $rows ) {
 			return new WP_Error(
 				'quick_qa_db_error',
-				__( 'Unable to save your answer. Please try again.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Unable to save your answer. Please try again.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -1072,7 +1072,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				)
 			);
 			$responder    = get_userdata( $user_id );
-			$responder_name = $responder ? $responder->display_name : __( 'Customer', 'askora-product-qa-for-woocommerce' );
+			$responder_name = $responder ? $responder->display_name : __( 'Customer', 'quick-qa-for-woocommerce' );
 			Quick_Qa_Notifier::community_answer(
 				$q_row ? $q_row->question_text : '',
 				$answer_text,
@@ -1081,8 +1081,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		}
 
 		$message = 'approved' === $status
-			? __( 'Your answer has been posted.', 'askora-product-qa-for-woocommerce' )
-			: __( 'Your answer has been submitted for review.', 'askora-product-qa-for-woocommerce' );
+			? __( 'Your answer has been posted.', 'quick-qa-for-woocommerce' )
+			: __( 'Your answer has been submitted for review.', 'quick-qa-for-woocommerce' );
 
 		return rest_ensure_response(
 			array(
@@ -1142,7 +1142,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( false === $rows ) {
 			return new WP_Error(
 				'quick_qa_db_error',
-				__( 'Unable to save your question. Please try again.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Unable to save your question. Please try again.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -1165,7 +1165,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'sanitize_callback' => 'absint',
 				'validate_callback' => array( $this, 'validate_product_id' ),
 				/* translators: REST API parameter description. */
-				'description'       => __( 'The WooCommerce product ID the question belongs to.', 'askora-product-qa-for-woocommerce' ),
+				'description'       => __( 'The WooCommerce product ID the question belongs to.', 'quick-qa-for-woocommerce' ),
 			),
 			'question_text'   => array(
 				'required'          => true,
@@ -1173,7 +1173,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'sanitize_callback' => 'sanitize_textarea_field',
 				'validate_callback' => array( $this, 'validate_question_text' ),
 				/* translators: REST API parameter description. */
-				'description'       => __( 'The question body (10–500 characters).', 'askora-product-qa-for-woocommerce' ),
+				'description'       => __( 'The question body (10–500 characters).', 'quick-qa-for-woocommerce' ),
 			),
 			'guest_name'      => array(
 				'required'          => false,
@@ -1181,7 +1181,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				/* translators: REST API parameter description. */
-				'description'       => __( 'Display name for guest (non-logged-in) submitters.', 'askora-product-qa-for-woocommerce' ),
+				'description'       => __( 'Display name for guest (non-logged-in) submitters.', 'quick-qa-for-woocommerce' ),
 			),
 			'guest_email'     => array(
 				'required'          => false,
@@ -1189,7 +1189,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
 				/* translators: REST API parameter description. */
-				'description'       => __( 'Email for guest submitters (optional; used for answer notifications).', 'askora-product-qa-for-woocommerce' ),
+				'description'       => __( 'Email for guest submitters (optional; used for answer notifications).', 'quick-qa-for-woocommerce' ),
 			),
 			'recaptcha_token' => array(
 				'required'          => false,
@@ -1225,7 +1225,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		if ( ! $product instanceof WC_Product ) {
 			return new WP_Error(
 				'quick_qa_invalid_product',
-				__( 'Invalid product.', 'askora-product-qa-for-woocommerce' ),
+				__( 'Invalid product.', 'quick-qa-for-woocommerce' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1261,7 +1261,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'quick_qa_too_short',
 				sprintf(
 					/* translators: %d: minimum character count */
-					__( 'Your question must be at least %d characters.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
 					$min
 				),
 				array( 'status' => 422 )
@@ -1273,7 +1273,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'quick_qa_too_long',
 				sprintf(
 					/* translators: %d: maximum character count */
-					__( 'Your question must be %d characters or fewer.', 'askora-product-qa-for-woocommerce' ),
+					__( 'Your question must be %d characters or fewer.', 'quick-qa-for-woocommerce' ),
 					$max
 				),
 				array( 'status' => 422 )

@@ -43,11 +43,11 @@ foreach ( $questions as $question ) :
 		$user_data  = get_userdata( absint( $question->user_id ) );
 		$asker_name = $user_data
 			? $user_data->display_name
-			: __( 'Customer', 'askora-product-qa-for-woocommerce' );
+			: __( 'Customer', 'quick-qa-for-woocommerce' );
 	} else {
 		$asker_name = $question->guest_name
 			? $question->guest_name
-			: __( 'Guest', 'askora-product-qa-for-woocommerce' );
+			: __( 'Guest', 'quick-qa-for-woocommerce' );
 	}
 
 	// Build 2-character initials for the avatar.
@@ -62,7 +62,7 @@ foreach ( $questions as $question ) :
 
 	$time_ago = sprintf(
 		/* translators: %s: human-readable time difference, e.g. "2 days" */
-		__( '%s ago', 'askora-product-qa-for-woocommerce' ),
+		__( '%s ago', 'quick-qa-for-woocommerce' ),
 		human_time_diff( strtotime( $question->created_at ), current_time( 'timestamp', true ) )
 	);
 	?>
@@ -89,11 +89,11 @@ foreach ( $questions as $question ) :
 					<?php if ( ! isset( $appr_show_role_badges ) || $appr_show_role_badges ) : ?>
 						<?php if ( $question->is_verified_buyer ) : ?>
 							<span class="qa-role qa-role--verified">
-								<?php esc_html_e( 'Verified buyer', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
 							</span>
 						<?php else : ?>
 							<span class="qa-role">
-								<?php esc_html_e( 'Customer', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Customer', 'quick-qa-for-woocommerce' ); ?>
 							</span>
 						<?php endif; ?>
 					<?php endif; ?>
@@ -102,7 +102,7 @@ foreach ( $questions as $question ) :
 
 					<?php if ( ! $is_answered ) : ?>
 						<span class="qa-awaiting">
-							<?php esc_html_e( '· Awaiting answer', 'askora-product-qa-for-woocommerce' ); ?>
+							<?php esc_html_e( '· Awaiting answer', 'quick-qa-for-woocommerce' ); ?>
 						</span>
 					<?php endif; ?>
 				</div>
@@ -118,7 +118,7 @@ foreach ( $questions as $question ) :
 							type="button"
 							data-action="upvote-question"
 							data-id="<?php echo esc_attr( $question->id ); ?>"
-							aria-label="<?php esc_attr_e( 'Upvote this question', 'askora-product-qa-for-woocommerce' ); ?>"
+							aria-label="<?php esc_attr_e( 'Upvote this question', 'quick-qa-for-woocommerce' ); ?>"
 							aria-pressed="<?php echo $user_has_voted ? 'true' : 'false'; ?>"
 						>
 							▲ <span class="qa-vote-count"><?php echo esc_html( $question->upvotes ); ?></span>
@@ -140,14 +140,14 @@ foreach ( $questions as $question ) :
 										'%d answer',
 										'%d answers',
 										$answer_count,
-										'askora-product-qa-for-woocommerce'
+										'quick-qa-for-woocommerce'
 									),
 									$answer_count
 								)
 							);
 							?>
 						<?php else : ?>
-							<?php esc_html_e( 'No answers yet', 'askora-product-qa-for-woocommerce' ); ?>
+							<?php esc_html_e( 'No answers yet', 'quick-qa-for-woocommerce' ); ?>
 						<?php endif; ?>
 					</button>
 
@@ -157,7 +157,7 @@ foreach ( $questions as $question ) :
 							data-action="open-flag"
 							data-flag-type="question"
 							data-flag-id="<?php echo esc_attr( $question->id ); ?>"
-						>⚐ <?php esc_html_e( 'Flag', 'askora-product-qa-for-woocommerce' ); ?></button>
+						>⚐ <?php esc_html_e( 'Flag', 'quick-qa-for-woocommerce' ); ?></button>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -188,7 +188,7 @@ foreach ( $questions as $question ) :
 						echo esc_html(
 							sprintf(
 								/* translators: %d: number of answers to this question */
-								_n( '%d answer', '%d answers', $answer_count, 'askora-product-qa-for-woocommerce' ),
+								_n( '%d answer', '%d answers', $answer_count, 'quick-qa-for-woocommerce' ),
 								$answer_count
 							)
 						);
@@ -203,16 +203,16 @@ foreach ( $questions as $question ) :
 							$ans_user = get_userdata( absint( $answer->user_id ) );
 							$ans_name = $ans_user
 								? $ans_user->display_name
-								: __( 'Team', 'askora-product-qa-for-woocommerce' );
+								: __( 'Team', 'quick-qa-for-woocommerce' );
 						} else {
-							$ans_name = __( 'Team', 'askora-product-qa-for-woocommerce' );
+							$ans_name = __( 'Team', 'quick-qa-for-woocommerce' );
 						}
 
 						$ans_initials = mb_strtoupper( mb_substr( $ans_name, 0, 2 ) );
 
 						$ans_time = sprintf(
 							/* translators: %s: human-readable time difference */
-							__( '%s ago', 'askora-product-qa-for-woocommerce' ),
+							__( '%s ago', 'quick-qa-for-woocommerce' ),
 							human_time_diff( strtotime( $answer->created_at ), current_time( 'timestamp', true ) )
 						);
 
@@ -229,7 +229,7 @@ foreach ( $questions as $question ) :
 							<div class="qa-answer-body">
 								<?php if ( $is_best ) : ?>
 									<span class="qa-best-tag">
-										<?php esc_html_e( 'Best answer', 'askora-product-qa-for-woocommerce' ); ?>
+										<?php esc_html_e( 'Best answer', 'quick-qa-for-woocommerce' ); ?>
 									</span>
 								<?php endif; ?>
 
@@ -238,11 +238,11 @@ foreach ( $questions as $question ) :
 									<?php if ( ! isset( $appr_show_role_badges ) || $appr_show_role_badges ) : ?>
 										<?php if ( $is_staff ) : ?>
 											<span class="qa-role qa-role--staff">
-												<?php esc_html_e( 'Store staff', 'askora-product-qa-for-woocommerce' ); ?>
+												<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
 											</span>
 										<?php else : ?>
 											<span class="qa-role qa-role--verified">
-												<?php esc_html_e( 'Verified buyer', 'askora-product-qa-for-woocommerce' ); ?>
+												<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
 											</span>
 										<?php endif; ?>
 									<?php endif; ?>
@@ -260,10 +260,10 @@ foreach ( $questions as $question ) :
 											data-action="helpful-vote"
 											data-id="<?php echo esc_attr( $answer->id ); ?>"
 											aria-pressed="<?php echo $is_helpful_voted ? 'true' : 'false'; ?>"
-											aria-label="<?php esc_attr_e( 'Mark answer as helpful', 'askora-product-qa-for-woocommerce' ); ?>"
+											aria-label="<?php esc_attr_e( 'Mark answer as helpful', 'quick-qa-for-woocommerce' ); ?>"
 										>
 											<span class="qa-helpful-arrow" aria-hidden="true">↑</span>
-											<?php esc_html_e( 'Helpful', 'askora-product-qa-for-woocommerce' ); ?>
+											<?php esc_html_e( 'Helpful', 'quick-qa-for-woocommerce' ); ?>
 											<span class="qa-helpful-count">(<?php echo esc_html( $answer->upvotes ); ?>)</span>
 										</button>
 										<button class="qa-foot-link qa-flag-link"
@@ -271,7 +271,7 @@ foreach ( $questions as $question ) :
 											data-action="open-flag"
 											data-flag-type="answer"
 											data-flag-id="<?php echo esc_attr( $answer->id ); ?>"
-										>⚐ <?php esc_html_e( 'Flag', 'askora-product-qa-for-woocommerce' ); ?></button>
+										>⚐ <?php esc_html_e( 'Flag', 'quick-qa-for-woocommerce' ); ?></button>
 									</div>
 								<?php endif; ?>
 							</div>
@@ -281,7 +281,7 @@ foreach ( $questions as $question ) :
 
 				<?php if ( $thread_locked ) : ?>
 					<p class="qa-thread-closed">
-						<?php esc_html_e( 'This thread is closed for new answers.', 'askora-product-qa-for-woocommerce' ); ?>
+						<?php esc_html_e( 'This thread is closed for new answers.', 'quick-qa-for-woocommerce' ); ?>
 					</p>
 				<?php elseif ( $can_submit_answer ) : ?>
 
@@ -295,10 +295,10 @@ foreach ( $questions as $question ) :
 						<div class="qa-confirm-mark" aria-hidden="true">⌛</div>
 						<div class="qa-confirm-body">
 							<div class="qa-confirm-title">
-								<?php esc_html_e( 'Your answer is being reviewed', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Your answer is being reviewed', 'quick-qa-for-woocommerce' ); ?>
 							</div>
 							<div class="qa-confirm-text">
-								<?php esc_html_e( 'It will appear here once our team approves it.', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'It will appear here once our team approves it.', 'quick-qa-for-woocommerce' ); ?>
 							</div>
 						</div>
 					</div>
@@ -310,7 +310,7 @@ foreach ( $questions as $question ) :
 							data-action="open-answer-form"
 							data-question-id="<?php echo esc_attr( $question->id ); ?>"
 						>
-							<?php esc_html_e( 'Add your answer', 'askora-product-qa-for-woocommerce' ); ?>
+							<?php esc_html_e( 'Add your answer', 'quick-qa-for-woocommerce' ); ?>
 						</button>
 					</div>
 
@@ -325,7 +325,7 @@ foreach ( $questions as $question ) :
 							data-question-id="<?php echo esc_attr( $question->id ); ?>"
 							rows="3"
 							maxlength="2000"
-							placeholder="<?php esc_attr_e( 'Share your experience with this product…', 'askora-product-qa-for-woocommerce' ); ?>"
+							placeholder="<?php esc_attr_e( 'Share your experience with this product…', 'quick-qa-for-woocommerce' ); ?>"
 						></textarea>
 						<div class="qa-form-counter">
 							<span class="qa-answer-char-count">0</span> / 2000
@@ -340,14 +340,14 @@ foreach ( $questions as $question ) :
 								data-action="cancel-answer"
 								data-question-id="<?php echo esc_attr( $question->id ); ?>"
 							>
-								<?php esc_html_e( 'Cancel', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Cancel', 'quick-qa-for-woocommerce' ); ?>
 							</button>
 							<button type="button"
 								class="qa-form-submit"
 								data-action="submit-answer"
 								data-question-id="<?php echo esc_attr( $question->id ); ?>"
 							>
-								<?php esc_html_e( 'Submit answer', 'askora-product-qa-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Submit answer', 'quick-qa-for-woocommerce' ); ?>
 							</button>
 						</div>
 					</div>

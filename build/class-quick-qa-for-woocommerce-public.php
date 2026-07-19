@@ -71,7 +71,7 @@ class Quick_Qa_For_Woocommerce_Public {
 			'enabled_products'         => array(),
 			'excluded_products'        => array(),
 			'position'                 => 'tab',
-			'tab_name'                 => __( 'Questions & Answers', 'askora-product-qa-for-woocommerce' ),
+			'tab_name'                 => __( 'Questions & Answers', 'quick-qa-for-woocommerce' ),
 			'per_page'                 => 10,
 			'default_sort'             => 'recent',
 			'show_search'              => true,
@@ -188,7 +188,7 @@ class Quick_Qa_For_Woocommerce_Public {
 
 		$tab_name = ! empty( $s['tab_name'] )
 			? $s['tab_name']
-			: __( 'Questions & Answers', 'askora-product-qa-for-woocommerce' );
+			: __( 'Questions & Answers', 'quick-qa-for-woocommerce' );
 
 		$count = $this->get_total_approved_questions_count( $product_id );
 		$title = esc_html( $tab_name );
@@ -231,7 +231,7 @@ class Quick_Qa_For_Woocommerce_Public {
 
 		$tab_name = ! empty( $s['tab_name'] )
 			? $s['tab_name']
-			: __( 'Questions & Answers', 'askora-product-qa-for-woocommerce' );
+			: __( 'Questions & Answers', 'quick-qa-for-woocommerce' );
 
 		echo '<section class="qa-below-reviews-wrap">';
 		echo '<h2 class="qa-below-reviews-title">' . esc_html( $tab_name ) . '</h2>';
@@ -624,32 +624,32 @@ class Quick_Qa_For_Woocommerce_Public {
 				'requireEmailForGuests'   => ( 'logged-in' !== $s['who_can_ask'] && $s['require_email_for_guests'] ) ? '1' : '0',
 				'honeypotEnabled'         => (bool) $s['enable_honeypot'] ? '1' : '0',
 				'i18n'             => array(
-					'askQuestion'       => __( 'Ask a question', 'askora-product-qa-for-woocommerce' ),
-					'cancel'            => __( 'Cancel', 'askora-product-qa-for-woocommerce' ),
-					'submit'            => __( 'Submit question', 'askora-product-qa-for-woocommerce' ),
-					'submitting'        => __( 'Submitting…', 'askora-product-qa-for-woocommerce' ),
+					'askQuestion'       => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
+					'cancel'            => __( 'Cancel', 'quick-qa-for-woocommerce' ),
+					'submit'            => __( 'Submit question', 'quick-qa-for-woocommerce' ),
+					'submitting'        => __( 'Submitting…', 'quick-qa-for-woocommerce' ),
 					'minLength'         => sprintf(
 						/* translators: %d: minimum character count for a question */
-						__( 'Your question must be at least %d characters.', 'askora-product-qa-for-woocommerce' ),
+						__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
 						max( 1, (int) $s['min_length'] )
 					),
-					'nameRequired'      => __( 'Please enter your name.', 'askora-product-qa-for-woocommerce' ),
-					'emailRequired'     => __( 'Please enter your email address.', 'askora-product-qa-for-woocommerce' ),
-					'emailInvalid'      => __( 'Please enter a valid email address.', 'askora-product-qa-for-woocommerce' ),
-					'recaptchaRequired' => __( 'Please complete the reCAPTCHA check.', 'askora-product-qa-for-woocommerce' ),
-					'errorGeneric'      => __( 'Something went wrong. Please try again.', 'askora-product-qa-for-woocommerce' ),
+					'nameRequired'      => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
+					'emailRequired'     => __( 'Please enter your email address.', 'quick-qa-for-woocommerce' ),
+					'emailInvalid'      => __( 'Please enter a valid email address.', 'quick-qa-for-woocommerce' ),
+					'recaptchaRequired' => __( 'Please complete the reCAPTCHA check.', 'quick-qa-for-woocommerce' ),
+					'errorGeneric'      => __( 'Something went wrong. Please try again.', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Singular. */
-					'questionCount'     => __( '%d question about this product', 'askora-product-qa-for-woocommerce' ),
+					'questionCount'     => __( '%d question about this product', 'quick-qa-for-woocommerce' ),
 					/* translators: %d replaced by JS with the question count. Plural. */
-					'questionsCount'    => __( '%d questions about this product', 'askora-product-qa-for-woocommerce' ),
-					'collapse'          => __( 'Collapse', 'askora-product-qa-for-woocommerce' ),
-					'oneAnswer'         => __( '1 answer', 'askora-product-qa-for-woocommerce' ),
-					'answers'           => __( 'answers', 'askora-product-qa-for-woocommerce' ),
-					'noAnswersYet'      => __( 'No answers yet', 'askora-product-qa-for-woocommerce' ),
-					'answerMinLength'   => __( 'Your answer must be at least 10 characters.', 'askora-product-qa-for-woocommerce' ),
-					'submitAnswer'      => __( 'Submit answer', 'askora-product-qa-for-woocommerce' ),
-					'showMore'          => __( 'Show more questions', 'askora-product-qa-for-woocommerce' ),
-					'loadingMore'       => __( 'Loading…', 'askora-product-qa-for-woocommerce' ),
+					'questionsCount'    => __( '%d questions about this product', 'quick-qa-for-woocommerce' ),
+					'collapse'          => __( 'Collapse', 'quick-qa-for-woocommerce' ),
+					'oneAnswer'         => __( '1 answer', 'quick-qa-for-woocommerce' ),
+					'answers'           => __( 'answers', 'quick-qa-for-woocommerce' ),
+					'noAnswersYet'      => __( 'No answers yet', 'quick-qa-for-woocommerce' ),
+					'answerMinLength'   => __( 'Your answer must be at least 10 characters.', 'quick-qa-for-woocommerce' ),
+					'submitAnswer'      => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
+					'showMore'          => __( 'Show more questions', 'quick-qa-for-woocommerce' ),
+					'loadingMore'       => __( 'Loading…', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);
