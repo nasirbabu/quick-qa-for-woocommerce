@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 7.0
 Tested up to: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -13,26 +13,83 @@ A calm, focused Q&A plugin that helps you answer customer questions before they 
 
 == Description ==
 
-Customers have questions before they buy, but WooCommerce gives them nowhere to ask. Most stores end up answering everything by email (slow, and invisible to the next buyer with the same question) or skip it entirely and lose the sale. Askora QA adds a proper Q&A section to your product pages so those questions — and their answers — become permanent, searchable content that helps every future buyer.
+Askora is a product QA plugin for WooCommerce that puts a question box on every product page, gets each question answered fast, and turns every answer into content that helps the next buyer decide.
 
-A customer asks a question, as a guest with a name and email or as a logged-in customer. You're notified by email (and optionally Slack), then reply from a central admin dashboard using saved reply templates. The answer goes live on the product page, where other buyers can upvote it or add their own answer if they've bought the product.
+= Why WooCommerce needs a product QA plugin =
 
-**Features:**
+A shopper lands on your product page with one specific doubt: does this fit, does this work with what I already own, is this actually as good as the photos. WooCommerce gives them nowhere to ask that question. So they either email you and wait, or they leave without buying.
 
-* Q&A section on product pages — as a WooCommerce tab or inline below reviews
-* Question submission from guests (name and email) or logged-in customers
-* Community answers from verified buyers, with "Verified Buyer" and "Store Staff" badges
-* Moderation dashboard with pending questions, pending answers, flagged, answered, and rejected views; bulk approve, reject, dismiss flags, or delete
-* Flagging with auto-hide after 3 flags
-* Upvote system on questions and answers
-* Live search on the front-end Q&A widget, plus admin-side search across questions, customers, and products
-* Reply templates with categories (Shipping, Returns, Sizing, Materials, Warranty, and more) for fast, consistent answers
-* Email notifications for new questions and community answers pending review, plus optional Slack webhook alerts
-* Daily digest and unanswered-question reminder emails
-* Spam protection: honeypot field, reCAPTCHA v2, per-user submission rate limiting, profanity filter with configurable word list, and email blocklist/allowlist
-* Full appearance customization: brand colour, corner radius, avatar style, card style, font, and density
-* Scope control: show Q&A on all products, specific categories, specific products, or with per-product excludes
-* Works on WordPress Multisite
+Neither outcome is good for you. An email question is slow, private, and only ever helps the one person who asked it. A shopper who leaves without asking is a lost sale you never even hear about. Reviews don't fix this either. A review is an opinion left after checkout, not an answer to a doubt before one.
+
+Askora is a product question and answer plugin built specifically to close this gap. It gives shoppers a place to ask, gives you a fast way to answer, and turns every answered question into permanent, public content that pre-answers the same doubt for the next hundred buyers who have it.
+
+= How this product question and answer plugin helps your store =
+
+Every part of Askora exists to shorten the distance between "I have a question" and "I just bought it."
+
+* **Shoppers get answers without leaving the page.** No email, no waiting days for a reply. The question and its answer both live where the buying decision actually happens.
+* **You spend less time answering the same question twice.** Once a question is answered, it's public. The next shopper with the same doubt reads the answer instead of emailing you to ask it again.
+* **Your product pages get stronger over time.** Every answered question adds real, specific content to a page that used to say only what you wrote about the product yourself.
+* **You stay in control.** Nothing goes live without passing through moderation you configure, so the page stays useful instead of turning into a comment section.
+
+= Product QA plugin features for shoppers =
+
+* **Ask without creating an account.** Guests ask with just a name and email; logged-in customers ask in a single click with details pre-filled.
+* **Check before asking.** A live search box on the widget surfaces existing answers, so shoppers find what they need without adding a duplicate question to your queue.
+* **Trust who's answering.** Answers from customers who actually bought the product carry a Verified Buyer badge; answers from your team carry a Store Staff badge.
+* **Surface what matters.** Upvoting lets shoppers push the most useful questions to the top, so the best answers are the easiest to find.
+* **Flag what's wrong.** Questions or answers that are spam, incorrect, or inappropriate can be flagged, and are automatically hidden after three flags, pending your review.
+
+= Product QA plugin features for store owners =
+
+* **One dashboard for everything.** Pending questions, pending answers, flagged content, answered, and rejected, all in one filterable view, instead of digging through email.
+* **Clear a backlog in minutes.** Bulk approve, reject, dismiss flags, or delete, so a weekend's worth of questions doesn't turn into a Monday-long chore.
+* **Answer repeated questions in seconds.** Reply templates, organised by category (shipping, returns, sizing, materials, warranty, and more), mean a common question gets a full, on-brand answer with one click and a short edit.
+* **Find anything fast.** Admin-side search covers questions, customers, and products, so you're never scrolling to find one specific thread.
+* **Run it only where it makes sense.** Scope control lets you turn Askora on for every product, only certain categories, only specific products, or everything except a list you choose.
+* **Use it on a multisite network.** Askora works across WordPress Multisite without extra setup.
+
+= Notifications (coming soon) =
+
+You won't need to keep checking the dashboard for new activity. Askora will notify you by email the moment a new question or community answer needs your attention, with an optional Slack alert for teams who moderate from Slack instead of an inbox. A daily digest option will bundle everything into one email instead of one per question, and unanswered-question reminders will make sure nothing sits ignored for a week without you noticing.
+
+= Spam protection in this product QA plugin (coming soon) =
+
+A product question and answer plugin is only useful if the questions on it are real. Askora is building a full protection layer: an invisible honeypot field that catches most bots with no setup, optional Google reCAPTCHA v2 for an extra layer, per-user submission rate limiting, a profanity filter with a configurable word list, and an email blocklist and allowlist so known spammers are blocked and trusted senders skip moderation entirely.
+
+= Customizable design, built to match your store =
+
+Askora inherits your brand instead of imposing its own. Change the brand colour, corner radius (sharp, rounded, or pill), avatar style, card style, font, and text density from Settings, with a live preview before you save. The Q&A section ends up looking like it was designed for your store, because with a few clicks, it was.
+
+= What's next for this product question and answer plugin =
+
+These aren't vague promises. They're already in progress:
+
+* AI-powered answer suggestions, using your own OpenAI key (coming soon)
+* An analytics dashboard with response times, top questions, and full customer and product Q&A history (coming soon)
+* SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (coming soon)
+* Follow-up questions, letting the original asker ask one clarifying question after their answer (coming soon)
+* A "My Questions" tab inside WooCommerce My Account (coming soon)
+* CSV import and export for migrations and backups (coming soon)
+* Shortcode and Gutenberg block placement, for page builders and custom layouts (coming soon)
+* Multilingual support via WPML and Polylang (coming soon)
+
+None of this sits behind a paywall. It's simply not built yet, and when it ships, it ships in this same free plugin.
+
+= Who needs a product QA plugin =
+
+If a shopper's doubt is the difference between a sale and an abandoned cart, this plugin earns its place: electronics, furniture, outdoor gear, appliances, supplements, cosmetics, and anything else people research before buying. If you're already answering product questions by email or through a contact form, Askora gives you that time back, because every answer becomes reusable content instead of a one-off reply that only one person ever reads.
+
+It's probably not necessary if you sell low-consideration items nobody asks about, or if your store gets no product questions today.
+
+= Compatibility =
+
+* Tested with Storefront, Astra, Flatsome, Divi, OceanWP, and other common WooCommerce themes
+* Works alongside caching plugins including WP Rocket, LiteSpeed Cache, and W3 Total Cache
+
+= Privacy and data =
+
+All Askora data (questions, answers, votes, flags) stays in your own WordPress database. Nothing is sent anywhere else. Full detail on any third-party service Askora uses, and what data it involves, is documented in the Third-Party Services section of this readme.
 
 Free forever — no upgrade prompts, no locked features.
 
@@ -99,6 +156,14 @@ The complete source code is on GitHub: https://github.com/nasirbabu/quick-qa-for
 
 == Installation ==
 
+= From your WordPress dashboard =
+
+1. Go to **Plugins → Add New**, search for "Askora", and click **Install Now**, then **Activate**.
+2. The Q&A section appears automatically on your product pages with sensible defaults already set.
+3. Visit **Askora → Settings** to choose who can ask, how questions get moderated, and how the widget looks on your store.
+
+= Manual upload =
+
 1. Upload the `quick-qa-for-woocommerce` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the **Plugins** menu in WordPress.
 3. Go to **Askora QA** in the WordPress admin to configure settings.
@@ -106,21 +171,29 @@ The complete source code is on GitHub: https://github.com/nasirbabu/quick-qa-for
 
 == Frequently Asked Questions ==
 
-= Does this plugin require WooCommerce? =
+= What is a product QA plugin, and why would my WooCommerce store need one? =
 
-Yes. WooCommerce must be installed and active.
+A product QA plugin adds a question-and-answer section to your product pages, so shoppers can ask something specific before buying instead of emailing you or leaving. It's a different job from reviews, which only capture opinions after a purchase.
 
-= Can guests ask questions without logging in? =
+= Does Askora replace WooCommerce reviews? =
 
-Yes. Guest questions can be enabled from the Settings page. Guests provide their name and email address.
+No. It runs alongside your existing reviews. Most stores use both together: reviews for post-purchase opinions, Askora for pre-purchase questions.
 
-= How do I moderate questions? =
+= Can customers ask questions without creating an account? =
 
-Questions go into a pending queue. Visit **Askora QA → All Q&A** in the admin to approve, answer, or reject them.
+Yes, if guest questions are enabled in Settings. Guests provide a name and email so they can be notified once their question is answered.
 
-= Can I customise the appearance? =
+= Who is allowed to answer a question? =
 
-Yes. Visit **Askora QA → Appearance** to change the brand colour, avatar shape, widget position, and more.
+Your store staff always can. You can also allow verified buyers, logged-in customers, or both, and each answer carries a badge showing which one they are.
+
+= Will this slow down my product pages? =
+
+No. Assets only load on pages where the Q&A widget is active, and the widget itself is lightweight.
+
+= Is Askora actually free? =
+
+Yes. Every feature described above is free, with nothing locked behind a paywall today or planned for later.
 
 == Screenshots ==
 
@@ -129,6 +202,9 @@ Yes. Visit **Askora QA → Appearance** to change the brand colour, avatar shape
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.0.1 (08-08-2026) =
+* Updated: Plugin Description.
 
 = 1.0.0 =
 * Initial release.
