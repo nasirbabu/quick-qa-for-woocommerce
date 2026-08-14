@@ -100,6 +100,21 @@ register_activation_hook( __FILE__, 'activate_quick_qa_for_woocommerce' );
 register_deactivation_hook( __FILE__, 'deactivate_quick_qa_for_woocommerce' );
 
 /**
+ * Declare compatibility with WooCommerce features that this plugin
+ * does not conflict with (HPOS and the Cart/Checkout blocks), so the
+ * "incompatible plugin" warning does not show on a clean install.
+ *
+ * @since 1.0.2
+ */
+function quick_qa_declare_wc_compatibility() {
+	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+	}
+}
+add_action( 'before_woocommerce_init', 'quick_qa_declare_wc_compatibility' );
+
+/**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
