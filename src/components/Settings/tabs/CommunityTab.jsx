@@ -100,7 +100,10 @@ export default function CommunityTab({ draft, onChange }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Customer follow-ups</div>
+            <div className="qq-settings-field-label">
+              Customer follow-ups
+              <span className="qq-badge-soon">Coming soon</span>
+            </div>
             <div className="qq-settings-field-help">
               When the original asker replies again after your answer — same person continuing the conversation.
             </div>
@@ -110,6 +113,7 @@ export default function CommunityTab({ draft, onChange }) {
               className="qq-settings-select"
               value={draft.followup_approval}
               onChange={field(draft, 'followup_approval', onChange)}
+              disabled
             >
               <option value="auto">Auto-publish (recommended)</option>
               <option value="require">Require my approval</option>
@@ -127,7 +131,10 @@ export default function CommunityTab({ draft, onChange }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Enable trust tier</div>
+            <div className="qq-settings-field-label">
+              Enable trust tier
+              <span className="qq-badge-soon">Coming soon</span>
+            </div>
             <div className="qq-settings-field-help">
               After a customer's answers have been marked helpful several times, automatically trust their future answers without review.
             </div>
@@ -136,6 +143,7 @@ export default function CommunityTab({ draft, onChange }) {
             <Toggle
               checked={draft.enable_trust_tier}
               onChange={v => set('enable_trust_tier', v)}
+              disabled
             />
           </div>
         </div>
@@ -157,6 +165,7 @@ export default function CommunityTab({ draft, onChange }) {
                   max="50"
                   value={draft.trust_helpful_threshold}
                   onChange={e => set('trust_helpful_threshold', Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 1)))}
+                  disabled
                 />
                 <span className="qq-settings-input-unit">default 3</span>
               </div>
