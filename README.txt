@@ -203,7 +203,7 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 
 == Changelog ==
 
-= 1.0.2 (15-08-2026) =
+= 1.0.2 (16-08-2026) =
 * Fixed: WooCommerce HPOS and cart/checkout blocks compatibility declared, removing the incompatibility warning on the Plugins page.
 * Fixed: Unwired "Customer follow-ups" and "Enable trust tier" Community settings now show a "Coming soon" badge instead of silently doing nothing.
 * Fixed: The "Below the reviews section" Q&A placement now has a properly styled heading on block-based themes.
