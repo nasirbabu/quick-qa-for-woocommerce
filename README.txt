@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 7.0
 Tested up to: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,11 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.0.2 (15-08-2026) =
+* Fixed: WooCommerce HPOS and cart/checkout blocks compatibility declared, removing the incompatibility warning on the Plugins page.
+* Fixed: Unwired "Customer follow-ups" and "Enable trust tier" Community settings now show a "Coming soon" badge instead of silently doing nothing.
+* Fixed: The "Below the reviews section" Q&A placement now has a properly styled heading on block-based themes.
 
 = 1.0.1 (08-08-2026) =
 * Updated: Plugin Description.
