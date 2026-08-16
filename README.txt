@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 7.0
 Tested up to: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -49,11 +49,11 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Run it only where it makes sense.** Scope control lets you turn Askora on for every product, only certain categories, only specific products, or everything except a list you choose.
 * **Use it on a multisite network.** Askora works across WordPress Multisite without extra setup.
 
-= Notifications =
+= Notifications (coming soon) =
 
 You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with an optional Slack alert for teams who moderate from Slack instead of an inbox. A daily digest option bundles everything into one email instead of one per question, and unanswered-question reminders make sure nothing sits ignored for a week without you noticing.
 
-= Spam protection in this product QA plugin =
+= Spam protection in this product QA plugin (coming soon) =
 
 A product question and answer plugin is only useful if the questions on it are real. Askora includes a full protection layer: an invisible honeypot field that catches most bots with no setup, optional Google reCAPTCHA v2 for an extra layer, per-user submission rate limiting, a profanity filter with a configurable word list, and an email blocklist and allowlist so known spammers are blocked and trusted senders skip moderation entirely.
 
@@ -202,6 +202,16 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.0.2 (16-08-2026) =
+* Fixed: WooCommerce HPOS and cart/checkout blocks compatibility declared, removing the incompatibility warning on the Plugins page.
+* Fixed: Unwired "Customer follow-ups" and "Enable trust tier" Community settings now show a "Coming soon" badge instead of silently doing nothing.
+* Fixed: The "Below the reviews section" Q&A placement now has a properly styled heading on block-based themes.
+* Fixed: Large empty gap between the message content and the reply box on short conversations in the admin conversation panel.
+* Fixed: The "Cancel" button on the front-end Ask-a-question form now correctly closes the form (it previously just reopened it).
+* Fixed: "View product" in the admin conversation panel now opens the question's product page in a new tab (it previously did nothing).
+* Updated: Notifications settings are now a Pro feature; fields show disabled with a "Pro" badge on the free tier.
+* Updated: Spam protection settings (Honeypot, reCAPTCHA, submission rate limit) are now a Pro feature; fields show disabled with a "Pro" badge on the free tier.
 
 = 1.0.1 (08-08-2026) =
 * Updated: Plugin Description.
