@@ -63,7 +63,10 @@ export default function SubmissionTab({ draft, onChange }) {
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Spam protection</div>
+        <div className="qq-settings-card-title">
+          Spam protection
+          <span className="qq-badge-pro">Pro</span>
+        </div>
         <div className="qq-settings-card-desc">Stop bots and abuse before they reach your queue.</div>
 
         <div className="qq-settings-field">
@@ -72,7 +75,7 @@ export default function SubmissionTab({ draft, onChange }) {
             <div className="qq-settings-field-help">Invisible field that bots fill but humans don&apos;t. Catches most automated spam silently. Recommended.</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.enable_honeypot} onChange={v => set('enable_honeypot', v)} />
+            <Toggle checked={draft.enable_honeypot} onChange={v => set('enable_honeypot', v)} disabled />
           </div>
         </div>
 
@@ -82,7 +85,7 @@ export default function SubmissionTab({ draft, onChange }) {
             <div className="qq-settings-field-help">Adds an &ldquo;I&apos;m not a robot&rdquo; check. Stronger than honeypot but adds friction. Use only if you see persistent spam.</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.recaptcha_enabled} onChange={v => set('recaptcha_enabled', v)} />
+            <Toggle checked={draft.recaptcha_enabled} onChange={v => set('recaptcha_enabled', v)} disabled />
           </div>
         </div>
 
@@ -110,6 +113,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 onChange={e => set('recaptcha_site_key', e.target.value)}
                 placeholder="6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
                 spellCheck={false}
+                disabled
               />
             </div>
             <div className="qq-settings-key-field">
@@ -124,6 +128,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 placeholder="6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
                 spellCheck={false}
                 autoComplete="new-password"
+                disabled
               />
             </div>
           </div>
@@ -143,6 +148,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 max="100"
                 value={draft.submission_rate_limit}
                 onChange={e => set('submission_rate_limit', Math.max(1, parseInt(e.target.value, 10) || 3))}
+                disabled
               />
               <span className="qq-settings-input-unit">per hour</span>
             </div>
