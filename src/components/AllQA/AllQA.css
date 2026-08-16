@@ -402,7 +402,7 @@
 
 .qq-conv-body {
   padding: 24px;
-  flex: 1;
+  flex: 0 1 auto;
   overflow-y: auto;
   min-height: 0;
 }
