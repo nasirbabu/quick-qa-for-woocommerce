@@ -16,7 +16,7 @@
  * Plugin Name:       Askora – Product Questions & Answers for WooCommerce
  * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
  * Description:       A calm, focused Q&A plugin that helps you answer customer questions before they abandon their cart. Built for WooCommerce, priced for real stores.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            Nashir Uddin
  * Author URI:        https://profiles.wordpress.org/nashirbabu/
  * License:           GPL-2.0+
@@ -45,7 +45,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION', '1.0.1' );
+define( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION', '1.0.2' );
 
 /**
  * The code that runs during plugin activation.
@@ -98,6 +98,21 @@ function deactivate_quick_qa_for_woocommerce() {
 
 register_activation_hook( __FILE__, 'activate_quick_qa_for_woocommerce' );
 register_deactivation_hook( __FILE__, 'deactivate_quick_qa_for_woocommerce' );
+
+/**
+ * Declare compatibility with WooCommerce features that this plugin
+ * does not conflict with (HPOS and the Cart/Checkout blocks), so the
+ * "incompatible plugin" warning does not show on a clean install.
+ *
+ * @since 1.0.2
+ */
+function quick_qa_declare_wc_compatibility() {
+	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+	}
+}
+add_action( 'before_woocommerce_init', 'quick_qa_declare_wc_compatibility' );
 
 /**
  * The core plugin class that is used to define internationalization,

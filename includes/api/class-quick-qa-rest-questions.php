@@ -232,7 +232,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		// Enrich with product titles and author display names.
 		foreach ( $questions as $q ) {
-			$q->product_title = get_the_title( (int) $q->product_id ) ?: "Product #{$q->product_id}";
+			$q->product_title     = get_the_title( (int) $q->product_id ) ?: "Product #{$q->product_id}";
+			$q->product_permalink = get_permalink( (int) $q->product_id );
 			if ( (int) $q->user_id > 0 ) {
 				$user           = get_userdata( (int) $q->user_id );
 				$q->author_name = $user ? $user->display_name : 'Customer';

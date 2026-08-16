@@ -12,7 +12,8 @@
       "PowerShell(& \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Local\\\\lightning-services\\\\mysql-8.0.16+6\\\\bin\\\\win64\\\\bin\\\\mysql.exe\" -u root -proot --protocol=tcp -P 10021 local -e \"SHOW TABLES LIKE 'wp_quick_qa%';\" 2>&1 | Where-Object { $_ -notmatch 'Warning' })",
       "PowerShell(& \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Local\\\\lightning-services\\\\mysql-8.0.16+6\\\\bin\\\\win64\\\\bin\\\\mysql.exe\" -u root -proot --protocol=tcp -P 10021 local -e \"SELECT id, product_id, status, LEFT\\(question_text,50\\) AS question, created_at FROM wp_quick_qa_questions;\" 2>&1 | Where-Object { $_ -notmatch 'Warning' })",
       "PowerShell(& \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Local\\\\lightning-services\\\\mysql-8.0.16+6\\\\bin\\\\win64\\\\bin\\\\mysql.exe\" -u root -proot --protocol=tcp -P 10021 local -e \"UPDATE wp_quick_qa_questions SET status='approved' WHERE status='pending'; SELECT ROW_COUNT\\(\\) AS rows_updated;\" 2>&1 | Where-Object { $_ -notmatch 'Warning' })",
-      "PowerShell(& \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Local\\\\lightning-services\\\\mysql-8.0.16+6\\\\bin\\\\win64\\\\bin\\\\mysql.exe\" -u root -proot --protocol=tcp -P 10021 local -e \"SELECT id, status, LEFT\\(question_text,50\\) AS question FROM wp_quick_qa_questions;\" 2>&1 | Where-Object { $_ -notmatch 'Warning' })"
+      "PowerShell(& \"C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\Local\\\\lightning-services\\\\mysql-8.0.16+6\\\\bin\\\\win64\\\\bin\\\\mysql.exe\" -u root -proot --protocol=tcp -P 10021 local -e \"SELECT id, status, LEFT\\(question_text,50\\) AS question FROM wp_quick_qa_questions;\" 2>&1 | Where-Object { $_ -notmatch 'Warning' })",
+      "mcp__claude_ai_Atlassian_Rovo__editJiraIssue"
     ]
   }
 }

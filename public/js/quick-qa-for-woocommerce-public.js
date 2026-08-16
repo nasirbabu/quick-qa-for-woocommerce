@@ -164,7 +164,11 @@
 		}
 
 		toggleBtn.addEventListener( 'click', function () {
-			openAskForm( askForm, toggleBtn );
+			if ( toggleBtn.getAttribute( 'aria-expanded' ) === 'true' ) {
+				closeAskForm( askForm, toggleBtn );
+			} else {
+				openAskForm( askForm, toggleBtn );
+			}
 		} );
 
 		if ( cancelBtn ) {

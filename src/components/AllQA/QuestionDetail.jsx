@@ -145,7 +145,7 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
           </div>
         </div>
         <div className="qq-conv-meta-actions">
-          <span>View product</span>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
         </div>
       </div>
 
@@ -232,7 +232,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
           <div className="qq-conv-status">Community answer pending review</div>
         </div>
         <div className="qq-conv-meta-actions">
-          <span>View product</span>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
         </div>
       </div>
 
@@ -341,7 +341,7 @@ function AnsweredDetail({ item, onPublish, saving }) {
           </div>
         </div>
         <div className="qq-conv-meta-actions">
-          <span>View on product page</span>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View on product page</a>
         </div>
       </div>
 
