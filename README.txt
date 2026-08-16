@@ -49,11 +49,11 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Run it only where it makes sense.** Scope control lets you turn Askora on for every product, only certain categories, only specific products, or everything except a list you choose.
 * **Use it on a multisite network.** Askora works across WordPress Multisite without extra setup.
 
-= Notifications =
+= Notifications (coming soon) =
 
 You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with an optional Slack alert for teams who moderate from Slack instead of an inbox. A daily digest option bundles everything into one email instead of one per question, and unanswered-question reminders make sure nothing sits ignored for a week without you noticing.
 
-= Spam protection in this product QA plugin =
+= Spam protection in this product QA plugin (coming soon) =
 
 A product question and answer plugin is only useful if the questions on it are real. Askora includes a full protection layer: an invisible honeypot field that catches most bots with no setup, optional Google reCAPTCHA v2 for an extra layer, per-user submission rate limiting, a profanity filter with a configurable word list, and an email blocklist and allowlist so known spammers are blocked and trusted senders skip moderation entirely.
 
