@@ -207,6 +207,11 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 * Fixed: WooCommerce HPOS and cart/checkout blocks compatibility declared, removing the incompatibility warning on the Plugins page.
 * Fixed: Unwired "Customer follow-ups" and "Enable trust tier" Community settings now show a "Coming soon" badge instead of silently doing nothing.
 * Fixed: The "Below the reviews section" Q&A placement now has a properly styled heading on block-based themes.
+* Fixed: Large empty gap between the message content and the reply box on short conversations in the admin conversation panel.
+* Fixed: The "Cancel" button on the front-end Ask-a-question form now correctly closes the form (it previously just reopened it).
+* Fixed: "View product" in the admin conversation panel now opens the question's product page in a new tab (it previously did nothing).
+* Updated: Notifications settings are now a Pro feature; fields show disabled with a "Pro" badge on the free tier.
+* Updated: Spam protection settings (Honeypot, reCAPTCHA, submission rate limit) are now a Pro feature; fields show disabled with a "Pro" badge on the free tier.
 
 = 1.0.1 (08-08-2026) =
 * Updated: Plugin Description.
