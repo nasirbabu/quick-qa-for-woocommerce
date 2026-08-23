@@ -19,6 +19,7 @@
  *   $allow_verified_buyers     (bool) — verified buyers may submit answers.
  *   $allow_logged_in_customers (bool) — any logged-in user may submit answers.
  *   $appr_show_upvotes         (bool) — render upvote button on questions.
+ *   $appr_show_helpful         (bool) — render "Helpful" button on answers.
  *   $appr_show_role_badges     (bool) — render Customer / Verified buyer / Staff role pills.
  *
  * @since   1.0.0
@@ -255,6 +256,7 @@ foreach ( $questions as $question ) :
 
 								<?php if ( $is_logged_in ) : ?>
 									<div class="qa-q-foot">
+										<?php if ( ! isset( $appr_show_helpful ) || $appr_show_helpful ) : ?>
 										<button class="qa-helpful<?php echo $is_helpful_voted ? ' is-voted' : ''; ?>"
 											type="button"
 											data-action="helpful-vote"
@@ -266,6 +268,7 @@ foreach ( $questions as $question ) :
 											<?php esc_html_e( 'Helpful', 'quick-qa-for-woocommerce' ); ?>
 											<span class="qa-helpful-count">(<?php echo esc_html( $answer->upvotes ); ?>)</span>
 										</button>
+										<?php endif; ?>
 										<button class="qa-foot-link qa-flag-link"
 											type="button"
 											data-action="open-flag"

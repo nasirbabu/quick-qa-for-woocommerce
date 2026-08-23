@@ -624,6 +624,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
 		$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
 		$appr_show_upvotes         = isset( $qq_s['appr_show_upvotes'] )         ? (bool) $qq_s['appr_show_upvotes']         : true;
+		$appr_show_helpful         = isset( $qq_s['appr_show_helpful'] )         ? (bool) $qq_s['appr_show_helpful']         : true;
 		$appr_show_role_badges     = isset( $qq_s['appr_show_role_badges'] )     ? (bool) $qq_s['appr_show_role_badges']     : true;
 		$is_admin          = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
 		$appr_avatar_style = ( isset( $qq_s['appr_avatar_style'] ) && in_array( $qq_s['appr_avatar_style'], array( 'circle', 'square', 'hidden' ), true ) )

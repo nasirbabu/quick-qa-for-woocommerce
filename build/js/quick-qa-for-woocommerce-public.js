@@ -759,21 +759,25 @@
 				return;
 			}
 
+			// Already voted — a vote cannot be retracted, so a repeat click is a no-op.
+			if ( btn.classList.contains( 'is-voted' ) ) {
+				return;
+			}
+
 			var answerId = parseInt( btn.dataset.id, 10 );
 			if ( ! answerId ) {
 				return;
 			}
 
-			var isVoted   = btn.classList.contains( 'is-voted' );
-			var countEl   = btn.querySelector( '.qa-helpful-count' );
-			var oldCount  = countEl
+			var countEl  = btn.querySelector( '.qa-helpful-count' );
+			var oldCount = countEl
 				? ( parseInt( countEl.textContent.replace( /[()]/g, '' ), 10 ) || 0 )
 				: 0;
-			var newCount  = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+			var newCount = oldCount + 1;
 
 			// Optimistic UI update.
-			btn.classList.toggle( 'is-voted', ! isVoted );
-			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			btn.classList.add( 'is-voted' );
+			btn.setAttribute( 'aria-pressed', 'true' );
 			if ( countEl ) {
 				countEl.textContent = '(' + newCount + ')';
 			}
@@ -808,13 +812,13 @@
 					if ( countEl ) {
 						countEl.textContent = '(' + data.count + ')';
 					}
-					btn.classList.toggle( 'is-voted', data.voted );
-					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+					btn.classList.add( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'true' );
 				} )
 				.catch( function () {
 					// Revert on failure.
-					btn.classList.toggle( 'is-voted', isVoted );
-					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					btn.classList.remove( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'false' );
 					if ( countEl ) {
 						countEl.textContent = '(' + oldCount + ')';
 					}
@@ -832,9 +836,11 @@
 	/**
 	 * Delegate vote-button clicks from the thread list.
 	 *
-	 * Applies an optimistic UI update (toggle class + count) immediately, then
-	 * confirms with the server and corrects to the authoritative count on
-	 * success, or reverts on error. The button is disabled while the request
+	 * A vote is one-way: a button already showing the voted state ignores
+	 * further clicks. Applies an optimistic UI update (class + count)
+	 * immediately, then confirms with the server and corrects to the
+	 * authoritative count on success, or reverts on error. The button is
+	 * disabled while the request
 	 * is in flight to prevent double-submits.
 	 */
 	function bindVoteButtons() {
@@ -849,19 +855,23 @@
 				return;
 			}
 
+			// Already voted — a vote cannot be retracted, so a repeat click is a no-op.
+			if ( btn.classList.contains( 'is-voted' ) ) {
+				return;
+			}
+
 			var questionId = parseInt( btn.dataset.id, 10 );
 			if ( ! questionId ) {
 				return;
 			}
 
-			var isVoted  = btn.classList.contains( 'is-voted' );
 			var countEl  = btn.querySelector( '.qa-vote-count' );
 			var oldCount = countEl ? ( parseInt( countEl.textContent, 10 ) || 0 ) : 0;
-			var newCount = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+			var newCount = oldCount + 1;
 
 			// Optimistic UI update.
-			btn.classList.toggle( 'is-voted', ! isVoted );
-			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			btn.classList.add( 'is-voted' );
+			btn.setAttribute( 'aria-pressed', 'true' );
 			if ( countEl ) {
 				countEl.textContent = newCount;
 			}
@@ -907,16 +917,16 @@
 					if ( countEl ) {
 						countEl.textContent = data.count;
 					}
-					btn.classList.toggle( 'is-voted', data.voted );
-					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+					btn.classList.add( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'true' );
 					if ( threadEntry ) {
 						threadEntry.upvotes = data.count;
 					}
 				} )
 				.catch( function () {
 					// Revert the optimistic update.
-					btn.classList.toggle( 'is-voted', isVoted );
-					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					btn.classList.remove( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'false' );
 					if ( countEl ) {
 						countEl.textContent = oldCount;
 					}

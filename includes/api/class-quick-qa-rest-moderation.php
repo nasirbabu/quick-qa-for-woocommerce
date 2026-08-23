@@ -255,9 +255,10 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 	/**
 	 * POST /wp-json/quick-qa/v1/votes
 	 *
-	 * Toggles a vote: if the user has already voted on this object the vote
-	 * is removed (un-vote); otherwise a new vote is recorded.
-	 * The `upvotes` counter on the parent table is kept in sync atomically.
+	 * Records a one-way vote: if the user has already voted on this object,
+	 * the request is a no-op and returns the current state unchanged;
+	 * otherwise a new vote is recorded and the `upvotes` counter on the
+	 * parent table is incremented atomically. Votes cannot be retracted.
 	 *
 	 * @since  1.0.0
 	 * @param  WP_REST_Request $request
@@ -306,31 +307,37 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		);
 
 		if ( $existing_vote_id ) {
-			// Un-vote: remove the record and decrement the counter.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->delete(
-				$votes_table,
-				array( 'id' => (int) $existing_vote_id ),
-				array( '%d' )
+			// Already voted — no-op; a vote cannot be retracted.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$count = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT upvotes FROM {$obj_table} WHERE id = %d",
+					$object_id
+				)
 			);
-			$this->adjust_upvotes( $obj_table, $object_id, -1 );
-			$voted = false;
-		} else {
-			// Vote: insert a new record and increment the counter.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->insert(
-				$votes_table,
+
+			return rest_ensure_response(
 				array(
-					'object_type' => $object_type,
-					'object_id'   => $object_id,
-					'user_id'     => $user_id,
-					'created_at'  => current_time( 'mysql', true ),
-				),
-				array( '%s', '%d', '%d', '%s' )
+					'voted' => true,
+					'count' => $count,
+				)
 			);
-			$this->adjust_upvotes( $obj_table, $object_id, 1 );
-			$voted = true;
 		}
+
+		// Vote: insert a new record and increment the counter.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->insert(
+			$votes_table,
+			array(
+				'object_type' => $object_type,
+				'object_id'   => $object_id,
+				'user_id'     => $user_id,
+				'created_at'  => current_time( 'mysql', true ),
+			),
+			array( '%s', '%d', '%d', '%s' )
+		);
+		$this->adjust_upvotes( $obj_table, $object_id, 1 );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$count = (int) $wpdb->get_var(
@@ -342,13 +349,13 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		);
 
 		// Fire the upvote-threshold notification for questions (not answers).
-		if ( $voted && 'question' === $object_type ) {
+		if ( 'question' === $object_type ) {
 			Quick_Qa_Notifier::check_upvote_threshold( (int) $object_id, $count );
 		}
 
 		return rest_ensure_response(
 			array(
-				'voted' => $voted,
+				'voted' => true,
 				'count' => $count,
 			)
 		);
