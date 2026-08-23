@@ -66,7 +66,39 @@
 		bindHelpfulVote();
 		bindShowMore();
 		bindFlagButtons();
+		handleDeepLinkOpen();
 	} );
+
+	/**
+	 * Consume a `#quick-qa` return hash (e.g. after a login redirect from the
+	 * login-required prompt) by activating the WooCommerce Q&A tab, scrolling
+	 * to the widget, and auto-opening the ask form.
+	 *
+	 * WooCommerce only switches tabs on click — there's no native hash
+	 * support — so a synthetic click on the tab link lets WooCommerce's own
+	 * script do the show/hide. This is a no-op on the "below reviews" layout,
+	 * where no such tab link exists.
+	 */
+	function handleDeepLinkOpen() {
+		if ( '#quick-qa' !== window.location.hash ) {
+			return;
+		}
+
+		var tabLink = document.querySelector( 'a[href="#tab-quick_qa"]' );
+		if ( tabLink ) {
+			tabLink.click();
+		}
+
+		requestAnimationFrame( function () {
+			widget.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+
+			var askForm   = document.getElementById( 'qa-ask-form' );
+			var toggleBtn = document.getElementById( 'qa-toggle-ask' );
+			if ( askForm && toggleBtn && 'true' !== toggleBtn.getAttribute( 'aria-expanded' ) ) {
+				openAskForm( askForm, toggleBtn );
+			}
+		} );
+	}
 
 	// =========================================================================
 	// Thread cache

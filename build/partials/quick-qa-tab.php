@@ -111,7 +111,7 @@ $question_count = count( $questions );
 			<?php esc_html_e( 'Log in or create a free account to ask. It only takes a minute.', 'quick-qa-for-woocommerce' ); ?>
 		</div>
 		<div class="qa-login-actions">
-			<a href="<?php echo esc_url( wp_login_url( get_permalink() . '#quick-qa-widget' ) ); ?>"
+			<a href="<?php echo esc_url( wp_login_url( get_permalink() . '#quick-qa' ) ); ?>"
 				class="qa-login-btn qa-login-btn--primary">
 				<?php esc_html_e( 'Log in', 'quick-qa-for-woocommerce' ); ?>
 			</a>
