@@ -506,6 +506,120 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
   );
 }
 
+// ── Approved question with one or more flagged answers ────────────────────────
+
+function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving }) {
+  return (
+    <>
+      <div className="qq-conv-head">
+        <div>
+          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
+            {item.flaggedAnswers.length} answer{item.flaggedAnswers.length !== 1 ? 's' : ''} auto-hidden · awaiting your review
+          </div>
+        </div>
+        <div className="qq-conv-meta-actions">
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
+        </div>
+      </div>
+
+      <div className="qq-conv-body">
+        <div className="qq-msg" style={{ opacity: 0.7 }}>
+          <Avatar initials={item.avatar} role={item.role} />
+          <div className="qq-msg-body">
+            <div className="qq-msg-meta">
+              <b>{item.customer}</b>
+              <RoleBadge role={item.role} />
+              <span>· {item.time}</span>
+            </div>
+            <div className="qq-msg-text">{item.text}</div>
+          </div>
+        </div>
+
+        {item.answers.length > 0 && (
+          <>
+            <div className="qq-thread-divider">
+              {item.answers.length} approved answer{item.answers.length !== 1 ? 's' : ''}
+            </div>
+            {item.answers.map(ans => (
+              <div key={ans.id} className="qq-msg">
+                <Avatar initials={ans.avatar} role={ans.role} />
+                <div className="qq-msg-body">
+                  <div className="qq-msg-meta">
+                    <b>{ans.author}</b>
+                    <RoleBadge role={ans.role} />
+                    <span>· {ans.time}</span>
+                  </div>
+                  <div className="qq-msg-text">{ans.text}</div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        <div className="qq-thread-divider">Flagged answers</div>
+
+        {item.flaggedAnswers.map(ans => (
+          <div key={ans.id} className="qq-flag-banner">
+            <div className="qq-flag-banner-head">
+              <div className="qq-flag-banner-title">
+                <div className="qq-flag-icon">!</div>
+                Flagged {ans.flagCount} time{ans.flagCount !== 1 ? 's' : ''}
+                {ans.flags.length > 1 ? ` by ${ans.flags.length} different customers` : ''}
+              </div>
+              {ans.flags.length > 0 && (
+                <div className="qq-flag-banner-meta">First flag: {ans.flags[0].time}</div>
+              )}
+            </div>
+            {ans.flags.length > 0 && (
+              <div className="qq-flag-list">
+                {ans.flags.map((f, i) => (
+                  <div key={i} className="qq-flag-item">
+                    <span className="qq-flag-reason">{f.reason}</span>
+                    <span className="qq-flag-reporter">{f.reporter}</span>
+                    <span className="qq-flag-time">{f.time}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="qq-msg" style={{ marginTop: 12 }}>
+              <Avatar initials={ans.avatar} role={ans.role} />
+              <div className="qq-msg-body">
+                <div className="qq-msg-meta">
+                  <b>{ans.author}</b>
+                  <RoleBadge role={ans.role} />
+                  <span>· {ans.time}</span>
+                </div>
+                <div className="qq-flagged-box">
+                  <div className="qq-msg-text">{ans.text}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="qq-action-buttons" style={{ marginTop: 12 }}>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => onDismissAnswer(ans.dbId)}
+                disabled={saving}
+              >
+                Dismiss flags
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => onDeleteAnswer(ans.dbId)}
+                disabled={saving}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 // ── Rejected question ─────────────────────────────────────────────────────────
 
 function RejectedDetail({ item, onRestore, saving }) {
@@ -576,14 +690,36 @@ export default function QuestionDetail({ item, onAction, saving }) {
   const handleRestore          = () => onAction('approve-question', item.id);
   const handleDismissFlags     = () => onAction('dismiss-flags', item.id);
   const handleDeleteFlagged    = () => onAction('delete-flagged', item.id);
+  const handleDismissAnswer    = (answerDbId) => onAction('dismiss-answer-flags', item.id, answerDbId);
+  const handleDeleteAnswer     = (answerDbId) => onAction('delete-flagged-answer', item.id, answerDbId);
+
+  // Flags that have been recorded but haven't crossed the auto-hide threshold
+  // yet — surfaced here so moderators can see them accumulating, since this
+  // content is otherwise indistinguishable from unflagged content.
+  const belowThresholdFlagCount = item.status !== 'flagged'
+    ? item.flagCount + item.answers.reduce((sum, a) => sum + (a.flagCount || 0), 0)
+    : 0;
 
   return (
     <div className="qq-conv">
+      {belowThresholdFlagCount > 0 && (
+        <div className="qq-flag-banner qq-flag-banner--soft">
+          ⚑ {belowThresholdFlagCount} flag{belowThresholdFlagCount !== 1 ? 's' : ''} recorded on this question so far — it will auto-hide once flags reach your configured threshold.
+        </div>
+      )}
       {item.status === 'flagged' && (
         <FlaggedDetail
           item={item}
           onDismiss={handleDismissFlags}
           onDelete={handleDeleteFlagged}
+          saving={saving}
+        />
+      )}
+      {item.status === 'answer-flagged' && (
+        <FlaggedAnswersDetail
+          item={item}
+          onDismissAnswer={handleDismissAnswer}
+          onDeleteAnswer={handleDeleteAnswer}
           saving={saving}
         />
       )}

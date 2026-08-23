@@ -14,6 +14,7 @@
  *
  *   Admin routes
  *     POST /admin/questions/{id}/dismiss-flags — restore flagged question to approved
+ *     POST /admin/answers/{id}/dismiss-flags   — restore flagged answer to approved
  *
  *   Public routes (login required)
  *     POST /flags  — flag a question or answer for review
@@ -40,6 +41,20 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'admin_dismiss_flags' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+				),
+			)
+		);
+
+		// ── Admin: dismiss flags and restore answer ─────────────────────────────
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/answers/(?P<id>\d+)/dismiss-flags',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_dismiss_answer_flags' ),
 				'permission_callback' => array( $this, 'require_admin' ),
 				'args'                => array(
 					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
@@ -154,6 +169,48 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		return rest_ensure_response( array( 'id' => $id, 'status' => 'approved' ) );
 	}
 
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/answers/{id}/dismiss-flags
+	 *
+	 * Restores a flagged answer to 'approved' and deletes its flag records.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_dismiss_answer_flags( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id            = (int) $request->get_param( 'id' );
+		$answers_table = $wpdb->prefix . 'quick_qa_answers';
+		$flags_table   = $wpdb->prefix . 'quick_qa_flags';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$answers_table,
+			array(
+				'status'     => 'approved',
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete(
+			$flags_table,
+			array(
+				'object_type' => 'answer',
+				'object_id'   => $id,
+			),
+			array( '%s', '%d' )
+		);
+
+		return rest_ensure_response( array( 'id' => $id, 'status' => 'approved' ) );
+	}
+
 	// =========================================================================
 	// Public callbacks
 	// =========================================================================
@@ -174,7 +231,8 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 	public function submit_flag( WP_REST_Request $request ) {
 		global $wpdb;
 
-		$flag_threshold = 3;
+		$settings       = get_option( 'quick_qa_settings', array() );
+		$flag_threshold = isset( $settings['flag_auto_hide_threshold'] ) ? max( 1, (int) $settings['flag_auto_hide_threshold'] ) : 3;
 
 		$user_id     = get_current_user_id();
 		$object_type = $request->get_param( 'object_type' );
@@ -241,6 +299,12 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 				array( '%s', '%s' ),
 				array( '%d' )
 			);
+
+			// Notify only at the exact moment the threshold is crossed, not on
+			// every subsequent flag past it.
+			if ( $flag_count === $flag_threshold ) {
+				Quick_Qa_Notifier::flagged( $object_type, $object_id, $flag_count, $reason );
+			}
 		}
 
 		return rest_ensure_response(

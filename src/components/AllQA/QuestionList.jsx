@@ -5,6 +5,7 @@ function StatusPill({ status }) {
     pending:          ['pending',        'Pending'],
     'pending-answer': ['pending-answer', 'Review answer'],
     flagged:          ['flagged',        'Flagged'],
+    'answer-flagged': ['flagged',        'Flagged'],
     answered:         ['answered',       'Answered'],
     rejected:         ['rejected',       'Rejected'],
   };
@@ -32,6 +33,12 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
         const displayText = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.text : item.text;
         const isSelected  = selectedIds.includes(item.id);
         const isActive    = selectedId === item.id && !bulkMode;
+        // Total flags across the question itself and every answer (approved
+        // ones accumulating flags below the threshold, plus any already
+        // auto-hidden), so a moderator can see flags building up early.
+        const flagBadgeCount = item.flagCount
+          + item.answers.reduce((sum, a) => sum + (a.flagCount || 0), 0)
+          + item.flaggedAnswers.reduce((sum, a) => sum + a.flagCount, 0);
 
         return (
           <div
@@ -53,8 +60,8 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
             <div className="qq-row-q">{displayText}</div>
             <div className="qq-row-foot">
               <span>↑ {item.upvotes}</span>
-              {item.status === 'flagged' && (
-                <span className="qq-flag-tag">{item.flagCount} flag{item.flagCount !== 1 ? 's' : ''}</span>
+              {flagBadgeCount > 0 && (
+                <span className="qq-flag-tag">{flagBadgeCount} flag{flagBadgeCount !== 1 ? 's' : ''}</span>
               )}
               {showAllBadge && <StatusPill status={item.status} />}
             </div>

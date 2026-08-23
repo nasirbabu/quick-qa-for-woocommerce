@@ -53,6 +53,7 @@ function transformItem(q) {
   const customer       = q.author_name || q.guest_name || 'Anonymous';
   const pendingAnswers  = (q.answers || []).filter(a => a.status === 'pending');
   const approvedAnswers = (q.answers || []).filter(a => a.status === 'approved');
+  const flaggedAnswers  = (q.answers || []).filter(a => a.status === 'flagged');
 
   let tab, status;
   if (q.status === 'rejected') {
@@ -61,6 +62,8 @@ function transformItem(q) {
     tab = 'flagged'; status = 'flagged';
   } else if (q.status === 'pending') {
     tab = 'pending-q'; status = 'pending';
+  } else if (flaggedAnswers.length > 0) {
+    tab = 'flagged'; status = 'answer-flagged';
   } else {
     if (pendingAnswers.length > 0) {
       tab = 'pending-a'; status = 'pending-answer';
@@ -87,15 +90,21 @@ function transformItem(q) {
     createdAt: q.created_at ? new Date(q.created_at + 'Z').getTime() : 0,
     time:      timeAgo(q.created_at),
     answers:   approvedAnswers.map(a => ({
-      id:      String(a.id),
-      dbId:    parseInt(a.id, 10),
-      author:  a.author_name || 'Team',
-      avatar:  makeInitials(a.author_name || 'Team'),
-      role:    a.answer_type === 'admin' ? 'staff' : 'community',
-      time:    timeAgo(a.created_at),
-      text:    a.answer_text || '',
-      helpful: parseInt(a.upvotes, 10) || 0,
-      isBest:  false,
+      id:        String(a.id),
+      dbId:      parseInt(a.id, 10),
+      author:    a.author_name || 'Team',
+      avatar:    makeInitials(a.author_name || 'Team'),
+      role:      a.answer_type === 'admin' ? 'staff' : 'community',
+      time:      timeAgo(a.created_at),
+      text:      a.answer_text || '',
+      helpful:   parseInt(a.upvotes, 10) || 0,
+      isBest:    false,
+      flagCount: parseInt(a.flag_count, 10) || 0,
+      flags:     (a.flags || []).map(f => ({
+        reason:   f.reason || '',
+        reporter: f.reporter_name || 'A customer',
+        time:     timeAgo(f.created_at),
+      })),
     })),
     pendingAnswer: pa ? {
       id:     String(pa.id),
@@ -112,6 +121,21 @@ function transformItem(q) {
       reason:   f.reason || '',
       reporter: f.reporter_name || 'A customer',
       time:     timeAgo(f.created_at),
+    })),
+    flaggedAnswers: flaggedAnswers.map(a => ({
+      id:        String(a.id),
+      dbId:      parseInt(a.id, 10),
+      author:    a.author_name || 'Team',
+      avatar:    makeInitials(a.author_name || 'Team'),
+      role:      a.answer_type === 'admin' ? 'staff' : 'community',
+      time:      timeAgo(a.created_at),
+      text:      a.answer_text || '',
+      flagCount: parseInt(a.flag_count, 10) || 0,
+      flags:     (a.flags || []).map(f => ({
+        reason:   f.reason || '',
+        reporter: f.reporter_name || 'A customer',
+        time:     timeAgo(f.created_at),
+      })),
     })),
     followups: [],
   };
@@ -359,9 +383,15 @@ export default function AllQA() {
           apiFetch(`admin/answers/${i.pendingAnswer.dbId}`, { method: 'POST', body: { status: 'approved' } })
         ));
       } else if (action === 'dismiss-flags') {
-        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}/dismiss-flags`, { method: 'POST', body: {} })));
+        await Promise.all(items.map(i => i.status === 'answer-flagged'
+          ? Promise.all(i.flaggedAnswers.map(a => apiFetch(`admin/answers/${a.dbId}/dismiss-flags`, { method: 'POST', body: {} })))
+          : apiFetch(`admin/questions/${i.dbId}/dismiss-flags`, { method: 'POST', body: {} })
+        ));
       } else if (action === 'delete') {
-        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}/delete`, { method: 'POST', body: {} })));
+        await Promise.all(items.map(i => i.status === 'answer-flagged'
+          ? Promise.all(i.flaggedAnswers.map(a => apiFetch(`admin/answers/${a.dbId}/delete`, { method: 'POST', body: {} })))
+          : apiFetch(`admin/questions/${i.dbId}/delete`, { method: 'POST', body: {} })
+        ));
       }
       setSelectedIds([]);
       const refreshed = await loadQuestions();
@@ -439,6 +469,18 @@ export default function AllQA() {
         const remaining = filterByTab(refreshed, 'flagged');
         setSelectedId(remaining[0] ? remaining[0].id : null);
         if (remaining.length === 0) setActiveTab('all');
+
+      } else if (action === 'dismiss-answer-flags') {
+        await apiFetch(`admin/answers/${payload}/dismiss-flags`, { method: 'POST', body: {} });
+        const refreshed = await loadQuestions();
+        setSelectedId(id);
+        if (filterByTab(refreshed, 'flagged').length === 0) setActiveTab('answered');
+
+      } else if (action === 'delete-flagged-answer') {
+        await apiFetch(`admin/answers/${payload}/delete`, { method: 'POST', body: {} });
+        const refreshed = await loadQuestions();
+        setSelectedId(id);
+        if (filterByTab(refreshed, 'flagged').length === 0) setActiveTab('answered');
       }
     } catch (err) {
       console.error('Askora QA action failed:', err.message);

@@ -611,6 +611,13 @@
   border-bottom: 0.5px solid #F5DCD5;
   padding: 16px 24px;
 }
+.qq-flag-banner--soft {
+  background: #FFF7E6;
+  border-bottom: 0.5px solid #F2E2B8;
+  padding: 10px 24px;
+  font-size: 12.5px;
+  color: #8A6D1F;
+}
 .qq-flag-banner-head {
   display: flex;
   justify-content: space-between;

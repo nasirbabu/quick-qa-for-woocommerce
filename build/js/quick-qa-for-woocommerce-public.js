@@ -1063,10 +1063,18 @@
 			} ),
 		} )
 			.then( function ( r ) {
-				return r.json();
+				return r.json().then( function ( data ) {
+					return { ok: r.ok, data: data };
+				} );
 			} )
-			.then( function ( data ) {
-				showFlagToast( 'Thanks for letting us know' );
+			.then( function ( result ) {
+				if ( ! result.ok ) {
+					showFlagToast( 'Something went wrong. Please try again.' );
+					return;
+				}
+
+				var data = result.data;
+				showFlagToast( 'Thanks for letting us know.' );
 
 				// Auto-hidden: remove the flagged question thread from the DOM so it
 				// disappears without a page reload. For flagged answers we let the
@@ -1083,7 +1091,7 @@
 				}
 			} )
 			.catch( function () {
-				showFlagToast( 'Thanks for letting us know' );
+				showFlagToast( 'Something went wrong. Please try again.' );
 			} );
 	}
 
