@@ -355,13 +355,13 @@ class Quick_Qa_For_Woocommerce_Public {
 
 		switch ( $sort ) {
 			case 'upvoted':
-				$order_by = 'upvotes DESC, created_at DESC';
+				$order_by = 'upvotes DESC, created_at DESC, id DESC';
 				break;
 			case 'oldest':
-				$order_by = 'created_at ASC';
+				$order_by = 'created_at ASC, id ASC';
 				break;
 			default: // 'recent'
-				$order_by = 'created_at DESC';
+				$order_by = 'created_at DESC, id DESC';
 				break;
 		}
 

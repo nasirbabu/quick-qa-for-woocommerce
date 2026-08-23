@@ -43,6 +43,14 @@
 	/** Debounce handle for the search input. */
 	var searchTimer = null;
 
+	/**
+	 * Active sort order: 'recent' | 'upvoted' | 'oldest'.
+	 * Falls back to the site's configured default so "Show more" pagination
+	 * still requests the right order even on layouts where the sort <select>
+	 * isn't rendered (e.g. anonymous visitor + "logged-in only" ask setting).
+	 */
+	var currentSort = ( typeof quickQaSettings !== 'undefined' && quickQaSettings.defaultSort ) || 'recent';
+
 	// =========================================================================
 	// Bootstrap
 	// =========================================================================
@@ -157,7 +165,7 @@
 			var total = parseInt( widget.getAttribute( 'data-total' ) || '0', 10 );
 			updateHeaderCount( total );
 		}
-		toggleNoResults( 0 === visibleCount && !! query );
+		toggleNoResults( 0 === visibleCount && isFiltering );
 	}
 
 	/** Replace the "N questions" subtitle to reflect the currently visible count. */
@@ -507,23 +515,33 @@
 		var input    = document.getElementById( 'qa-search' );
 		var clearBtn = document.getElementById( 'qa-clear-search' );
 
-		if ( ! input ) {
-			return;
+		if ( input ) {
+			input.addEventListener( 'input', function () {
+				currentSearch = input.value;
+				clearTimeout( searchTimer );
+				searchTimer = setTimeout( applyFiltersAndSearch, 150 );
+			} );
 		}
 
-		input.addEventListener( 'input', function () {
-			currentSearch = input.value;
-			clearTimeout( searchTimer );
-			searchTimer = setTimeout( applyFiltersAndSearch, 150 );
-		} );
-
-		// "clear the search" link inside the no-results empty state.
+		// "Clear filters" link inside the no-results empty state — resets both
+		// search and the active filter pill, since either (or both) could be
+		// the reason the list is empty. The empty state (and this button) can
+		// render even when the search box itself is hidden via settings, so
+		// this is bound independently of `input` existing.
 		if ( clearBtn ) {
 			clearBtn.addEventListener( 'click', function () {
 				currentSearch = '';
-				input.value   = '';
+				if ( input ) {
+					input.value = '';
+				}
+				currentFilter = 'all';
+				widget.querySelectorAll( '.qa-filter-pill' ).forEach( function ( p ) {
+					p.classList.toggle( 'active', 'all' === p.getAttribute( 'data-filter' ) );
+				} );
 				applyFiltersAndSearch();
-				input.focus();
+				if ( input ) {
+					input.focus();
+				}
 			} );
 		}
 	}
@@ -539,8 +557,11 @@
 			return;
 		}
 
+		currentSort = select.value;
+
 		select.addEventListener( 'change', function () {
-			sortThreads( select.value, threadList );
+			currentSort = select.value;
+			sortThreads( currentSort, threadList );
 		} );
 	}
 
@@ -1151,7 +1172,7 @@
 
 			var perPage = settings.perPage ? parseInt( settings.perPage, 10 ) : 10;
 			fetch(
-				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=' + perPage,
+				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=' + perPage + '&sort=' + currentSort,
 				{
 					credentials: 'same-origin',
 					headers:     { 'X-WP-Nonce': settings.nonce || '' },
@@ -1168,8 +1189,11 @@
 						while ( tmp.firstChild ) {
 							threadList.appendChild( tmp.firstChild );
 						}
-						// Rebuild cache so new threads participate in filter / sort.
+						// Rebuild cache so new threads participate in filter / sort,
+						// then re-apply the active sort so they land in the right
+						// position rather than just being tacked on at the end.
 						buildThreadCache();
+						sortThreads( currentSort, threadList );
 						applyFiltersAndSearch();
 					}
 
