@@ -455,7 +455,7 @@
 
 .qa-widget .qa-search-frontend input {
 	width:         100%;
-	padding:       8px 12px 8px 32px;
+	padding:       9px 12px 9px 32px;
 	border:        1px solid #d8d8d8;
 	border-radius: var(--qa-radius);
 	font-size:     13px;
@@ -464,11 +464,12 @@
 	box-sizing:    border-box;
 	background:    #fff;
 	color:         #1f1d1a;
-	transition:    border-color 0.15s;
+	transition:    border-color 0.15s, box-shadow 0.15s;
 }
 
 .qa-widget .qa-search-frontend input:focus {
 	border-color: var(--qa-color);
+	box-shadow:   0 0 0 2px rgba(255, 107, 74, 0.15);
 }
 
 .qa-widget .qa-search-icon-frontend {
@@ -493,14 +494,15 @@
 	display:       flex;
 	gap:           3px;
 	background:    #f0f0f0;
+	border:        1px solid #d8d8d8;
 	padding:       3px;
 	border-radius: var(--qa-radius);
 }
 
 .qa-widget .qa-filter-pill {
-	padding:       5px 12px;
+	padding:       7px 12px;
 	border-radius: calc(var(--qa-radius) - 2px);
-	font-size:     12px;
+	font-size:     13px;
 	cursor:        pointer;
 	color:         #666;
 	font-weight:   500;
@@ -516,16 +518,27 @@
 	box-shadow:  0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.qa-widget .qa-filter-pill:focus-visible {
+	outline:        2px solid var(--qa-color);
+	outline-offset: 1px;
+}
+
 .qa-widget .qa-sort-select {
-	padding:       6px 10px;
+	padding:       9px 12px;
 	border:        1px solid #d8d8d8;
 	border-radius: var(--qa-radius);
-	font-size:     12px;
+	font-size:     13px;
+	font-family:   inherit;
 	background:    #fff;
 	cursor:        pointer;
-	font-family:   inherit;
 	outline:       none;
 	color:         #555;
+	transition:    border-color 0.15s, box-shadow 0.15s;
+}
+
+.qa-widget .qa-sort-select:focus {
+	border-color: var(--qa-color);
+	box-shadow:   0 0 0 2px rgba(255, 107, 74, 0.15);
 }
 
 /* ============================================================

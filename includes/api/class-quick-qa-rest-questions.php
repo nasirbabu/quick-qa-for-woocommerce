@@ -161,6 +161,13 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
 					),
+					'sort'       => array(
+						'required'          => false,
+						'type'              => 'string',
+						'default'           => 'recent',
+						'enum'              => array( 'recent', 'upvoted', 'oldest' ),
+						'sanitize_callback' => 'sanitize_key',
+					),
 				),
 			)
 		);
@@ -600,10 +607,28 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$product_id = $request->get_param( 'product_id' );
 		$offset     = $request->get_param( 'offset' );
 		$limit      = $request->get_param( 'limit' );
+		$sort       = $request->get_param( 'sort' );
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
 		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
 		$votes_table     = $wpdb->prefix . 'quick_qa_votes';
+
+		// Must match the ORDER BY used by the initial server-rendered batch in
+		// Quick_Qa_For_Woocommerce_Public::get_approved_questions(), otherwise
+		// paginating with a different order than page 1 can duplicate or skip
+		// rows. The trailing `id` tiebreaker keeps ordering stable across
+		// separate paginated queries when the sort column ties.
+		switch ( $sort ) {
+			case 'upvoted':
+				$order_by = 'upvotes DESC, created_at DESC, id DESC';
+				break;
+			case 'oldest':
+				$order_by = 'created_at ASC, id ASC';
+				break;
+			default: // 'recent'
+				$order_by = 'created_at DESC, id DESC';
+				break;
+		}
 
 		// Total approved questions for has_more check.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -619,7 +644,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$questions = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY {$order_by} LIMIT %d OFFSET %d",
 				$product_id,
 				$limit,
 				$offset
