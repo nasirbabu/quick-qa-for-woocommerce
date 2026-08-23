@@ -4,8 +4,8 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 7.0
 Tested up to: 7.0
-Stable tag: 1.0.2
-Requires PHP: 7.0
+Stable tag: 1.0.3
+Requires PHP: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -202,6 +202,18 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.0.3 (24-08-2026) =
+* Fixed: The login-required "Log in" / "Create account" prompt now returns you to the same product page with the Q&A tab active and the Ask form already open, instead of dropping you on a different tab with the form collapsed.
+* Fixed: A second click on an already-voted question or a "Helpful" answer no longer removes your vote — voting is one-way, as intended.
+* Fixed: The "Show helpful button" appearance setting is now fully respected — the Helpful button no longer renders at all when turned off, instead of just being hidden with CSS.
+* Fixed: Flagged answers (not just flagged questions) now appear in the admin Flagged queue with working Dismiss and Delete actions — they previously disappeared from the site with no way to review them.
+* Fixed: Flags below the auto-hide threshold are now visible to admins as they accumulate, instead of staying invisible until the item auto-hides.
+* Fixed: The public flag confirmation no longer says "Thanks for letting us know" when the flag request actually failed.
+* Fixed: Sorting no longer breaks after clicking "Show more" on the question list — pagination now respects the selected sort order instead of always falling back to most recent.
+* Fixed: The "No matching questions" message now also appears when a filter (e.g. "Unanswered") returns zero results, not just an empty search.
+* Added: Auto-hide flag threshold is now configurable in Settings → Moderation (previously fixed at 3 flags), and admins get an email notification the moment content is auto-hidden.
+* Updated: The search box, sort dropdown, and filter pills on the front-end widget now match the plugin's standard button and text-field styling.
 
 = 1.0.2 (16-08-2026) =
 * Fixed: WooCommerce HPOS and cart/checkout blocks compatibility declared, removing the incompatibility warning on the Plugins page.
