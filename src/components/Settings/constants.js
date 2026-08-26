@@ -52,6 +52,7 @@ export const DEFAULT_SETTINGS = {
   upvote_threshold_value:    5,
   notify_unanswered_reminder: true,
   unanswered_reminder_days:  3,
+  notify_flag_threshold:     true,
   slack_webhook:             '',
 
   // Moderation
@@ -61,6 +62,7 @@ export const DEFAULT_SETTINGS = {
   auto_reject_short:      true,
   email_blocklist:        '',
   email_allowlist:        '',
+  flag_auto_hide_threshold: 3,
 
   // Submission
   who_can_ask:              'both',

@@ -304,6 +304,7 @@ class Quick_Qa_For_Woocommerce_Public {
 		$require_email_for_guests  = (bool) $s['require_email_for_guests'];
 		$enable_honeypot           = (bool) $s['enable_honeypot'];
 		$appr_show_upvotes         = (bool) $s['appr_show_upvotes'];
+		$appr_show_helpful         = (bool) $s['appr_show_helpful'];
 		$appr_show_role_badges     = (bool) $s['appr_show_role_badges'];
 		$current_user_id           = $is_logged_in ? absint( $current_user->ID ) : 0;
 
@@ -354,13 +355,13 @@ class Quick_Qa_For_Woocommerce_Public {
 
 		switch ( $sort ) {
 			case 'upvoted':
-				$order_by = 'upvotes DESC, created_at DESC';
+				$order_by = 'upvotes DESC, created_at DESC, id DESC';
 				break;
 			case 'oldest':
-				$order_by = 'created_at ASC';
+				$order_by = 'created_at ASC, id ASC';
 				break;
 			default: // 'recent'
-				$order_by = 'created_at DESC';
+				$order_by = 'created_at DESC, id DESC';
 				break;
 		}
 

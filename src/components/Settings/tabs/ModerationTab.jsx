@@ -109,6 +109,32 @@ export default function ModerationTab({ draft, onChange }) {
         </div>
       </div>
 
+      {/* Flagging */}
+      <div className="qq-settings-card">
+        <div className="qq-settings-card-title">Flagging</div>
+        <div className="qq-settings-card-desc">Shoppers can flag a question or answer as spam, incorrect, offensive, a duplicate, or other. Once a single item collects enough flags, it's automatically hidden from public view and moved to your Flagged queue for review.</div>
+
+        <div className="qq-settings-field">
+          <div className="qq-settings-field-info">
+            <div className="qq-settings-field-label">Auto-hide after</div>
+            <div className="qq-settings-field-help">Number of flags a question or answer needs before it's automatically hidden and queued for your review.</div>
+          </div>
+          <div className="qq-settings-field-control">
+            <div className="qq-settings-input-wrap">
+              <input
+                className="qq-settings-input qq-settings-input--short"
+                type="number"
+                min="1"
+                max="999"
+                value={draft.flag_auto_hide_threshold}
+                onChange={e => set('flag_auto_hide_threshold', Math.max(1, parseInt(e.target.value, 10) || 3))}
+              />
+              <span className="qq-settings-input-unit">flags</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Email allowlist */}
       <div className="qq-settings-card">
         <div className="qq-settings-card-title">Email allowlist</div>

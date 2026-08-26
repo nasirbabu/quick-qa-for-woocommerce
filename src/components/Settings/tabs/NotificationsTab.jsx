@@ -152,6 +152,19 @@ export default function NotificationsTab({ draft, onChange }) {
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
+              Content auto-hidden by flags
+              <span className="qq-badge-pro">Pro</span>
+            </div>
+            <div className="qq-settings-field-help">When a question or answer is automatically hidden after crossing your flag threshold.</div>
+          </div>
+          <div className="qq-settings-field-control">
+            <Toggle checked={draft.notify_flag_threshold} onChange={v => set('notify_flag_threshold', v)} disabled />
+          </div>
+        </div>
+
+        <div className="qq-settings-field">
+          <div className="qq-settings-field-info">
+            <div className="qq-settings-field-label">
               Unanswered reminder
               <span className="qq-badge-pro">Pro</span>
             </div>

@@ -18,6 +18,7 @@
  *     POST /admin/questions/{id}/answer
  *     POST /admin/questions/{id}/delete
  *     POST /admin/answers/{id}
+ *     POST /admin/answers/{id}/delete
  *
  *   Public routes
  *     GET  /questions           — paginated approved-question list (frontend "Show more")
@@ -102,6 +103,20 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			)
 		);
 
+		// ── Admin: hard-delete a single answer ───────────────────────────────────
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/answers/(?P<id>\d+)/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_delete_answer' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+				),
+			)
+		);
+
 		// ── Admin: hard-delete a question ──────────────────────────────────────
 		register_rest_route(
 			self::REST_NAMESPACE,
@@ -145,6 +160,13 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 						'minimum'           => 1,
 						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
+					),
+					'sort'       => array(
+						'required'          => false,
+						'type'              => 'string',
+						'default'           => 'recent',
+						'enum'              => array( 'recent', 'upvoted', 'oldest' ),
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
@@ -208,7 +230,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	 * GET /wp-json/quick-qa/v1/admin/questions
 	 *
 	 * Returns all questions (all statuses) with enriched product titles,
-	 * author names, all answers, and flag records for flagged questions.
+	 * author names, all answers, and flag records for every question/answer
+	 * that has at least one flag (not only ones already auto-hidden).
 	 *
 	 * @since  1.0.0
 	 * @return WP_REST_Response
@@ -273,23 +296,53 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			$q->flag_count = 0;
 			$q->flags      = array();
 		}
+		foreach ( $answers as $a ) {
+			$a->flag_count = 0;
+			$a->flags      = array();
+		}
 
-		// Attach flag records for auto-hidden (flagged) questions.
-		$flagged_q_ids = array_values( array_filter(
-			$question_ids,
-			function ( $id ) use ( $questions ) {
-				foreach ( $questions as $q ) {
-					if ( (int) $q->id === $id && $q->status === 'flagged' ) {
-						return true;
-					}
-				}
-				return false;
-			}
-		) );
+		// Attach flag records for every answer that has at least one flag, even
+		// if it hasn't crossed the auto-hide threshold yet, so admins can see
+		// flags accumulating before content disappears.
+		$answer_ids = array_map( function ( $a ) { return (int) $a->id; }, $answers );
 
-		if ( ! empty( $flagged_q_ids ) ) {
+		if ( ! empty( $answer_ids ) ) {
 			$flags_table = $wpdb->prefix . 'quick_qa_flags';
-			$ph_f        = implode( ', ', array_fill( 0, count( $flagged_q_ids ), '%d' ) );
+			$ph_a        = implode( ', ', array_fill( 0, count( $answer_ids ), '%d' ) );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$answer_flags = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT f.object_id, f.reason, f.created_at,
+					        COALESCE(u.display_name, 'A customer') AS reporter_name
+					 FROM {$flags_table} f
+					 LEFT JOIN {$wpdb->users} u ON u.ID = f.user_id
+					 WHERE f.object_type = 'answer' AND f.object_id IN ({$ph_a})
+					 ORDER BY f.created_at ASC",
+					...$answer_ids
+				)
+			);
+
+			$answer_flags_map = array();
+			foreach ( $answer_flags as $flag ) {
+				$answer_flags_map[ (int) $flag->object_id ][] = $flag;
+			}
+
+			foreach ( $answers as $a ) {
+				if ( isset( $answer_flags_map[ (int) $a->id ] ) ) {
+					$a->flag_count = count( $answer_flags_map[ (int) $a->id ] );
+					$a->flags      = $answer_flags_map[ (int) $a->id ];
+				}
+			}
+		}
+
+		// Attach flag records for every question that has at least one flag,
+		// even if it hasn't crossed the auto-hide threshold yet, so admins can
+		// see flags accumulating before content disappears.
+		if ( ! empty( $question_ids ) ) {
+			$flags_table = $wpdb->prefix . 'quick_qa_flags';
+			$ph_f        = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$flags = $wpdb->get_results(
@@ -301,7 +354,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					 LEFT JOIN {$wpdb->users} u ON u.ID = f.user_id
 					 WHERE f.object_type = 'question' AND f.object_id IN ({$ph_f})
 					 ORDER BY f.created_at ASC",
-					...$flagged_q_ids
+					...$question_ids
 				)
 			);
 
@@ -504,6 +557,35 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
 	}
 
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/answers/{id}/delete
+	 *
+	 * Hard-deletes a single answer and its flag/vote records, leaving the
+	 * parent question and any other answers untouched.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_delete_answer( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$id            = (int) $request->get_param( 'id' );
+		$answers_table = $wpdb->prefix . 'quick_qa_answers';
+		$flags_table   = $wpdb->prefix . 'quick_qa_flags';
+		$votes_table   = $wpdb->prefix . 'quick_qa_votes';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $flags_table,   array( 'object_type' => 'answer', 'object_id' => $id ), array( '%s', '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $votes_table,   array( 'object_type' => 'answer', 'object_id' => $id ), array( '%s', '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->delete( $answers_table, array( 'id'          => $id ), array( '%d' ) );
+
+		return rest_ensure_response( array( 'id' => $id, 'deleted' => true ) );
+	}
+
 	// =========================================================================
 	// Public callbacks
 	// =========================================================================
@@ -525,10 +607,28 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$product_id = $request->get_param( 'product_id' );
 		$offset     = $request->get_param( 'offset' );
 		$limit      = $request->get_param( 'limit' );
+		$sort       = $request->get_param( 'sort' );
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
 		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
 		$votes_table     = $wpdb->prefix . 'quick_qa_votes';
+
+		// Must match the ORDER BY used by the initial server-rendered batch in
+		// Quick_Qa_For_Woocommerce_Public::get_approved_questions(), otherwise
+		// paginating with a different order than page 1 can duplicate or skip
+		// rows. The trailing `id` tiebreaker keeps ordering stable across
+		// separate paginated queries when the sort column ties.
+		switch ( $sort ) {
+			case 'upvoted':
+				$order_by = 'upvotes DESC, created_at DESC, id DESC';
+				break;
+			case 'oldest':
+				$order_by = 'created_at ASC, id ASC';
+				break;
+			default: // 'recent'
+				$order_by = 'created_at DESC, id DESC';
+				break;
+		}
 
 		// Total approved questions for has_more check.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -544,7 +644,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$questions = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				"SELECT * FROM {$questions_table} WHERE product_id = %d AND status = 'approved' ORDER BY {$order_by} LIMIT %d OFFSET %d",
 				$product_id,
 				$limit,
 				$offset
@@ -624,6 +724,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
 		$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
 		$appr_show_upvotes         = isset( $qq_s['appr_show_upvotes'] )         ? (bool) $qq_s['appr_show_upvotes']         : true;
+		$appr_show_helpful         = isset( $qq_s['appr_show_helpful'] )         ? (bool) $qq_s['appr_show_helpful']         : true;
 		$appr_show_role_badges     = isset( $qq_s['appr_show_role_badges'] )     ? (bool) $qq_s['appr_show_role_badges']     : true;
 		$is_admin          = current_user_can( 'manage_options' ) || current_user_can( 'manage_woocommerce' );
 		$appr_avatar_style = ( isset( $qq_s['appr_avatar_style'] ) && in_array( $qq_s['appr_avatar_style'], array( 'circle', 'square', 'hidden' ), true ) )

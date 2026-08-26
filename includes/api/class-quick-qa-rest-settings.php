@@ -156,15 +156,17 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'upvote_threshold_value'    => (int) $s['upvote_threshold_value'],
 			'notify_unanswered_reminder' => (bool) $s['notify_unanswered_reminder'],
 			'unanswered_reminder_days'  => (int) $s['unanswered_reminder_days'],
+			'notify_flag_threshold'     => (bool) $s['notify_flag_threshold'],
 			'slack_webhook'             => (string) $s['slack_webhook'],
 
 			// Moderation
-			'question_approval_mode' => (string) $s['question_approval_mode'],
-			'profanity_filter'       => (bool) $s['profanity_filter'],
-			'profanity_words'        => (string) $s['profanity_words'],
-			'auto_reject_short'      => (bool) $s['auto_reject_short'],
-			'email_blocklist'        => (string) $s['email_blocklist'],
-			'email_allowlist'        => (string) $s['email_allowlist'],
+			'question_approval_mode'    => (string) $s['question_approval_mode'],
+			'profanity_filter'          => (bool) $s['profanity_filter'],
+			'profanity_words'           => (string) $s['profanity_words'],
+			'auto_reject_short'         => (bool) $s['auto_reject_short'],
+			'email_blocklist'           => (string) $s['email_blocklist'],
+			'email_allowlist'           => (string) $s['email_allowlist'],
+			'flag_auto_hide_threshold'  => (int) $s['flag_auto_hide_threshold'],
 
 			// Submission
 			'who_can_ask'              => (string) $s['who_can_ask'],
@@ -279,6 +281,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'profanity_filter', 'auto_reject_short',
 			'notify_new_question', 'notify_community_answer',
 			'notify_upvote_threshold', 'notify_unanswered_reminder',
+			'notify_flag_threshold',
 			'require_email_for_guests', 'enable_honeypot', 'recaptcha_enabled',
 			'allow_verified_buyers', 'allow_logged_in_customers', 'enable_trust_tier',
 		);
@@ -297,6 +300,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'unanswered_reminder_days' => array( 1, 365 ),
 			'submission_rate_limit'    => array( 1, 100 ),
 			'trust_helpful_threshold'  => array( 1, 50 ),
+			'flag_auto_hide_threshold' => array( 1, 999 ),
 		);
 		foreach ( $int_fields as $key => $range ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -448,15 +452,17 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'upvote_threshold_value'     => 5,
 			'notify_unanswered_reminder' => true,
 			'unanswered_reminder_days'   => 3,
+			'notify_flag_threshold'      => true,
 			'slack_webhook'              => '',
 
 			// Moderation
-			'question_approval_mode' => 'manual',
-			'profanity_filter'       => true,
-			'profanity_words'        => 'spam, scam, fake',
-			'auto_reject_short'      => true,
-			'email_blocklist'        => '',
-			'email_allowlist'        => '',
+			'question_approval_mode'   => 'manual',
+			'profanity_filter'         => true,
+			'profanity_words'          => 'spam, scam, fake',
+			'auto_reject_short'        => true,
+			'email_blocklist'          => '',
+			'email_allowlist'          => '',
+			'flag_auto_hide_threshold' => 3,
 
 			// Submission
 			'who_can_ask'              => 'both',

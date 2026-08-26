@@ -43,6 +43,14 @@
 	/** Debounce handle for the search input. */
 	var searchTimer = null;
 
+	/**
+	 * Active sort order: 'recent' | 'upvoted' | 'oldest'.
+	 * Falls back to the site's configured default so "Show more" pagination
+	 * still requests the right order even on layouts where the sort <select>
+	 * isn't rendered (e.g. anonymous visitor + "logged-in only" ask setting).
+	 */
+	var currentSort = ( typeof quickQaSettings !== 'undefined' && quickQaSettings.defaultSort ) || 'recent';
+
 	// =========================================================================
 	// Bootstrap
 	// =========================================================================
@@ -66,7 +74,39 @@
 		bindHelpfulVote();
 		bindShowMore();
 		bindFlagButtons();
+		handleDeepLinkOpen();
 	} );
+
+	/**
+	 * Consume a `#quick-qa` return hash (e.g. after a login redirect from the
+	 * login-required prompt) by activating the WooCommerce Q&A tab, scrolling
+	 * to the widget, and auto-opening the ask form.
+	 *
+	 * WooCommerce only switches tabs on click — there's no native hash
+	 * support — so a synthetic click on the tab link lets WooCommerce's own
+	 * script do the show/hide. This is a no-op on the "below reviews" layout,
+	 * where no such tab link exists.
+	 */
+	function handleDeepLinkOpen() {
+		if ( '#quick-qa' !== window.location.hash ) {
+			return;
+		}
+
+		var tabLink = document.querySelector( 'a[href="#tab-quick_qa"]' );
+		if ( tabLink ) {
+			tabLink.click();
+		}
+
+		requestAnimationFrame( function () {
+			widget.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+
+			var askForm   = document.getElementById( 'qa-ask-form' );
+			var toggleBtn = document.getElementById( 'qa-toggle-ask' );
+			if ( askForm && toggleBtn && 'true' !== toggleBtn.getAttribute( 'aria-expanded' ) ) {
+				openAskForm( askForm, toggleBtn );
+			}
+		} );
+	}
 
 	// =========================================================================
 	// Thread cache
@@ -125,7 +165,7 @@
 			var total = parseInt( widget.getAttribute( 'data-total' ) || '0', 10 );
 			updateHeaderCount( total );
 		}
-		toggleNoResults( 0 === visibleCount && !! query );
+		toggleNoResults( 0 === visibleCount && isFiltering );
 	}
 
 	/** Replace the "N questions" subtitle to reflect the currently visible count. */
@@ -475,23 +515,33 @@
 		var input    = document.getElementById( 'qa-search' );
 		var clearBtn = document.getElementById( 'qa-clear-search' );
 
-		if ( ! input ) {
-			return;
+		if ( input ) {
+			input.addEventListener( 'input', function () {
+				currentSearch = input.value;
+				clearTimeout( searchTimer );
+				searchTimer = setTimeout( applyFiltersAndSearch, 150 );
+			} );
 		}
 
-		input.addEventListener( 'input', function () {
-			currentSearch = input.value;
-			clearTimeout( searchTimer );
-			searchTimer = setTimeout( applyFiltersAndSearch, 150 );
-		} );
-
-		// "clear the search" link inside the no-results empty state.
+		// "Clear filters" link inside the no-results empty state — resets both
+		// search and the active filter pill, since either (or both) could be
+		// the reason the list is empty. The empty state (and this button) can
+		// render even when the search box itself is hidden via settings, so
+		// this is bound independently of `input` existing.
 		if ( clearBtn ) {
 			clearBtn.addEventListener( 'click', function () {
 				currentSearch = '';
-				input.value   = '';
+				if ( input ) {
+					input.value = '';
+				}
+				currentFilter = 'all';
+				widget.querySelectorAll( '.qa-filter-pill' ).forEach( function ( p ) {
+					p.classList.toggle( 'active', 'all' === p.getAttribute( 'data-filter' ) );
+				} );
 				applyFiltersAndSearch();
-				input.focus();
+				if ( input ) {
+					input.focus();
+				}
 			} );
 		}
 	}
@@ -507,8 +557,11 @@
 			return;
 		}
 
+		currentSort = select.value;
+
 		select.addEventListener( 'change', function () {
-			sortThreads( select.value, threadList );
+			currentSort = select.value;
+			sortThreads( currentSort, threadList );
 		} );
 	}
 
@@ -727,21 +780,25 @@
 				return;
 			}
 
+			// Already voted — a vote cannot be retracted, so a repeat click is a no-op.
+			if ( btn.classList.contains( 'is-voted' ) ) {
+				return;
+			}
+
 			var answerId = parseInt( btn.dataset.id, 10 );
 			if ( ! answerId ) {
 				return;
 			}
 
-			var isVoted   = btn.classList.contains( 'is-voted' );
-			var countEl   = btn.querySelector( '.qa-helpful-count' );
-			var oldCount  = countEl
+			var countEl  = btn.querySelector( '.qa-helpful-count' );
+			var oldCount = countEl
 				? ( parseInt( countEl.textContent.replace( /[()]/g, '' ), 10 ) || 0 )
 				: 0;
-			var newCount  = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+			var newCount = oldCount + 1;
 
 			// Optimistic UI update.
-			btn.classList.toggle( 'is-voted', ! isVoted );
-			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			btn.classList.add( 'is-voted' );
+			btn.setAttribute( 'aria-pressed', 'true' );
 			if ( countEl ) {
 				countEl.textContent = '(' + newCount + ')';
 			}
@@ -776,13 +833,13 @@
 					if ( countEl ) {
 						countEl.textContent = '(' + data.count + ')';
 					}
-					btn.classList.toggle( 'is-voted', data.voted );
-					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+					btn.classList.add( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'true' );
 				} )
 				.catch( function () {
 					// Revert on failure.
-					btn.classList.toggle( 'is-voted', isVoted );
-					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					btn.classList.remove( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'false' );
 					if ( countEl ) {
 						countEl.textContent = '(' + oldCount + ')';
 					}
@@ -800,9 +857,11 @@
 	/**
 	 * Delegate vote-button clicks from the thread list.
 	 *
-	 * Applies an optimistic UI update (toggle class + count) immediately, then
-	 * confirms with the server and corrects to the authoritative count on
-	 * success, or reverts on error. The button is disabled while the request
+	 * A vote is one-way: a button already showing the voted state ignores
+	 * further clicks. Applies an optimistic UI update (class + count)
+	 * immediately, then confirms with the server and corrects to the
+	 * authoritative count on success, or reverts on error. The button is
+	 * disabled while the request
 	 * is in flight to prevent double-submits.
 	 */
 	function bindVoteButtons() {
@@ -817,19 +876,23 @@
 				return;
 			}
 
+			// Already voted — a vote cannot be retracted, so a repeat click is a no-op.
+			if ( btn.classList.contains( 'is-voted' ) ) {
+				return;
+			}
+
 			var questionId = parseInt( btn.dataset.id, 10 );
 			if ( ! questionId ) {
 				return;
 			}
 
-			var isVoted  = btn.classList.contains( 'is-voted' );
 			var countEl  = btn.querySelector( '.qa-vote-count' );
 			var oldCount = countEl ? ( parseInt( countEl.textContent, 10 ) || 0 ) : 0;
-			var newCount = isVoted ? Math.max( 0, oldCount - 1 ) : oldCount + 1;
+			var newCount = oldCount + 1;
 
 			// Optimistic UI update.
-			btn.classList.toggle( 'is-voted', ! isVoted );
-			btn.setAttribute( 'aria-pressed', String( ! isVoted ) );
+			btn.classList.add( 'is-voted' );
+			btn.setAttribute( 'aria-pressed', 'true' );
 			if ( countEl ) {
 				countEl.textContent = newCount;
 			}
@@ -875,16 +938,16 @@
 					if ( countEl ) {
 						countEl.textContent = data.count;
 					}
-					btn.classList.toggle( 'is-voted', data.voted );
-					btn.setAttribute( 'aria-pressed', String( data.voted ) );
+					btn.classList.add( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'true' );
 					if ( threadEntry ) {
 						threadEntry.upvotes = data.count;
 					}
 				} )
 				.catch( function () {
 					// Revert the optimistic update.
-					btn.classList.toggle( 'is-voted', isVoted );
-					btn.setAttribute( 'aria-pressed', String( isVoted ) );
+					btn.classList.remove( 'is-voted' );
+					btn.setAttribute( 'aria-pressed', 'false' );
 					if ( countEl ) {
 						countEl.textContent = oldCount;
 					}
@@ -1021,10 +1084,18 @@
 			} ),
 		} )
 			.then( function ( r ) {
-				return r.json();
+				return r.json().then( function ( data ) {
+					return { ok: r.ok, data: data };
+				} );
 			} )
-			.then( function ( data ) {
-				showFlagToast( 'Thanks for letting us know' );
+			.then( function ( result ) {
+				if ( ! result.ok ) {
+					showFlagToast( 'Something went wrong. Please try again.' );
+					return;
+				}
+
+				var data = result.data;
+				showFlagToast( 'Thanks for letting us know.' );
 
 				// Auto-hidden: remove the flagged question thread from the DOM so it
 				// disappears without a page reload. For flagged answers we let the
@@ -1041,7 +1112,7 @@
 				}
 			} )
 			.catch( function () {
-				showFlagToast( 'Thanks for letting us know' );
+				showFlagToast( 'Something went wrong. Please try again.' );
 			} );
 	}
 
@@ -1101,7 +1172,7 @@
 
 			var perPage = settings.perPage ? parseInt( settings.perPage, 10 ) : 10;
 			fetch(
-				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=' + perPage,
+				( settings.restUrl || '' ) + 'questions?product_id=' + productId + '&offset=' + offset + '&limit=' + perPage + '&sort=' + currentSort,
 				{
 					credentials: 'same-origin',
 					headers:     { 'X-WP-Nonce': settings.nonce || '' },
@@ -1118,8 +1189,11 @@
 						while ( tmp.firstChild ) {
 							threadList.appendChild( tmp.firstChild );
 						}
-						// Rebuild cache so new threads participate in filter / sort.
+						// Rebuild cache so new threads participate in filter / sort,
+						// then re-apply the active sort so they land in the right
+						// position rather than just being tacked on at the end.
 						buildThreadCache();
+						sortThreads( currentSort, threadList );
 						applyFiltersAndSearch();
 					}
 

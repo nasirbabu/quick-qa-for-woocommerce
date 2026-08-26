@@ -297,6 +297,90 @@ class Quick_Qa_Notifier {
 		self::send_slack( $s, $subject, $body );
 	}
 
+	/**
+	 * Fire a "content auto-hidden by flags" notification.
+	 *
+	 * Called once, at the exact moment an object's flag count crosses the
+	 * configured auto-hide threshold (mirrors the exact-match guard used by
+	 * check_upvote_threshold() so the alert fires only once per object).
+	 *
+	 * @since 1.2.0
+	 * @param string $object_type 'question' or 'answer'.
+	 * @param int    $object_id   DB row ID of the flagged object.
+	 * @param int    $flag_count  Flag count at the moment the threshold was crossed.
+	 * @param string $reason      Reason selected on the flag that crossed the threshold.
+	 * @global wpdb $wpdb
+	 */
+	public static function flagged( $object_type, $object_id, $flag_count, $reason ) {
+		$s = self::settings();
+		if ( empty( $s['notify_flag_threshold'] ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		if ( 'answer' === $object_type ) {
+			$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+			$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$row = $wpdb->get_row(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT a.answer_text AS content_text, q.product_id
+					 FROM {$answers_table} a
+					 INNER JOIN {$questions_table} q ON q.id = a.question_id
+					 WHERE a.id = %d",
+					$object_id
+				)
+			);
+			$content_label = __( 'Answer:', 'quick-qa-for-woocommerce' );
+		} else {
+			$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$row = $wpdb->get_row(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT question_text AS content_text, product_id FROM {$questions_table} WHERE id = %d",
+					$object_id
+				)
+			);
+			$content_label = __( 'Question:', 'quick-qa-for-woocommerce' );
+		}
+
+		if ( ! $row ) {
+			return;
+		}
+
+		$product_name = self::product_name( $row->product_id );
+		$subject      = sprintf(
+			/* translators: %d: flag count that triggered auto-hide */
+			__( '[Auto-hidden] Content hidden after %d flags', 'quick-qa-for-woocommerce' ),
+			$flag_count
+		);
+		$body = self::lines( array(
+			sprintf(
+				/* translators: %d: number of flags */
+				__( 'Content was automatically hidden after receiving %d flags and needs your review.', 'quick-qa-for-woocommerce' ),
+				$flag_count
+			),
+			/* translators: %s: product name */
+			sprintf( __( 'Product: %s', 'quick-qa-for-woocommerce' ), $product_name ),
+			/* translators: %s: reason selected on the flag that crossed the threshold */
+			sprintf( __( 'Latest flag reason: %s', 'quick-qa-for-woocommerce' ), $reason ),
+			'',
+			$content_label,
+			$row->content_text,
+			'',
+			/* translators: %s: admin dashboard URL */
+			sprintf( __( 'Review in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
+		) );
+
+		self::send_email( $s, $subject, $body );
+		self::send_slack( $s, $subject, $body );
+	}
+
 	// =========================================================================
 	// Cron callbacks
 	// =========================================================================
@@ -466,6 +550,7 @@ class Quick_Qa_Notifier {
 			'upvote_threshold_value'     => 5,
 			'notify_unanswered_reminder' => true,
 			'unanswered_reminder_days'   => 3,
+			'notify_flag_threshold'      => true,
 			'slack_webhook'              => '',
 		);
 
