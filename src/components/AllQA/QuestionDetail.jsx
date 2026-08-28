@@ -127,12 +127,13 @@ function TemplatePicker({ onInsert, onClose }) {
 // ── Pending question (needs approval) ────────────────────────────────────────
 
 function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, saving }) {
-  const [reply,      setReply]      = useState('');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [reply,              setReply]              = useState('');
+  const [pickerOpen,         setPickerOpen]          = useState(false);
+  const [insertedTemplateId, setInsertedTemplateId]  = useState(null);
 
   function handleInsert(content, templateId) {
     setReply(content);
-    apiFetch(`admin/templates/${templateId}/use`, { method: 'POST' }).catch(() => {});
+    setInsertedTemplateId(templateId);
   }
 
   return (
@@ -199,7 +200,7 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
               </button>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => onApproveAndAnswer(reply)}
+                onClick={() => onApproveAndAnswer(reply, insertedTemplateId)}
                 disabled={!reply.trim() || saving}
               >
                 Approve &amp; answer
@@ -315,18 +316,20 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
 // ── Answered / approved question ─────────────────────────────────────────────
 
 function AnsweredDetail({ item, onPublish, saving }) {
-  const [reply,      setReply]      = useState('');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [reply,              setReply]              = useState('');
+  const [pickerOpen,         setPickerOpen]          = useState(false);
+  const [insertedTemplateId, setInsertedTemplateId]  = useState(null);
 
   function handleSubmit() {
     if (!reply.trim()) return;
-    onPublish(reply);
+    onPublish(reply, insertedTemplateId);
     setReply('');
+    setInsertedTemplateId(null);
   }
 
   function handleInsert(content, templateId) {
     setReply(content);
-    apiFetch(`admin/templates/${templateId}/use`, { method: 'POST' }).catch(() => {});
+    setInsertedTemplateId(templateId);
   }
 
   return (
@@ -682,11 +685,11 @@ export default function QuestionDetail({ item, onAction, saving }) {
   }
 
   const handleApprove          = () => onAction('approve-question', item.id);
-  const handleApproveAndAnswer = (reply) => onAction('publish', item.id, reply);
+  const handleApproveAndAnswer = (reply, templateId) => onAction('publish', item.id, { answer_text: reply, template_id: templateId });
   const handleReject           = () => onAction('reject', item.id);
   const handleApproveAnswer    = () => onAction('approve-answer', item.id);
   const handleRejectAnswer     = () => onAction('reject-answer', item.id);
-  const handlePublish          = (reply) => onAction('publish', item.id, reply);
+  const handlePublish          = (reply, templateId) => onAction('publish', item.id, { answer_text: reply, template_id: templateId });
   const handleRestore          = () => onAction('approve-question', item.id);
   const handleDismissFlags     = () => onAction('dismiss-flags', item.id);
   const handleDeleteFlagged    = () => onAction('delete-flagged', item.id);

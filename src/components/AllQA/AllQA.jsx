@@ -471,8 +471,14 @@ export default function AllQA() {
       } else if (action === 'publish') {
         await apiFetch(`admin/questions/${item.dbId}/answer`, {
           method: 'POST',
-          body: { answer_text: payload },
+          body: { answer_text: payload.answer_text },
         });
+        // Usage count only increments after the answer has actually been
+        // published — never at template-insert time — so an inserted
+        // template that's discarded without publishing never counts.
+        if (payload.template_id) {
+          apiFetch(`admin/templates/${payload.template_id}/use`, { method: 'POST' }).catch(() => {});
+        }
         await loadQuestions();
         setActiveTab('answered');
         setSelectedId(id);

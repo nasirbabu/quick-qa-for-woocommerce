@@ -42,14 +42,21 @@ function Toast( { message, onDone } ) {
 
 // ── Template list ─────────────────────────────────────────────────────────────
 
-function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit, onDuplicate, onDelete } ) {
+function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit, onDuplicate, onDelete, onExport, onImport } ) {
 	const catTabs  = [ 'All', ...categories ];
 	const filtered = cat === 'all'
 		? templates
 		: templates.filter( t => t.category === cat );
 
-	const totalUses = templates.reduce( ( s, t ) => s + ( parseInt( t.uses, 10 ) || 0 ), 0 );
-	const topId     = templates.length > 0 ? templates[0].id : null;
+	const totalUses  = templates.reduce( ( s, t ) => s + ( parseInt( t.uses, 10 ) || 0 ), 0 );
+	const topId      = templates.length > 0 ? templates[0].id : null;
+	const importRef  = useRef( null );
+
+	function handleImportFileChange( e ) {
+		const file = e.target.files && e.target.files[ 0 ];
+		if ( file ) onImport( file );
+		e.target.value = '';
+	}
 
 	return (
 		<div className="qq-tpl-page">
@@ -58,6 +65,15 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 					<span className="qq-page-label">Reply templates</span>
 				</div>
 				<div className="qq-tpl-top-right">
+					<button className="btn btn-ghost" onClick={ onExport } disabled={ templates.length === 0 }>Export</button>
+					<button className="btn btn-ghost" onClick={ () => importRef.current && importRef.current.click() }>Import</button>
+					<input
+						ref={ importRef }
+						type="file"
+						accept="application/json"
+						style={ { display: 'none' } }
+						onChange={ handleImportFileChange }
+					/>
 					<button className="qq-tpl-btn-add" onClick={ onNew }>+ New template</button>
 				</div>
 			</div>
@@ -595,6 +611,49 @@ export default function ReplyTemplates() {
 		}
 	}
 
+	// ── Import / export ────────────────────────────────────────────────────────
+
+	function handleExport() {
+		const payload = {
+			type:        'quick-qa-templates',
+			version:     1,
+			exported_at: new Date().toISOString(),
+			categories,
+			templates:   templates.map( t => ( {
+				name:     t.name,
+				category: t.category,
+				content:  t.content,
+			} ) ),
+		};
+		const blob = new Blob( [ JSON.stringify( payload, null, 2 ) ], { type: 'application/json' } );
+		const url  = URL.createObjectURL( blob );
+		const a    = document.createElement( 'a' );
+		a.href     = url;
+		a.download = 'quick-qa-templates.json';
+		document.body.appendChild( a );
+		a.click();
+		document.body.removeChild( a );
+		URL.revokeObjectURL( url );
+	}
+
+	async function handleImport( file ) {
+		let parsed;
+		try {
+			parsed = JSON.parse( await file.text() );
+		} catch {
+			showToast( 'Error: not a valid JSON file' );
+			return;
+		}
+		try {
+			const result = await apiFetch( 'admin/templates/import', { method: 'POST', body: parsed } );
+			const fresh  = await apiFetch( 'admin/templates' );
+			setTemplates( fresh );
+			showToast( `Imported ${ result.imported } template${ result.imported !== 1 ? 's' : '' }` );
+		} catch ( err ) {
+			showToast( `Error: ${ err.message }` );
+		}
+	}
+
 	// ── Render ─────────────────────────────────────────────────────────────────
 
 	if ( loading ) {
@@ -634,6 +693,8 @@ export default function ReplyTemplates() {
 					onEdit={ handleEdit }
 					onDuplicate={ handleDuplicate }
 					onDelete={ t => setDeleteTarget( t ) }
+					onExport={ handleExport }
+					onImport={ handleImport }
 				/>
 			) }
 
