@@ -169,6 +169,29 @@
 }
 .qq-active-filter-x:hover { opacity: 1; }
 
+/* Bulk action partial-failure banner */
+.qq-bulk-result-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 10px 24px;
+  padding: 8px 12px;
+  background: var(--red-soft);
+  color: var(--red);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.qq-bulk-result-banner-x {
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.7;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.qq-bulk-result-banner-x:hover { opacity: 1; }
+
 /* Queue rows */
 .qq-row {
   padding: 14px 20px 14px 44px;

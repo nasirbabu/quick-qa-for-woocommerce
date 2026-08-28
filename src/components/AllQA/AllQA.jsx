@@ -263,6 +263,7 @@ export default function AllQA() {
   const [sortOpen,       setSortOpen]       = useState(false);
   const [selectedIds,    setSelectedIds]    = useState([]);
   const [page,           setPage]           = useState(1);
+  const [bulkResult,     setBulkResult]     = useState(null);
   const filterRef = useRef(null);
   const sortRef   = useRef(null);
 
@@ -373,30 +374,48 @@ export default function AllQA() {
   async function handleBulkAction(action) {
     const items = questions.filter(q => selectedIds.includes(q.id));
     setSaving(true);
+    setBulkResult(null);
+    // targetItems tracks whichever array was actually mapped into `results`,
+    // since approve-answers pre-filters to items with a pending answer —
+    // results[idx] must zip back against the same array it was built from.
+    let targetItems = items;
+    let results = null;
     try {
       if (action === 'approve') {
-        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'approved' } })));
+        results = await Promise.allSettled(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'approved' } })));
       } else if (action === 'reject') {
-        await Promise.all(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'rejected' } })));
+        results = await Promise.allSettled(items.map(i => apiFetch(`admin/questions/${i.dbId}`, { method: 'POST', body: { status: 'rejected' } })));
       } else if (action === 'approve-answers') {
-        await Promise.all(items.filter(i => i.pendingAnswer).map(i =>
+        targetItems = items.filter(i => i.pendingAnswer);
+        results = await Promise.allSettled(targetItems.map(i =>
           apiFetch(`admin/answers/${i.pendingAnswer.dbId}`, { method: 'POST', body: { status: 'approved' } })
         ));
       } else if (action === 'dismiss-flags') {
-        await Promise.all(items.map(i => i.status === 'answer-flagged'
+        results = await Promise.allSettled(items.map(i => i.status === 'answer-flagged'
           ? Promise.all(i.flaggedAnswers.map(a => apiFetch(`admin/answers/${a.dbId}/dismiss-flags`, { method: 'POST', body: {} })))
           : apiFetch(`admin/questions/${i.dbId}/dismiss-flags`, { method: 'POST', body: {} })
         ));
       } else if (action === 'delete') {
-        await Promise.all(items.map(i => i.status === 'answer-flagged'
+        results = await Promise.allSettled(items.map(i => i.status === 'answer-flagged'
           ? Promise.all(i.flaggedAnswers.map(a => apiFetch(`admin/answers/${a.dbId}/delete`, { method: 'POST', body: {} })))
           : apiFetch(`admin/questions/${i.dbId}/delete`, { method: 'POST', body: {} })
         ));
       }
-      setSelectedIds([]);
+
+      const failedIds = results
+        ? targetItems.filter((_, idx) => results[idx].status === 'rejected').map(i => i.id)
+        : [];
+
+      // Leave failed items selected so the moderator can retry just those;
+      // a full success clears selection as before.
+      setSelectedIds(failedIds);
       const refreshed = await loadQuestions();
       const remaining = filterByTab(refreshed, activeTab);
       setSelectedId(remaining[0] ? remaining[0].id : null);
+
+      if (failedIds.length > 0) {
+        setBulkResult({ succeeded: results.length - failedIds.length, failed: failedIds.length });
+      }
     } catch (err) {
       console.error('Bulk action failed:', err.message);
     } finally {
@@ -406,9 +425,11 @@ export default function AllQA() {
 
   function handleTabChange(tab) {
     setActiveTab(tab);
+    setSearch('');
     setSelectedIds([]);
     setProductFilter(null);
     setFilterOpen(false);
+    setBulkResult(null);
     const first = filterByTab(questions, tab)[0];
     setSelectedId(first ? first.id : null);
   }
@@ -538,6 +559,13 @@ export default function AllQA() {
           </div>
         ))}
       </div>
+
+      {bulkResult && (
+        <div className="qq-bulk-result-banner">
+          <span>{bulkResult.succeeded} succeeded, {bulkResult.failed} failed — failed item{bulkResult.failed !== 1 ? 's' : ''} still selected, try again.</span>
+          <span className="qq-bulk-result-banner-x" onClick={() => setBulkResult(null)}>×</span>
+        </div>
+      )}
 
       <div className="qq-body">
         <div className={`qq-queue${bulkMode ? ' qq-bulk-mode' : ''}`}>
