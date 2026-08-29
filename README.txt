@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,18 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.1.0 (30-08-2026) =
+* Fixed: Switching tabs in the admin All Q&A panel now clears the search box instead of silently carrying a stale query into the new tab.
+* Fixed: Bulk approve/reject actions now report per-item success and failure instead of failing the whole batch silently — succeeded items update immediately and failed items stay selected for retry.
+* Fixed: Reply Template usage count now only increments when an answer using it is actually published, not the moment it's inserted into the reply field and then discarded.
+* Added: Reply Templates can now be exported to a JSON file and imported into another store, with the whole file validated before anything is applied.
+* Fixed: The question character counter now turns amber at 80% of the max length (previously 90%), and the Submit button stays disabled with a tooltip until the minimum length is met, instead of only failing after a click.
+* Fixed: The hourly question-submission limit is now tied to both IP address and account, so clearing cookies to appear as a new guest no longer resets it.
+* Fixed: The moderation blocklist now matches whole words only, so a blocked word like "scam" no longer false-positives inside unrelated words like "scammer."
+* Added: Blocked words are now flagged live as the customer types, with the Submit button disabled and an inline message, instead of only being rejected after submitting.
+* Fixed: Community answers now correctly auto-publish for admins and for verified buyers when "Auto-publish" is set, instead of every answer always requiring approval regardless of settings.
+* Fixed: Answers from logged-in customers who haven't purchased the product now show a "Community member" badge instead of being incorrectly labeled "Verified buyer."
 
 = 1.0.3 (24-08-2026) =
 * Fixed: The login-required "Log in" / "Create account" prompt now returns you to the same product page with the Q&A tab active and the Ask form already open, instead of dropping you on a different tab with the form collapsed.

@@ -70,7 +70,7 @@ class Quick_Qa_For_Woocommerce {
 		if ( defined( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION' ) ) {
 			$this->version = QUICK_QA_FOR_WOOCOMMERCE_VERSION;
 		} else {
-			$this->version = '1.0.3';
+			$this->version = '1.1.0';
 		}
 		$this->plugin_name = 'quick-qa-for-woocommerce';
 
