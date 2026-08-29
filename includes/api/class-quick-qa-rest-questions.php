@@ -964,10 +964,14 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( $profanity_enabled && ! empty( $profanity_words ) ) {
 				$words = array_filter( array_map( 'trim', explode( ',', $profanity_words ) ) );
 				foreach ( $words as $word ) {
-					if ( ! empty( $word ) && false !== stripos( $question_text, $word ) ) {
+					if ( '' === $word ) {
+						continue;
+					}
+					// Word-boundary match so "scam" doesn't false-positive inside "scammer".
+					if ( preg_match( '/\b' . preg_quote( $word, '/' ) . '\b/iu', $question_text ) ) {
 						return new WP_Error(
 							'quick_qa_profanity',
-							__( 'Your question contains content that is not allowed.', 'quick-qa-for-woocommerce' ),
+							__( "This question contains words that aren't allowed.", 'quick-qa-for-woocommerce' ),
 							array( 'status' => 422 )
 						);
 					}
@@ -1041,7 +1045,9 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	 * POST /wp-json/quick-qa/v1/answers
 	 *
 	 * Handle a community answer submission from a logged-in user.
-	 * Admin/staff answers are auto-approved; community answers go to pending.
+	 * Admin/staff answers are always auto-approved; verified-buyer answers
+	 * auto-approve when verified_buyer_approval = 'auto'; other community
+	 * answers go to pending.
 	 *
 	 * @since  1.0.0
 	 * @param  WP_REST_Request $request
@@ -1073,7 +1079,9 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			);
 		}
 
-		$is_admin = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
+		$is_admin                = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
+		$is_verified             = false;
+		$verified_buyer_approval = 'require';
 
 		if ( ! $is_admin ) {
 			$qq_s = get_option( 'quick_qa_settings', array() );
@@ -1081,6 +1089,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
 			$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
 			$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
+			$verified_buyer_approval   = isset( $qq_s['verified_buyer_approval'] )   ? (string) $qq_s['verified_buyer_approval'] : 'require';
 
 			if ( ! $allow_community ) {
 				return new WP_Error(
@@ -1091,7 +1100,6 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 
 			// Determine if the current user is a verified buyer of this product.
-			$is_verified = false;
 			if ( $allow_verified_buyers ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$q_row = $wpdb->get_row(
@@ -1134,7 +1142,18 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		}
 
 		$answer_type = $is_admin ? 'admin' : 'community';
-		$status      = 'pending';
+
+		// Admins auto-publish. Verified buyers auto-publish only when
+		// verified_buyer_approval = 'auto'. Everyone else needs approval —
+		// community_approval's 'auto_trusted' branch is intentionally not
+		// handled here since trust-tier logic is unbuilt (KAN-27 / KAN-34).
+		if ( $is_admin ) {
+			$status = 'approved';
+		} elseif ( $is_verified && 'auto' === $verified_buyer_approval ) {
+			$status = 'approved';
+		} else {
+			$status = 'pending';
+		}
 
 		$now           = current_time( 'mysql', true );
 		$answers_table = $wpdb->prefix . 'quick_qa_answers';
@@ -1143,16 +1162,17 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$rows = $wpdb->insert(
 			$answers_table,
 			array(
-				'question_id' => $question_id,
-				'user_id'     => $user_id,
-				'answer_type' => $answer_type,
-				'answer_text' => $answer_text,
-				'status'      => $status,
-				'upvotes'     => 0,
-				'created_at'  => $now,
-				'updated_at'  => $now,
+				'question_id'       => $question_id,
+				'user_id'           => $user_id,
+				'answer_type'       => $answer_type,
+				'answer_text'       => $answer_text,
+				'status'            => $status,
+				'upvotes'           => 0,
+				'is_verified_buyer' => $is_verified ? 1 : 0,
+				'created_at'        => $now,
+				'updated_at'        => $now,
 			),
-			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+			array( '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
 
 		if ( false === $rows ) {

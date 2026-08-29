@@ -24,6 +24,7 @@
  *     POST /admin/templates/{id}/delete
  *     POST /admin/templates/{id}/duplicate
  *     POST /admin/templates/{id}/use
+ *     POST /admin/templates/import
  *
  * Categories and templates are kept in the same controller because
  * delete_template_category() writes to both wp_options and the templates
@@ -209,6 +210,17 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 						'sanitize_callback' => 'absint',
 					),
 				),
+			)
+		);
+
+		// ── Templates: import ───────────────────────────────────────────────────
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/templates/import',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_import_templates' ),
+				'permission_callback' => array( $this, 'require_admin' ),
 			)
 		);
 	}
@@ -568,7 +580,9 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 	/**
 	 * POST /wp-json/quick-qa/v1/admin/templates/{id}/use
 	 *
-	 * Increments the `uses` counter when a template is loaded into the composer.
+	 * Increments the `uses` counter. Called by the frontend only after an
+	 * answer built from this template has actually been published — never
+	 * at template-insert time, so inserting then discarding never counts.
 	 *
 	 * @since  1.2.0
 	 * @param  WP_REST_Request $request
@@ -591,6 +605,110 @@ class Quick_Qa_Rest_Templates extends Quick_Qa_Rest_Controller {
 		);
 
 		return rest_ensure_response( array( 'id' => $id, 'incremented' => true ) );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/templates/import
+	 *
+	 * Imports templates from a previously-exported JSON file. The entire
+	 * payload is validated before anything is inserted — a single invalid
+	 * item rejects the whole import rather than partially applying it.
+	 * Purely additive: existing templates are never modified or removed,
+	 * and every imported row is a brand-new template with uses reset to 0.
+	 * A category not recognized on this store falls back to 'Other', the
+	 * same fallback used when a category is deleted elsewhere in this file.
+	 *
+	 * @since  1.3.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function admin_import_templates( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$body = $request->get_json_params();
+
+		if ( ! is_array( $body ) ) {
+			return new WP_Error(
+				'quick_qa_invalid_import',
+				__( 'Invalid file: not a valid JSON object.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( empty( $body['templates'] ) || ! is_array( $body['templates'] ) ) {
+			return new WP_Error(
+				'quick_qa_invalid_import',
+				__( "Invalid file: missing a 'templates' array.", 'quick-qa-for-woocommerce' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$known_categories = $this->load_categories();
+		$validated         = array();
+
+		foreach ( $body['templates'] as $index => $item ) {
+			if ( ! is_array( $item ) ) {
+				/* translators: %d: zero-based position of the invalid item in the imported file. */
+				return new WP_Error(
+					'quick_qa_invalid_import',
+					sprintf( __( 'Invalid file: item %d is not a valid template object.', 'quick-qa-for-woocommerce' ), $index ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$name = isset( $item['name'] ) ? sanitize_text_field( (string) $item['name'] ) : '';
+			if ( '' === trim( $name ) || mb_strlen( $name ) > 200 ) {
+				/* translators: %d: zero-based position of the invalid item in the imported file. */
+				return new WP_Error(
+					'quick_qa_invalid_import',
+					sprintf( __( 'Invalid file: item %d has a missing or invalid name.', 'quick-qa-for-woocommerce' ), $index ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$content = isset( $item['content'] ) ? sanitize_textarea_field( (string) $item['content'] ) : '';
+			if ( mb_strlen( $content ) > 5000 ) {
+				/* translators: %d: zero-based position of the invalid item in the imported file. */
+				return new WP_Error(
+					'quick_qa_invalid_import',
+					sprintf( __( 'Invalid file: item %d has content over 5000 characters.', 'quick-qa-for-woocommerce' ), $index ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$category = isset( $item['category'] ) ? sanitize_text_field( (string) $item['category'] ) : '';
+			if ( ! in_array( $category, $known_categories, true ) ) {
+				$category = 'Other';
+			}
+
+			$validated[] = array(
+				'name'     => $name,
+				'category' => $category,
+				'content'  => $content,
+			);
+		}
+
+		$now   = current_time( 'mysql', true );
+		$table = $wpdb->prefix . 'quick_qa_reply_templates';
+
+		foreach ( $validated as $item ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->insert(
+				$table,
+				array(
+					'name'       => $item['name'],
+					'category'   => $item['category'],
+					'content'    => $item['content'],
+					'uses'       => 0,
+					'created_at' => $now,
+					'updated_at' => $now,
+				),
+				array( '%s', '%s', '%s', '%d', '%s', '%s' )
+			);
+		}
+
+		return rest_ensure_response( array( 'imported' => count( $validated ) ) );
 	}
 
 	// =========================================================================

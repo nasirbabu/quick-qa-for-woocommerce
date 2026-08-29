@@ -97,19 +97,25 @@ abstract class Quick_Qa_Rest_Controller {
 	 * Return WP_Error when the current user/IP has exceeded the hourly limit.
 	 *
 	 * Reads the limit from the submission_rate_limit plugin option so the
-	 * admin-configured value is always respected.
+	 * admin-configured value is always respected. Checks both the IP-based
+	 * and (when logged in) the user-based counter so a logged-in visitor
+	 * can't reset their count by clearing cookies and submitting as a
+	 * guest from the same IP.
 	 *
 	 * @since  1.0.0
 	 * @return true|WP_Error
 	 */
 	protected function check_rate_limit() {
-		$count    = (int) get_transient( $this->rate_limit_key() );
 		$settings = get_option( 'quick_qa_settings', array() );
 		$limit    = isset( $settings['submission_rate_limit'] )
 			? max( 1, (int) $settings['submission_rate_limit'] )
 			: self::RATE_LIMIT;
 
-		if ( $count >= $limit ) {
+		$ip_count = (int) get_transient( $this->ip_rate_limit_key() );
+		$user_id  = get_current_user_id();
+		$user_count = $user_id ? (int) get_transient( $this->user_rate_limit_key( $user_id ) ) : 0;
+
+		if ( $ip_count >= $limit || $user_count >= $limit ) {
 			return new WP_Error(
 				'quick_qa_rate_limited',
 				__( "You've reached the hourly question limit. Please try again later.", 'quick-qa-for-woocommerce' ),
@@ -123,33 +129,49 @@ abstract class Quick_Qa_Rest_Controller {
 	/**
 	 * Increment the hourly submission counter for the current user/IP.
 	 *
+	 * Always increments the IP-based counter, and additionally the
+	 * user-based counter when logged in, so both signals stay in sync
+	 * and neither alone can be used to bypass the limit.
+	 *
 	 * Uses WordPress transients with a one-hour expiry.
 	 *
 	 * @since  1.0.0
 	 */
 	protected function increment_rate_limit() {
-		$key   = $this->rate_limit_key();
-		$count = (int) get_transient( $key );
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+		$ip_key   = $this->ip_rate_limit_key();
+		$ip_count = (int) get_transient( $ip_key );
+		set_transient( $ip_key, $ip_count + 1, HOUR_IN_SECONDS );
+
+		$user_id = get_current_user_id();
+		if ( $user_id ) {
+			$user_key   = $this->user_rate_limit_key( $user_id );
+			$user_count = (int) get_transient( $user_key );
+			set_transient( $user_key, $user_count + 1, HOUR_IN_SECONDS );
+		}
 	}
 
 	/**
-	 * Build the transient key for rate limiting.
+	 * Build the transient key for the user-based rate-limit counter.
 	 *
-	 * Logged-in users are keyed by user ID.
-	 * Guests are keyed by a one-way hash of the remote IP so raw addresses
-	 * are never written to the database.
+	 * @since  1.0.0
+	 * @param  int $user_id  Current user ID.
+	 * @return string
+	 */
+	private function user_rate_limit_key( $user_id ) {
+		return 'quick_qa_rl_u_' . $user_id;
+	}
+
+	/**
+	 * Build the transient key for the IP-based rate-limit counter.
+	 *
+	 * Keyed by a one-way hash of the remote IP so raw addresses are never
+	 * written to the database. Computed regardless of login state so the
+	 * counter survives a visitor logging out or clearing cookies.
 	 *
 	 * @since  1.0.0
 	 * @return string  Always ≤ 172 chars, within WP's 191-char transient key limit.
 	 */
-	private function rate_limit_key() {
-		$user_id = get_current_user_id();
-
-		if ( $user_id ) {
-			return 'quick_qa_rl_u_' . $user_id;
-		}
-
+	private function ip_rate_limit_key() {
 		$raw_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
 
 		return 'quick_qa_rl_ip_' . md5( $raw_ip );

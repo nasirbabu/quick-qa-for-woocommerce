@@ -259,16 +259,80 @@
 	// Character counter
 	// =========================================================================
 
+	/**
+	 * Escape a string for safe interpolation into a RegExp pattern.
+	 *
+	 * @param  {string} str
+	 * @return {string}
+	 */
+	function escapeRegExp( str ) {
+		return str.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+	}
+
 	function bindCharCounter() {
-		var textarea = document.getElementById( 'qa-question-text' );
-		var counter  = document.getElementById( 'qa-char-count' );
-		var max      = textarea ? parseInt( textarea.getAttribute( 'maxlength' ), 10 ) || 500 : 500;
+		var textarea  = document.getElementById( 'qa-question-text' );
+		var counter   = document.getElementById( 'qa-char-count' );
+		var submitBtn = document.getElementById( 'qa-submit-question' );
+		var settings  = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+		var max       = textarea ? parseInt( textarea.getAttribute( 'maxlength' ), 10 ) || 500 : 500;
+		var minLen    = settings.minLength ? parseInt( settings.minLength, 10 ) : 10;
+		var minLenMsg = ( settings.i18n && settings.i18n.minLength ) ||
+			'Your question must be at least ' + minLen + ' characters.';
+		var profanityMsg = ( settings.i18n && settings.i18n.profanity ) ||
+			"This question contains words that aren't allowed.";
+
+		// Mirrors the server's word-boundary matching (class-quick-qa-rest-questions.php).
+		var profanityPatterns = [];
+		if ( '1' === settings.profanityEnabled && settings.profanityWords ) {
+			profanityPatterns = settings.profanityWords
+				.split( ',' )
+				.map( function ( word ) { return word.trim(); } )
+				.filter( function ( word ) { return '' !== word; } )
+				.map( function ( word ) { return new RegExp( '\\b' + escapeRegExp( word ) + '\\b', 'iu' ); } );
+		}
 
 		if ( ! textarea || ! counter ) {
 			return;
 		}
 
-		var counterWrap = counter.parentElement;
+		var counterWrap    = counter.parentElement;
+		var profanityFlagged = false;
+
+		function matchesProfanity( text ) {
+			return profanityPatterns.some( function ( pattern ) {
+				return pattern.test( text );
+			} );
+		}
+
+		function updateSubmitState() {
+			if ( ! submitBtn ) {
+				return;
+			}
+
+			var text      = textarea.value;
+			var tooShort  = text.length < minLen;
+			var isFlagged = matchesProfanity( text );
+
+			if ( tooShort ) {
+				submitBtn.disabled = true;
+				submitBtn.title    = minLenMsg;
+			} else if ( isFlagged ) {
+				submitBtn.disabled = true;
+				submitBtn.title    = profanityMsg;
+			} else {
+				submitBtn.disabled = false;
+				submitBtn.title    = '';
+			}
+
+			// Only touch the shared error banner on a state transition, so it
+			// doesn't re-scroll into view on every keystroke while flagged.
+			if ( isFlagged && ! profanityFlagged ) {
+				showFormError( profanityMsg );
+			} else if ( ! isFlagged && profanityFlagged ) {
+				clearFormError();
+			}
+			profanityFlagged = isFlagged;
+		}
 
 		textarea.addEventListener( 'input', function () {
 			var len = textarea.value.length;
@@ -278,11 +342,16 @@
 				counterWrap.classList.remove( 'warn', 'error' );
 				if ( len >= max ) {
 					counterWrap.classList.add( 'error' );
-				} else if ( len >= max * 0.9 ) {
+				} else if ( len >= max * 0.8 ) {
 					counterWrap.classList.add( 'warn' );
 				}
 			}
+
+			updateSubmitState();
 		} );
+
+		// Textarea starts empty, so the submit button starts disabled.
+		updateSubmitState();
 	}
 
 	// =========================================================================
