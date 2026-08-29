@@ -260,15 +260,34 @@
 	// =========================================================================
 
 	function bindCharCounter() {
-		var textarea = document.getElementById( 'qa-question-text' );
-		var counter  = document.getElementById( 'qa-char-count' );
-		var max      = textarea ? parseInt( textarea.getAttribute( 'maxlength' ), 10 ) || 500 : 500;
+		var textarea  = document.getElementById( 'qa-question-text' );
+		var counter   = document.getElementById( 'qa-char-count' );
+		var submitBtn = document.getElementById( 'qa-submit-question' );
+		var settings  = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+		var max       = textarea ? parseInt( textarea.getAttribute( 'maxlength' ), 10 ) || 500 : 500;
+		var minLen    = settings.minLength ? parseInt( settings.minLength, 10 ) : 10;
+		var minLenMsg = ( settings.i18n && settings.i18n.minLength ) ||
+			'Your question must be at least ' + minLen + ' characters.';
 
 		if ( ! textarea || ! counter ) {
 			return;
 		}
 
 		var counterWrap = counter.parentElement;
+
+		function updateSubmitState() {
+			if ( ! submitBtn ) {
+				return;
+			}
+
+			if ( textarea.value.length < minLen ) {
+				submitBtn.disabled = true;
+				submitBtn.title    = minLenMsg;
+			} else {
+				submitBtn.disabled = false;
+				submitBtn.title    = '';
+			}
+		}
 
 		textarea.addEventListener( 'input', function () {
 			var len = textarea.value.length;
@@ -278,11 +297,16 @@
 				counterWrap.classList.remove( 'warn', 'error' );
 				if ( len >= max ) {
 					counterWrap.classList.add( 'error' );
-				} else if ( len >= max * 0.9 ) {
+				} else if ( len >= max * 0.8 ) {
 					counterWrap.classList.add( 'warn' );
 				}
 			}
+
+			updateSubmitState();
 		} );
+
+		// Textarea starts empty, so the submit button starts disabled.
+		updateSubmitState();
 	}
 
 	// =========================================================================
