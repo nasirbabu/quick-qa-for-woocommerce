@@ -87,6 +87,8 @@ class Quick_Qa_For_Woocommerce_Public {
 			'require_email_for_guests' => true,
 			'enable_honeypot'          => false,
 			'submission_rate_limit'    => 3,
+			'profanity_filter'         => true,
+			'profanity_words'          => 'spam, scam, fake',
 			'recaptcha_enabled'        => false,
 			'recaptcha_site_key'       => '',
 			'recaptcha_secret_key'     => '',
@@ -624,6 +626,8 @@ class Quick_Qa_For_Woocommerce_Public {
 				'defaultSort'             => (string) $s['default_sort'],
 				'requireEmailForGuests'   => ( 'logged-in' !== $s['who_can_ask'] && $s['require_email_for_guests'] ) ? '1' : '0',
 				'honeypotEnabled'         => (bool) $s['enable_honeypot'] ? '1' : '0',
+				'profanityEnabled'        => (bool) $s['profanity_filter'] ? '1' : '0',
+				'profanityWords'          => (string) $s['profanity_words'],
 				'i18n'             => array(
 					'askQuestion'       => __( 'Ask a question', 'quick-qa-for-woocommerce' ),
 					'cancel'            => __( 'Cancel', 'quick-qa-for-woocommerce' ),
@@ -634,6 +638,7 @@ class Quick_Qa_For_Woocommerce_Public {
 						__( 'Your question must be at least %d characters.', 'quick-qa-for-woocommerce' ),
 						max( 1, (int) $s['min_length'] )
 					),
+					'profanity'         => __( "This question contains words that aren't allowed.", 'quick-qa-for-woocommerce' ),
 					'nameRequired'      => __( 'Please enter your name.', 'quick-qa-for-woocommerce' ),
 					'emailRequired'     => __( 'Please enter your email address.', 'quick-qa-for-woocommerce' ),
 					'emailInvalid'      => __( 'Please enter a valid email address.', 'quick-qa-for-woocommerce' ),

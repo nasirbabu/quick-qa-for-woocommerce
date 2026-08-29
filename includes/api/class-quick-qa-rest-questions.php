@@ -964,10 +964,14 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			if ( $profanity_enabled && ! empty( $profanity_words ) ) {
 				$words = array_filter( array_map( 'trim', explode( ',', $profanity_words ) ) );
 				foreach ( $words as $word ) {
-					if ( ! empty( $word ) && false !== stripos( $question_text, $word ) ) {
+					if ( '' === $word ) {
+						continue;
+					}
+					// Word-boundary match so "scam" doesn't false-positive inside "scammer".
+					if ( preg_match( '/\b' . preg_quote( $word, '/' ) . '\b/iu', $question_text ) ) {
 						return new WP_Error(
 							'quick_qa_profanity',
-							__( 'Your question contains content that is not allowed.', 'quick-qa-for-woocommerce' ),
+							__( "This question contains words that aren't allowed.", 'quick-qa-for-woocommerce' ),
 							array( 'status' => 422 )
 						);
 					}
