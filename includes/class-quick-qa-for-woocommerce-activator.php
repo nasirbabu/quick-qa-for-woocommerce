@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.0.0';
+	const DB_VERSION = '1.0.1';
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -244,6 +244,8 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// ------------------------------------------------------------------ //
 		// answer_type: 'admin' for store owner/staff, 'community' for customers.
 		// status mirrors questions: 'pending' | 'approved' | 'rejected'.
+		// is_verified_buyer is set when user_id had a completed order for the
+		// question's product at the time the answer was submitted.
 		// ------------------------------------------------------------------ //
 		$table_answers = $wpdb->prefix . 'quick_qa_answers';
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -256,6 +258,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 				answer_text text NOT NULL,
 				status varchar(20) NOT NULL DEFAULT 'pending',
 				upvotes int(10) UNSIGNED NOT NULL DEFAULT 0,
+				is_verified_buyer tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 				created_at datetime DEFAULT NULL,
 				updated_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),

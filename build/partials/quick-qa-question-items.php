@@ -222,7 +222,7 @@ foreach ( $questions as $question ) :
 						?>
 						<div class="qa-answer <?php echo $is_staff ? 'qa-answer--staff' : ''; ?>">
 							<?php if ( 'hidden' !== $qa_av_style ) : ?>
-							<div class="qa-av qa-av--<?php echo esc_attr( $qa_av_style ); ?> <?php echo $is_staff ? 'qa-av--staff' : 'qa-av--verified'; ?>" aria-hidden="true">
+							<div class="qa-av qa-av--<?php echo esc_attr( $qa_av_style ); ?><?php echo $is_staff ? ' qa-av--staff' : ( ! empty( $answer->is_verified_buyer ) ? ' qa-av--verified' : '' ); ?>" aria-hidden="true">
 								<?php echo esc_html( $ans_initials ); ?>
 							</div>
 							<?php endif; ?>
@@ -241,9 +241,13 @@ foreach ( $questions as $question ) :
 											<span class="qa-role qa-role--staff">
 												<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
 											</span>
-										<?php else : ?>
+										<?php elseif ( ! empty( $answer->is_verified_buyer ) ) : ?>
 											<span class="qa-role qa-role--verified">
 												<?php esc_html_e( 'Verified buyer', 'quick-qa-for-woocommerce' ); ?>
+											</span>
+										<?php else : ?>
+											<span class="qa-role">
+												<?php esc_html_e( 'Community member', 'quick-qa-for-woocommerce' ); ?>
 											</span>
 										<?php endif; ?>
 									<?php endif; ?>
