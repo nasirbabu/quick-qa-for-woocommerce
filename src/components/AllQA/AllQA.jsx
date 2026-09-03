@@ -278,6 +278,13 @@ export default function AllQA() {
     loadQuestions()
       .then(items => {
         setLoading(false);
+        const qid = parseInt(new URLSearchParams(window.location.search).get('qid'), 10);
+        const linked = qid && items.find(q => q.id === qid);
+        if (linked) {
+          setActiveTab('all');
+          setSelectedId(linked.id);
+          return;
+        }
         const first = items.find(q => q.tab === 'pending-q');
         setSelectedId(first ? first.id : (items[0] ? items[0].id : null));
       })

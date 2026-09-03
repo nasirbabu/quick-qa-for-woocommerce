@@ -70,6 +70,15 @@ class Quick_Qa_Notifier {
 	 */
 	const UPVOTE_NOTIFIED = 'quick_qa_upvote_notified_ids';
 
+	/**
+	 * WordPress option key that stores question IDs whose unanswered
+	 * reminder has already been sent (prevents repeated daily alerts).
+	 *
+	 * @since 1.0.0
+	 * @var   string
+	 */
+	const REMINDER_NOTIFIED = 'quick_qa_reminder_notified_ids';
+
 	// =========================================================================
 	// Cron management
 	// =========================================================================
@@ -185,8 +194,8 @@ class Quick_Qa_Notifier {
 			__( 'Question:', 'quick-qa-for-woocommerce' ),
 			$question_text,
 			'',
-			/* translators: %s: admin dashboard URL */
-			sprintf( __( 'Review and answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
+			/* translators: %s: direct admin URL to answer this question */
+			sprintf( __( 'Answer now: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa&qid=' . $question_id ) ),
 		) );
 
 		self::send_email( $s, $subject, $body );
@@ -480,6 +489,22 @@ class Quick_Qa_Notifier {
 			return;
 		}
 
+		// Skip questions we've already reminded about, so each one only
+		// triggers a single reminder instead of firing again every day.
+		$notified   = get_option( self::REMINDER_NOTIFIED, array() );
+		$unanswered = array_values(
+			array_filter(
+				$unanswered,
+				function ( $q ) use ( $notified ) {
+					return ! in_array( (int) $q->id, $notified, true );
+				}
+			)
+		);
+
+		if ( empty( $unanswered ) ) {
+			return;
+		}
+
 		$count   = count( $unanswered );
 		$subject = sprintf(
 			/* translators: 1: question count, 2: days threshold */
@@ -519,6 +544,11 @@ class Quick_Qa_Notifier {
 
 		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
+
+		foreach ( $unanswered as $q ) {
+			$notified[] = (int) $q->id;
+		}
+		update_option( self::REMINDER_NOTIFIED, $notified, false );
 	}
 
 	// =========================================================================
