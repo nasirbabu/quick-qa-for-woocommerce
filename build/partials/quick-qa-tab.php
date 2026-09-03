@@ -352,9 +352,9 @@ $question_count = count( $questions );
 				<?php esc_html_e( 'No matching questions', 'quick-qa-for-woocommerce' ); ?>
 			</div>
 			<p>
-				<?php esc_html_e( 'Try a different keyword, or', 'quick-qa-for-woocommerce' ); ?>
+				<?php esc_html_e( 'Try a different keyword or filter, or', 'quick-qa-for-woocommerce' ); ?>
 				<button type="button" class="qa-link" id="qa-clear-search">
-					<?php esc_html_e( 'clear the search', 'quick-qa-for-woocommerce' ); ?>
+					<?php esc_html_e( 'clear filters', 'quick-qa-for-woocommerce' ); ?>
 				</button>
 				<?php esc_html_e( 'to see all.', 'quick-qa-for-woocommerce' ); ?>
 			</p>
