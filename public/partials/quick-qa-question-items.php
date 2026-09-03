@@ -273,12 +273,76 @@ foreach ( $questions as $question ) :
 											<span class="qa-helpful-count">(<?php echo esc_html( $answer->upvotes ); ?>)</span>
 										</button>
 										<?php endif; ?>
+										<button class="qa-foot-link"
+											type="button"
+											data-action="open-followup-form"
+											data-answer-id="<?php echo esc_attr( $answer->id ); ?>"
+										><?php esc_html_e( 'Reply', 'quick-qa-for-woocommerce' ); ?></button>
 										<button class="qa-foot-link qa-flag-link"
 											type="button"
 											data-action="open-flag"
 											data-flag-type="answer"
 											data-flag-id="<?php echo esc_attr( $answer->id ); ?>"
 										>⚐ <?php esc_html_e( 'Flag', 'quick-qa-for-woocommerce' ); ?></button>
+									</div>
+								<?php endif; ?>
+
+								<?php if ( ! empty( $answer->followups ) ) : ?>
+									<div class="qa-followups">
+										<?php foreach ( $answer->followups as $followup ) : ?>
+											<?php
+											$fu_user = $followup->user_id ? get_userdata( absint( $followup->user_id ) ) : null;
+											$fu_name = $fu_user ? $fu_user->display_name : __( 'Customer', 'quick-qa-for-woocommerce' );
+											$fu_time = sprintf(
+												/* translators: %s: human-readable time difference */
+												__( '%s ago', 'quick-qa-for-woocommerce' ),
+												human_time_diff( strtotime( $followup->created_at ), current_time( 'timestamp', true ) )
+											);
+											?>
+											<div class="qa-followup">
+												<div class="qa-q-meta">
+													<b><?php echo esc_html( $fu_name ); ?></b>
+													<span>· <?php echo esc_html( $fu_time ); ?></span>
+												</div>
+												<div class="qa-q-text"><?php echo esc_html( $followup->answer_text ); ?></div>
+											</div>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+
+								<?php if ( $is_logged_in ) : ?>
+									<div class="qa-followup-form"
+										id="qa-followup-form-<?php echo esc_attr( $answer->id ); ?>"
+										style="display:none;"
+										aria-hidden="true"
+									>
+										<textarea
+											class="qa-followup-textarea"
+											data-answer-id="<?php echo esc_attr( $answer->id ); ?>"
+											rows="2"
+											maxlength="2000"
+											placeholder="<?php esc_attr_e( 'Ask a follow-up…', 'quick-qa-for-woocommerce' ); ?>"
+										></textarea>
+										<div class="qa-form-error qa-followup-error"
+											role="alert"
+											style="display:none;"
+										></div>
+										<div class="qa-form-actions">
+											<button type="button"
+												class="qa-form-cancel"
+												data-action="cancel-followup"
+												data-answer-id="<?php echo esc_attr( $answer->id ); ?>"
+											>
+												<?php esc_html_e( 'Cancel', 'quick-qa-for-woocommerce' ); ?>
+											</button>
+											<button type="button"
+												class="qa-form-submit"
+												data-action="submit-followup"
+												data-answer-id="<?php echo esc_attr( $answer->id ); ?>"
+											>
+												<?php esc_html_e( 'Submit reply', 'quick-qa-for-woocommerce' ); ?>
+											</button>
+										</div>
 									</div>
 								<?php endif; ?>
 							</div>

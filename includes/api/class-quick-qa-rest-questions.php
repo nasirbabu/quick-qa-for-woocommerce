@@ -220,6 +220,31 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				),
 			)
 		);
+
+		// ── Public: logged-in user submits a follow-up to an approved answer ──
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/answers/(?P<id>\d+)/followup',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'submit_followup' ),
+				'permission_callback' => array( $this, 'require_login' ),
+				'args'                => array(
+					'id'            => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+					'followup_text' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+						'validate_callback' => static function ( $value ) {
+							$len = mb_strlen( trim( $value ) );
+							return $len >= 10 && $len <= 2000;
+						},
+						/* translators: REST API parameter description. */
+						'description'       => __( 'The follow-up text (10–2000 characters).', 'quick-qa-for-woocommerce' ),
+					),
+				),
+			)
+		);
 	}
 
 	// =========================================================================
@@ -391,6 +416,15 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$status = $request->get_param( 'status' );
 		$table  = $wpdb->prefix . 'quick_qa_questions';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$question = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, product_id, question_text, status, user_id, guest_name, guest_email FROM {$table} WHERE id = %d",
+				$id
+			)
+		);
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->update(
 			$table,
@@ -402,6 +436,20 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			array( '%s', '%s' ),
 			array( '%d' )
 		);
+
+		// Only a deliberate moderator rejection fires the (off-by-default)
+		// "rejected" email — this endpoint is never reached by the silent
+		// auto_reject_short path in submit_question(), which inserts the
+		// row directly, so no extra guard is needed here.
+		if ( $question && 'rejected' === $status && 'rejected' !== $question->status ) {
+			$asker = Quick_Qa_Notifier::resolve_asker( $question );
+			Quick_Qa_Emails::send( 'e-question-rejected', array(
+				'product_id'     => $question->product_id,
+				'question_text'  => $question->question_text,
+				'customer_name'  => $asker['name'],
+				'customer_email' => $asker['email'],
+			) );
+		}
 
 		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
 	}
@@ -419,9 +467,23 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	public function admin_update_answer( WP_REST_Request $request ) {
 		global $wpdb;
 
-		$id     = (int) $request->get_param( 'id' );
-		$status = $request->get_param( 'status' );
-		$table  = $wpdb->prefix . 'quick_qa_answers';
+		$id            = (int) $request->get_param( 'id' );
+		$status        = $request->get_param( 'status' );
+		$table         = $wpdb->prefix . 'quick_qa_answers';
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$answer = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT a.id, a.question_id, a.user_id, a.answer_type, a.answer_text, a.status, a.is_verified_buyer,
+				        q.product_id, q.question_text, q.user_id AS asker_user_id, q.guest_name, q.guest_email
+				 FROM {$table} a
+				 INNER JOIN {$questions_table} q ON q.id = a.question_id
+				 WHERE a.id = %d",
+				$id
+			)
+		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->update(
@@ -434,6 +496,68 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			array( '%s', '%s' ),
 			array( '%d' )
 		);
+
+		if ( $answer && 'approved' === $status && 'approved' !== $answer->status ) {
+			$asker_row = (object) array(
+				'user_id'     => $answer->asker_user_id,
+				'guest_name'  => $answer->guest_name,
+				'guest_email' => $answer->guest_email,
+			);
+			$asker = Quick_Qa_Notifier::resolve_asker( $asker_row );
+
+			$responder    = (int) $answer->user_id > 0 ? get_userdata( (int) $answer->user_id ) : null;
+			$author_name  = $responder ? $responder->display_name : __( 'Team', 'quick-qa-for-woocommerce' );
+
+			if ( 'admin' === $answer->answer_type ) {
+				Quick_Qa_Emails::send( 'e-question-answered', array(
+					'product_id'     => $answer->product_id,
+					'question_text'  => $answer->question_text,
+					'answer_text'    => $answer->answer_text,
+					'customer_name'  => $asker['name'],
+					'customer_email' => $asker['email'],
+					'author_name'    => $author_name,
+					'author_role'    => __( 'Staff', 'quick-qa-for-woocommerce' ),
+				) );
+			} elseif ( 'followup' === $answer->answer_type ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$answerer_ids = $wpdb->get_col(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT DISTINCT user_id FROM {$table} WHERE question_id = %d AND status = 'approved' AND user_id != %d AND user_id > 0",
+						$answer->question_id,
+						$answer->user_id
+					)
+				);
+				$participant_emails = Quick_Qa_Notifier::admin_recipients();
+				foreach ( $answerer_ids as $answerer_id ) {
+					$answerer = get_userdata( (int) $answerer_id );
+					if ( $answerer && is_email( $answerer->user_email ) ) {
+						$participant_emails[] = $answerer->user_email;
+					}
+				}
+
+				Quick_Qa_Emails::send( 'e-followup-submitted', array(
+					'product_id'         => $answer->product_id,
+					'question_text'      => $answer->question_text,
+					'answer_text'        => '',
+					'followup_text'      => $answer->answer_text,
+					'customer_name'      => $author_name,
+					'author_name'        => '',
+					'author_role'        => '',
+					'participant_emails' => array_values( array_unique( $participant_emails ) ),
+				) );
+			} else {
+				Quick_Qa_Emails::send( 'e-community-answer-approved', array(
+					'product_id'     => $answer->product_id,
+					'question_text'  => $answer->question_text,
+					'answer_text'    => $answer->answer_text,
+					'customer_name'  => $asker['name'],
+					'customer_email' => $asker['email'],
+					'author_name'    => $author_name,
+					'author_role'    => $answer->is_verified_buyer ? __( 'Verified buyer', 'quick-qa-for-woocommerce' ) : __( 'Community member', 'quick-qa-for-woocommerce' ),
+				) );
+			}
+		}
 
 		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
 	}
@@ -462,7 +586,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$question = $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT id, status FROM {$questions_table} WHERE id = %d",
+				"SELECT id, status, product_id, question_text, user_id, guest_name, guest_email FROM {$questions_table} WHERE id = %d",
 				$question_id
 			)
 		);
@@ -500,6 +624,18 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			),
 			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
 		);
+
+		$asker    = Quick_Qa_Notifier::resolve_asker( $question );
+		$answerer = get_userdata( $user_id );
+		Quick_Qa_Emails::send( 'e-question-answered', array(
+			'product_id'     => $question->product_id,
+			'question_text'  => $question->question_text,
+			'answer_text'    => $answer_text,
+			'customer_name'  => $asker['name'],
+			'customer_email' => $asker['email'],
+			'author_name'    => $answerer ? $answerer->display_name : __( 'the team', 'quick-qa-for-woocommerce' ),
+			'author_role'    => __( 'Staff', 'quick-qa-for-woocommerce' ),
+		) );
 
 		return rest_ensure_response(
 			array(
@@ -669,13 +805,35 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$answers = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
+				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' AND answer_type != 'followup' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
 				...$question_ids
 			)
 		);
 
+		// Follow-ups are fetched separately and attached to their parent
+		// answer (->followups) rather than mixed into the main answer list,
+		// so the existing "first item is the best/staff answer" ordering
+		// above is unaffected by them.
+		$answer_ids_for_followups = array_map( function ( $a ) { return (int) $a->id; }, $answers );
+		$followups_map            = array();
+		if ( ! empty( $answer_ids_for_followups ) ) {
+			$fu_placeholders = implode( ', ', array_fill( 0, count( $answer_ids_for_followups ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$followups = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$fu_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+					...$answer_ids_for_followups
+				)
+			);
+			foreach ( $followups as $followup ) {
+				$followups_map[ (int) $followup->parent_answer_id ][] = $followup;
+			}
+		}
+
 		$answers_map = array();
 		foreach ( $answers as $answer ) {
+			$answer->followups = $followups_map[ (int) $answer->id ] ?? array();
 			$answers_map[ (int) $answer->question_id ][] = $answer;
 		}
 		foreach ( $questions as $question ) {
@@ -1183,28 +1341,165 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			);
 		}
 
-		// Notify admin when a community answer is waiting for review.
+		// Notify on a community answer: admin review request when pending,
+		// or the asker directly when a verified buyer's answer auto-approves.
 		if ( 'community' === $answer_type ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$q_row = $wpdb->get_row(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT question_text FROM {$questions_table} WHERE id = %d",
+					"SELECT product_id, question_text, user_id, guest_name, guest_email FROM {$questions_table} WHERE id = %d",
 					$question_id
 				)
 			);
-			$responder    = get_userdata( $user_id );
+			$responder      = get_userdata( $user_id );
 			$responder_name = $responder ? $responder->display_name : __( 'Customer', 'quick-qa-for-woocommerce' );
-			Quick_Qa_Notifier::community_answer(
-				$q_row ? $q_row->question_text : '',
-				$answer_text,
-				$responder_name
-			);
+			$responder_role = $is_verified ? __( 'Verified buyer', 'quick-qa-for-woocommerce' ) : __( 'Community member', 'quick-qa-for-woocommerce' );
+
+			if ( 'approved' === $status && $q_row ) {
+				$asker = Quick_Qa_Notifier::resolve_asker( $q_row );
+				Quick_Qa_Emails::send( 'e-community-answer-approved', array(
+					'product_id'     => $q_row->product_id,
+					'question_text'  => $q_row->question_text,
+					'answer_text'    => $answer_text,
+					'customer_name'  => $asker['name'],
+					'customer_email' => $asker['email'],
+					'author_name'    => $responder_name,
+					'author_role'    => $responder_role,
+				) );
+			} elseif ( $q_row ) {
+				Quick_Qa_Notifier::community_answer(
+					$question_id,
+					$q_row->product_id,
+					$q_row->question_text,
+					$answer_text,
+					$responder_name,
+					$responder_role
+				);
+			}
 		}
 
 		$message = 'approved' === $status
 			? __( 'Your answer has been posted.', 'quick-qa-for-woocommerce' )
 			: __( 'Your answer has been submitted for review.', 'quick-qa-for-woocommerce' );
+
+		return rest_ensure_response(
+			array(
+				'id'      => (int) $wpdb->insert_id,
+				'status'  => $status,
+				'message' => $message,
+			)
+		);
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/answers/{id}/followup
+	 *
+	 * A customer replies to an already-approved answer. Reuses the answers
+	 * table (answer_type = 'followup', parent_answer_id = the answer being
+	 * replied to) so the existing status/moderation-queue plumbing applies
+	 * unchanged. Approval follows the `followup_approval` setting: 'auto'
+	 * publishes immediately, 'require' queues it for moderator review like
+	 * any other pending answer.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	public function submit_followup( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$parent_id       = (int) $request->get_param( 'id' );
+		$followup_text   = $request->get_param( 'followup_text' );
+		$user_id         = get_current_user_id();
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$parent = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT a.id, a.question_id, a.answer_text, a.user_id AS answerer_user_id,
+				        q.product_id, q.question_text
+				 FROM {$answers_table} a
+				 INNER JOIN {$questions_table} q ON q.id = a.question_id
+				 WHERE a.id = %d AND a.status = 'approved'",
+				$parent_id
+			)
+		);
+
+		if ( ! $parent ) {
+			return new WP_Error( 'quick_qa_not_found', __( 'Answer not found.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
+		}
+
+		$qq_s             = get_option( 'quick_qa_settings', array() );
+		$followup_approval = isset( $qq_s['followup_approval'] ) ? (string) $qq_s['followup_approval'] : 'auto';
+		$status            = ( 'auto' === $followup_approval ) ? 'approved' : 'pending';
+
+		$now = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$rows = $wpdb->insert(
+			$answers_table,
+			array(
+				'question_id'      => $parent->question_id,
+				'user_id'          => $user_id,
+				'answer_type'      => 'followup',
+				'answer_text'      => $followup_text,
+				'status'           => $status,
+				'upvotes'          => 0,
+				'parent_answer_id' => $parent_id,
+				'created_at'       => $now,
+				'updated_at'       => $now,
+			),
+			array( '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
+		);
+
+		if ( false === $rows ) {
+			return new WP_Error(
+				'quick_qa_db_error',
+				__( 'Unable to save your follow-up. Please try again.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		if ( 'approved' === $status ) {
+			$submitter = get_userdata( $user_id );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$answerer_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT DISTINCT user_id FROM {$answers_table} WHERE question_id = %d AND status = 'approved' AND user_id != %d AND user_id > 0",
+					$parent->question_id,
+					$user_id
+				)
+			);
+
+			$participant_emails = Quick_Qa_Notifier::admin_recipients();
+			foreach ( $answerer_ids as $answerer_id ) {
+				$answerer = get_userdata( (int) $answerer_id );
+				if ( $answerer && is_email( $answerer->user_email ) ) {
+					$participant_emails[] = $answerer->user_email;
+				}
+			}
+
+			Quick_Qa_Emails::send( 'e-followup-submitted', array(
+				'product_id'          => $parent->product_id,
+				'question_text'       => $parent->question_text,
+				'answer_text'         => $parent->answer_text,
+				'followup_text'       => $followup_text,
+				'customer_name'       => $submitter ? $submitter->display_name : __( 'A customer', 'quick-qa-for-woocommerce' ),
+				'author_name'         => '',
+				'author_role'         => '',
+				'participant_emails'  => array_values( array_unique( $participant_emails ) ),
+			) );
+		}
+
+		$message = 'approved' === $status
+			? __( 'Your follow-up has been posted.', 'quick-qa-for-woocommerce' )
+			: __( 'Your follow-up has been submitted for review.', 'quick-qa-for-woocommerce' );
 
 		return rest_ensure_response(
 			array(

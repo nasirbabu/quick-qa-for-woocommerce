@@ -54,6 +54,25 @@ class Quick_Qa_Notifier {
 	const REMINDER_HOOK = 'quick_qa_unanswered_check';
 
 	/**
+	 * WP Cron hook fired once a day to send review invitations for
+	 * recently-answered questions.
+	 *
+	 * @since 1.2.0
+	 * @var   string
+	 */
+	const REVIEW_INVITE_HOOK = 'quick_qa_review_invitation_check';
+
+	/**
+	 * Days after a question is answered before its asker gets a review
+	 * invitation. Matches the design's own "a few days" / "a week ago" copy;
+	 * not currently admin-configurable.
+	 *
+	 * @since 1.2.0
+	 * @var   int
+	 */
+	const REVIEW_INVITE_DELAY_DAYS = 5;
+
+	/**
 	 * WordPress option key that stores pending digest items.
 	 *
 	 * @since 1.0.0
@@ -78,6 +97,15 @@ class Quick_Qa_Notifier {
 	 * @var   string
 	 */
 	const REMINDER_NOTIFIED = 'quick_qa_reminder_notified_ids';
+
+	/**
+	 * WordPress option key that stores question IDs whose review invitation
+	 * has already been sent (prevents repeated invitations).
+	 *
+	 * @since 1.2.0
+	 * @var   string
+	 */
+	const REVIEW_INVITE_NOTIFIED = 'quick_qa_review_invite_notified_ids';
 
 	// =========================================================================
 	// Cron management
@@ -110,6 +138,15 @@ class Quick_Qa_Notifier {
 		} elseif ( ! $need_reminder ) {
 			wp_clear_scheduled_hook( self::REMINDER_HOOK );
 		}
+
+		// Review-invitation cron — gated on the email-templates store, not
+		// quick_qa_settings, since its enabled state lives there now.
+		$need_review_invite = class_exists( 'Quick_Qa_Email_Store' ) && Quick_Qa_Email_Store::is_enabled( 'e-review-invitation' );
+		if ( $need_review_invite && ! wp_next_scheduled( self::REVIEW_INVITE_HOOK ) ) {
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REVIEW_INVITE_HOOK );
+		} elseif ( ! $need_review_invite ) {
+			wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
+		}
 	}
 
 	/**
@@ -132,16 +169,22 @@ class Quick_Qa_Notifier {
 		if ( ! empty( $s['notify_unanswered_reminder'] ) ) {
 			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REMINDER_HOOK );
 		}
+
+		wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
+		if ( class_exists( 'Quick_Qa_Email_Store' ) && Quick_Qa_Email_Store::is_enabled( 'e-review-invitation' ) ) {
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REVIEW_INVITE_HOOK );
+		}
 	}
 
 	/**
-	 * Clear both cron events — called on plugin deactivation.
+	 * Clear all cron events — called on plugin deactivation.
 	 *
 	 * @since 1.0.0
 	 */
 	public static function clear_crons() {
 		wp_clear_scheduled_hook( self::DIGEST_HOOK );
 		wp_clear_scheduled_hook( self::REMINDER_HOOK );
+		wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
 	}
 
 	// =========================================================================
@@ -167,11 +210,6 @@ class Quick_Qa_Notifier {
 		}
 
 		$product_name = self::product_name( $product_id );
-		$subject      = sprintf(
-			/* translators: %s: first few words of the question */
-			__( '[New Question] %s', 'quick-qa-for-woocommerce' ),
-			wp_trim_words( $question_text, 8, '…' )
-		);
 
 		if ( 'digest' === $s['notify_mode'] ) {
 			$queue   = get_option( self::DIGEST_QUEUE, array() );
@@ -184,7 +222,20 @@ class Quick_Qa_Notifier {
 			return;
 		}
 
-		// Instant notification.
+		// Instant notification: email via the "New question" template, Slack
+		// via the plain-text webhook post (unaffected by template editing).
+		Quick_Qa_Emails::send( 'e-new-question', array(
+			'question_id'   => $question_id,
+			'product_id'    => $product_id,
+			'question_text' => $question_text,
+			'asker_name'    => $asker_name,
+		) );
+
+		$subject = sprintf(
+			/* translators: %s: first few words of the question */
+			__( '[New Question] %s', 'quick-qa-for-woocommerce' ),
+			wp_trim_words( $question_text, 8, '…' )
+		);
 		$body = self::lines( array(
 			/* translators: %s: product name */
 			sprintf( __( 'A customer asked a question on: %s', 'quick-qa-for-woocommerce' ), $product_name ),
@@ -197,8 +248,6 @@ class Quick_Qa_Notifier {
 			/* translators: %s: direct admin URL to answer this question */
 			sprintf( __( 'Answer now: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa&qid=' . $question_id ) ),
 		) );
-
-		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
 	}
 
@@ -208,15 +257,27 @@ class Quick_Qa_Notifier {
 	 * Only triggered for non-admin community answers (status = pending).
 	 *
 	 * @since 1.0.0
-	 * @param string $question_text Question body for context.
-	 * @param string $answer_text   The submitted answer.
-	 * @param string $responder_name Display name of the community member.
+	 * @param int    $question_id     DB row ID of the parent question.
+	 * @param int    $product_id      WooCommerce product ID.
+	 * @param string $question_text   Question body for context.
+	 * @param string $answer_text     The submitted answer.
+	 * @param string $responder_name  Display name of the community member.
+	 * @param string $responder_role  e.g. 'Verified buyer' or 'Community member'.
 	 */
-	public static function community_answer( $question_text, $answer_text, $responder_name ) {
+	public static function community_answer( $question_id, $product_id, $question_text, $answer_text, $responder_name, $responder_role = '' ) {
 		$s = self::settings();
 		if ( empty( $s['notify_community_answer'] ) ) {
 			return;
 		}
+
+		Quick_Qa_Emails::send( 'e-community-pending', array(
+			'question_id'    => $question_id,
+			'product_id'     => $product_id,
+			'question_text'  => $question_text,
+			'answer_text'    => $answer_text,
+			'responder_name' => $responder_name,
+			'responder_role' => $responder_role ?: __( 'Community member', 'quick-qa-for-woocommerce' ),
+		) );
 
 		$subject = __( '[Community Answer] Review required', 'quick-qa-for-woocommerce' );
 		$body    = self::lines( array(
@@ -232,8 +293,6 @@ class Quick_Qa_Notifier {
 			/* translators: %s: admin dashboard URL */
 			sprintf( __( 'Review in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
-
-		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
 	}
 
@@ -280,6 +339,13 @@ class Quick_Qa_Notifier {
 			return;
 		}
 
+		Quick_Qa_Emails::send( 'e-upvote-threshold', array(
+			'question_id'   => $question_id,
+			'product_id'    => $question->product_id,
+			'question_text' => $question->question_text,
+			'upvote_count'  => $new_count,
+		) );
+
 		$product_name = self::product_name( $question->product_id );
 		$subject      = sprintf(
 			/* translators: %d: upvote count that triggered the alert */
@@ -301,8 +367,6 @@ class Quick_Qa_Notifier {
 			/* translators: %s: admin dashboard URL */
 			sprintf( __( 'Answer in your dashboard: %s', 'quick-qa-for-woocommerce' ), admin_url( 'admin.php?page=quick-qa' ) ),
 		) );
-
-		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
 	}
 
@@ -412,6 +476,36 @@ class Quick_Qa_Notifier {
 		$s     = self::settings();
 		$count = count( $queue );
 
+		global $wpdb;
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$pending_answers_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$answers_table} WHERE status = 'pending'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$flagged_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$questions_table} WHERE status = 'flagged'" )
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			+ (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$answers_table} WHERE status = 'flagged'" );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$top_question = $wpdb->get_row(
+			"SELECT q.product_id, q.question_text, q.upvotes
+			 FROM {$questions_table} q
+			 LEFT JOIN {$answers_table} a ON a.question_id = q.id AND a.status = 'approved'
+			 WHERE q.status = 'approved' AND a.id IS NULL
+			 ORDER BY q.upvotes DESC, q.created_at ASC
+			 LIMIT 1"
+		);
+
+		Quick_Qa_Emails::send( 'e-daily-digest', array(
+			'new_questions_count'   => $count,
+			'pending_answers_count' => $pending_answers_count,
+			'flagged_count'         => $flagged_count,
+			'top_question_text'     => $top_question ? $top_question->question_text : '',
+			'top_question_upvotes'  => $top_question ? (int) $top_question->upvotes : 0,
+			'top_question_product'  => $top_question ? self::product_name( $top_question->product_id ) : '',
+		) );
+
 		$subject = sprintf(
 			/* translators: %d: total new questions in this digest */
 			_n(
@@ -445,7 +539,6 @@ class Quick_Qa_Notifier {
 
 		$body = self::lines( $lines );
 
-		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
 	}
 
@@ -453,7 +546,9 @@ class Quick_Qa_Notifier {
 	 * WP Cron callback: send a reminder about unanswered questions.
 	 *
 	 * Finds approved questions with no approved answers older than
-	 * `unanswered_reminder_days` and notifies the admin.
+	 * `unanswered_reminder_days`, fires one "Unanswered reminder" email per
+	 * question (each guarded to send exactly once via REMINDER_NOTIFIED),
+	 * and posts one consolidated Slack summary.
 	 *
 	 * @since 1.0.0
 	 * @global wpdb $wpdb
@@ -472,7 +567,7 @@ class Quick_Qa_Notifier {
 		$unanswered = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT q.id, q.product_id, q.question_text, q.created_at
+				"SELECT q.id, q.product_id, q.question_text, q.created_at, q.user_id, q.guest_name, q.guest_email
 				 FROM {$questions_table} q
 				 LEFT JOIN {$answers_table} a
 				   ON a.question_id = q.id AND a.status = 'approved'
@@ -537,18 +632,97 @@ class Quick_Qa_Notifier {
 			$lines[]      = sprintf( '• %s  (%s)', $product_name, $age );
 			$lines[]      = '  ' . $q->question_text;
 			$lines[]      = '';
+
+			$asker        = self::resolve_asker( $q );
+			$days_waiting = (int) floor( ( time() - strtotime( $q->created_at ) ) / DAY_IN_SECONDS );
+			Quick_Qa_Emails::send( 'e-unanswered-reminder', array(
+				'question_id'   => $q->id,
+				'product_id'    => $q->product_id,
+				'question_text' => $q->question_text,
+				'customer_name' => $asker['name'],
+				'days_waiting'  => $days_waiting,
+			) );
 		}
 		$lines[] = admin_url( 'admin.php?page=quick-qa' );
 
 		$body = self::lines( $lines );
 
-		self::send_email( $s, $subject, $body );
 		self::send_slack( $s, $subject, $body );
 
 		foreach ( $unanswered as $q ) {
 			$notified[] = (int) $q->id;
 		}
 		update_option( self::REMINDER_NOTIFIED, $notified, false );
+	}
+
+	/**
+	 * WP Cron callback: invite askers to review the product a few days
+	 * after their question was answered. Fires exactly once per question
+	 * (tracked in a WP option, same pattern as the other dedup guards here).
+	 *
+	 * @since 1.2.0
+	 * @global wpdb $wpdb
+	 */
+	public static function send_review_invitations() {
+		if ( ! class_exists( 'Quick_Qa_Email_Store' ) || ! Quick_Qa_Email_Store::is_enabled( 'e-review-invitation' ) ) {
+			return;
+		}
+
+		global $wpdb;
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+
+		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( '-' . self::REVIEW_INVITE_DELAY_DAYS . ' days' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$answered = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT q.id, q.product_id, q.question_text, q.user_id, q.guest_name, q.guest_email,
+				        MIN(a.created_at) AS first_answered_at
+				 FROM {$questions_table} q
+				 INNER JOIN {$answers_table} a ON a.question_id = q.id AND a.status = 'approved'
+				 WHERE q.status = 'approved'
+				 GROUP BY q.id
+				 HAVING first_answered_at <= %s
+				 ORDER BY first_answered_at ASC
+				 LIMIT 20",
+				$cutoff
+			)
+		);
+
+		if ( empty( $answered ) ) {
+			return;
+		}
+
+		$notified = get_option( self::REVIEW_INVITE_NOTIFIED, array() );
+		$answered = array_values(
+			array_filter(
+				$answered,
+				function ( $q ) use ( $notified ) {
+					return ! in_array( (int) $q->id, $notified, true );
+				}
+			)
+		);
+
+		foreach ( $answered as $q ) {
+			$asker = self::resolve_asker( $q );
+
+			if ( ! empty( $asker['email'] ) ) {
+				Quick_Qa_Emails::send( 'e-review-invitation', array(
+					'product_id'     => $q->product_id,
+					'question_text'  => $q->question_text,
+					'customer_name'  => $asker['name'],
+					'customer_email' => $asker['email'],
+				) );
+			}
+
+			// Mark as handled even without a resolvable email so we don't
+			// keep re-querying this question on every future cron run.
+			$notified[] = (int) $q->id;
+		}
+
+		update_option( self::REVIEW_INVITE_NOTIFIED, $notified, false );
 	}
 
 	// =========================================================================
@@ -591,6 +765,32 @@ class Quick_Qa_Notifier {
 	}
 
 	/**
+	 * Resolve a question's asker display name + email from its row.
+	 *
+	 * Shared by the reminder/review-invitation cron callbacks and (via
+	 * public visibility) the REST controllers that fire the customer-facing
+	 * "question answered" / "rejected" / "community answer approved" emails.
+	 *
+	 * @since  1.2.0
+	 * @param  object $question  Row with at least user_id, guest_name, guest_email.
+	 * @return array{name:string,email:string}
+	 */
+	public static function resolve_asker( $question ) {
+		if ( (int) $question->user_id > 0 ) {
+			$user = get_userdata( (int) $question->user_id );
+			return array(
+				'name'  => $user ? $user->display_name : __( 'Customer', 'quick-qa-for-woocommerce' ),
+				'email' => $user ? $user->user_email : '',
+			);
+		}
+
+		return array(
+			'name'  => $question->guest_name ?: __( 'Guest', 'quick-qa-for-woocommerce' ),
+			'email' => $question->guest_email ?: '',
+		);
+	}
+
+	/**
 	 * Resolve a WooCommerce product name from its ID.
 	 *
 	 * @since  1.0.0
@@ -622,6 +822,30 @@ class Quick_Qa_Notifier {
 	 * @param  string $body    Plain-text email body.
 	 */
 	private static function send_email( $s, $subject, $body ) {
+		$recipients = self::admin_recipients( $s );
+		if ( empty( $recipients ) ) {
+			return;
+		}
+
+		$blog_name = get_bloginfo( 'name' );
+		$subject   = $blog_name ? "[{$blog_name}] {$subject}" : $subject;
+
+		wp_mail( $recipients, $subject, $body );
+	}
+
+	/**
+	 * Resolve the configured admin recipient list, falling back to the site
+	 * admin email when `new_question_recipients` is empty.
+	 *
+	 * Public so the Quick_Qa_Email_* (WC_Email) subclasses can reuse the same
+	 * resolution logic for the admin-facing templates.
+	 *
+	 * @since  1.2.0
+	 * @param  array|null $s  Plugin settings array; loaded fresh when omitted.
+	 * @return string[]
+	 */
+	public static function admin_recipients( $s = null ) {
+		$s   = $s ?? self::settings();
 		$raw = trim( $s['new_question_recipients'] ?? '' );
 
 		if ( ! empty( $raw ) ) {
@@ -633,15 +857,7 @@ class Quick_Qa_Notifier {
 			$recipients = array( get_option( 'admin_email' ) );
 		}
 
-		$recipients = array_values( array_filter( $recipients ) );
-		if ( empty( $recipients ) ) {
-			return;
-		}
-
-		$blog_name = get_bloginfo( 'name' );
-		$subject   = $blog_name ? "[{$blog_name}] {$subject}" : $subject;
-
-		wp_mail( $recipients, $subject, $body );
+		return array_values( array_filter( $recipients ) );
 	}
 
 	/**
