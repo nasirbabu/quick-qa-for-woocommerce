@@ -265,6 +265,12 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.qq-row mark {
+  background: #fff2a8;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
 .qq-row-foot {
   display: flex;
   gap: 14px;

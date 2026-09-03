@@ -661,6 +661,7 @@ export default function AllQA() {
             selectedIds={selectedIds}
             onToggleSelect={toggleSelect}
             bulkMode={bulkMode}
+            search={search}
           />
           <div className="qq-page-foot">
             {totalPages > 1 ? (
