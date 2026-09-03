@@ -6,7 +6,7 @@
  * @since      1.2.0
  *
  * @package    Quick_Qa_For_Woocommerce
- * @subpackage Quick_Qa_For_Woocommerce/includes/emails
+ * @subpackage Quick_Qa_For_Woocommerce/includes/emails/templates/admin
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since      1.2.0
  * @package    Quick_Qa_For_Woocommerce
- * @subpackage Quick_Qa_For_Woocommerce/includes/emails
+ * @subpackage Quick_Qa_For_Woocommerce/includes/emails/templates/admin
  */
 class Quick_Qa_Email_Daily_Digest extends Quick_Qa_Email_Base {
 

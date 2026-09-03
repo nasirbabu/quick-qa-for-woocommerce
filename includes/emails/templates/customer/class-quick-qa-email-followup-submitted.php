@@ -6,7 +6,7 @@
  * @since      1.2.0
  *
  * @package    Quick_Qa_For_Woocommerce
- * @subpackage Quick_Qa_For_Woocommerce/includes/emails
+ * @subpackage Quick_Qa_For_Woocommerce/includes/emails/templates/customer
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since      1.2.0
  * @package    Quick_Qa_For_Woocommerce
- * @subpackage Quick_Qa_For_Woocommerce/includes/emails
+ * @subpackage Quick_Qa_For_Woocommerce/includes/emails/templates/customer
  */
 class Quick_Qa_Email_Followup_Submitted extends Quick_Qa_Email_Base {
 

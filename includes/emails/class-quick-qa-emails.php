@@ -42,6 +42,21 @@ class Quick_Qa_Emails {
 	);
 
 	/**
+	 * Template ids whose class file lives under templates/admin/ rather than
+	 * templates/customer/ — mirrors the on-disk layout exactly.
+	 *
+	 * @since 1.2.0
+	 * @var   string[]
+	 */
+	const ADMIN_TEMPLATE_IDS = array(
+		'e-new-question',
+		'e-community-pending',
+		'e-upvote-threshold',
+		'e-unanswered-reminder',
+		'e-daily-digest',
+	);
+
+	/**
 	 * Registers all 10 emails onto WooCommerce's `woocommerce_email_classes`
 	 * filter so they appear under WooCommerce → Settings → Emails.
 	 *
@@ -60,7 +75,8 @@ class Quick_Qa_Emails {
 
 		require_once $dir . 'class-quick-qa-email-base.php';
 		foreach ( self::TEMPLATE_CLASSES as $id => $class ) {
-			require_once $dir . 'class-quick-qa-email-' . substr( $id, 2 ) . '.php';
+			$group = in_array( $id, self::ADMIN_TEMPLATE_IDS, true ) ? 'admin' : 'customer';
+			require_once $dir . 'templates/' . $group . '/class-quick-qa-email-' . substr( $id, 2 ) . '.php';
 		}
 
 		foreach ( self::TEMPLATE_CLASSES as $id => $class ) {
