@@ -213,14 +213,14 @@ export default function AppearanceTab({ draft, onChange }) {
             <div className="qq-css-collapsible-body">
               <div className="qq-css-collapsible-hint">
                 Injected into the Q&amp;A widget on every product page. Scope selectors with{' '}
-                <code className="qq-css-code-tag">.quick-qa</code>{' '}
+                <code className="qq-css-code-tag">.qa-widget</code>{' '}
                 to avoid affecting other parts of your site.
               </div>
               <textarea
                 className="qq-custom-css-area"
                 value={draft.appr_custom_css}
                 onChange={e => set('appr_custom_css', e.target.value)}
-                placeholder={`.quick-qa .qa-question { font-weight: 600; }\n.quick-qa .qa-answer { background: #fafafa; }`}
+                placeholder={`.qa-widget .qa-q-text { font-weight: 600; }\n.qa-widget .qa-answer { background: #fafafa; }`}
                 spellCheck={false}
                 rows={8}
               />
