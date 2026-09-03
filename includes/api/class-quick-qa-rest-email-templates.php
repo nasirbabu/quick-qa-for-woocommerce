@@ -54,6 +54,7 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'preview_template' ),
 				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => $this->get_draft_args(),
 			)
 		);
 
@@ -64,7 +65,37 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'send_test_email' ),
 				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => $this->get_draft_args(),
 			)
+		);
+	}
+
+	/**
+	 * Shared REST arg schema for the {id}/preview and {id}/test routes.
+	 *
+	 * @since  1.2.0
+	 * @return array[]
+	 */
+	private function get_draft_args() {
+		return array(
+			'id'      => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+				'validate_callback' => static function ( $value ) {
+					return array_key_exists( $value, Quick_Qa_Email_Store::defaults() );
+				},
+			),
+			'subject' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'body'    => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+			),
 		);
 	}
 
@@ -128,12 +159,11 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 
 		$template = Quick_Qa_Email_Store::get( $id );
 		if ( ! $template ) {
-			return new WP_Error( 'quick_qa_not_found', 'Unknown email template.', array( 'status' => 404 ) );
+			return new WP_Error( 'quick_qa_not_found', __( 'Unknown email template.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
 		}
 
-		$body         = $request->get_json_params();
-		$subject_raw  = isset( $body['subject'] ) ? (string) $body['subject'] : $template['subject'];
-		$body_raw     = isset( $body['body'] ) ? (string) $body['body'] : $template['body'];
+		$subject_raw  = null !== $request->get_param( 'subject' ) ? (string) $request->get_param( 'subject' ) : $template['subject'];
+		$body_raw     = null !== $request->get_param( 'body' ) ? (string) $request->get_param( 'body' ) : $template['body'];
 		$known_tokens = array_keys( $template['variables'] );
 		$sample       = Quick_Qa_Email_Vars::sample_data();
 
@@ -170,21 +200,21 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 
 		$template = Quick_Qa_Email_Store::get( $id );
 		if ( ! $template ) {
-			return new WP_Error( 'quick_qa_not_found', 'Unknown email template.', array( 'status' => 404 ) );
+			return new WP_Error( 'quick_qa_not_found', __( 'Unknown email template.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
 		}
 
 		$to = wp_get_current_user()->user_email;
 		if ( ! is_email( $to ) ) {
-			return new WP_Error( 'quick_qa_no_email', 'Your account has no email address to send a test to.', array( 'status' => 422 ) );
+			return new WP_Error( 'quick_qa_no_email', __( 'Your account has no email address to send a test to.', 'quick-qa-for-woocommerce' ), array( 'status' => 422 ) );
 		}
 
-		$body         = $request->get_json_params();
-		$subject_raw  = isset( $body['subject'] ) ? (string) $body['subject'] : $template['subject'];
-		$body_raw     = isset( $body['body'] ) ? (string) $body['body'] : $template['body'];
+		$subject_raw  = null !== $request->get_param( 'subject' ) ? (string) $request->get_param( 'subject' ) : $template['subject'];
+		$body_raw     = null !== $request->get_param( 'body' ) ? (string) $request->get_param( 'body' ) : $template['body'];
 		$known_tokens = array_keys( $template['variables'] );
 		$sample       = Quick_Qa_Email_Vars::sample_data();
 
-		$rendered_subject = '[Test] ' . Quick_Qa_Email_Renderer::render( $subject_raw, $sample, $known_tokens );
+		/* translators: %s: rendered subject line of the test email */
+		$rendered_subject = sprintf( __( '[Test] %s', 'quick-qa-for-woocommerce' ), Quick_Qa_Email_Renderer::render( $subject_raw, $sample, $known_tokens ) );
 		$rendered_body    = Quick_Qa_Email_Renderer::render( $body_raw, $sample, $known_tokens );
 
 		$sent = wp_mail( $to, $rendered_subject, $rendered_body );

@@ -1433,7 +1433,32 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			return new WP_Error( 'quick_qa_not_found', __( 'Answer not found.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
 		}
 
-		$qq_s             = get_option( 'quick_qa_settings', array() );
+		$qq_s = get_option( 'quick_qa_settings', array() );
+
+		// Same community-participation gate submit_answer() enforces —
+		// disabling community participation should also block follow-ups,
+		// and staff/admins are exempt just like they are for answers.
+		$is_admin = user_can( $user_id, 'manage_woocommerce' ) || user_can( $user_id, 'manage_options' );
+		if ( ! $is_admin ) {
+			$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
+			$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
+
+			if ( ! $allow_community ) {
+				return new WP_Error(
+					'quick_qa_community_disabled',
+					__( 'Community answers are currently closed for this product.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+			if ( ! $allow_logged_in_customers ) {
+				return new WP_Error(
+					'quick_qa_not_permitted',
+					__( 'You are not permitted to reply to this answer.', 'quick-qa-for-woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+		}
+
 		$followup_approval = isset( $qq_s['followup_approval'] ) ? (string) $qq_s['followup_approval'] : 'auto';
 		$status            = ( 'auto' === $followup_approval ) ? 'approved' : 'pending';
 
