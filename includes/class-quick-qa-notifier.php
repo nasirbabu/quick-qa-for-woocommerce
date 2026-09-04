@@ -263,8 +263,9 @@ class Quick_Qa_Notifier {
 	 * @param string $answer_text     The submitted answer.
 	 * @param string $responder_name  Display name of the community member.
 	 * @param string $responder_role  e.g. 'Verified buyer' or 'Community member'.
+	 * @param string $customer_name   Display name of the original asker.
 	 */
-	public static function community_answer( $question_id, $product_id, $question_text, $answer_text, $responder_name, $responder_role = '' ) {
+	public static function community_answer( $question_id, $product_id, $question_text, $answer_text, $responder_name, $responder_role = '', $customer_name = '' ) {
 		$s = self::settings();
 		if ( empty( $s['notify_community_answer'] ) ) {
 			return;
@@ -277,6 +278,7 @@ class Quick_Qa_Notifier {
 			'answer_text'    => $answer_text,
 			'responder_name' => $responder_name,
 			'responder_role' => $responder_role ?: __( 'Community member', 'quick-qa-for-woocommerce' ),
+			'customer_name'  => $customer_name,
 		) );
 
 		$subject = __( '[Community Answer] Review required', 'quick-qa-for-woocommerce' );
@@ -331,7 +333,7 @@ class Quick_Qa_Notifier {
 		$question = $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT product_id, question_text FROM {$t} WHERE id = %d",
+				"SELECT product_id, question_text, user_id, guest_name, guest_email FROM {$t} WHERE id = %d",
 				$question_id
 			)
 		);
@@ -339,11 +341,14 @@ class Quick_Qa_Notifier {
 			return;
 		}
 
+		$asker = self::resolve_asker( $question );
+
 		Quick_Qa_Emails::send( 'e-upvote-threshold', array(
 			'question_id'   => $question_id,
 			'product_id'    => $question->product_id,
 			'question_text' => $question->question_text,
 			'upvote_count'  => $new_count,
+			'customer_name' => $asker['name'],
 		) );
 
 		$product_name = self::product_name( $question->product_id );

@@ -1368,13 +1368,15 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'author_role'    => $responder_role,
 				) );
 			} elseif ( $q_row ) {
+				$asker = Quick_Qa_Notifier::resolve_asker( $q_row );
 				Quick_Qa_Notifier::community_answer(
 					$question_id,
 					$q_row->product_id,
 					$q_row->question_text,
 					$answer_text,
 					$responder_name,
-					$responder_role
+					$responder_role,
+					$asker['name']
 				);
 			}
 		}

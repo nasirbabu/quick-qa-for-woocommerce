@@ -38,6 +38,7 @@ class Quick_Qa_Email_Community_Pending extends Quick_Qa_Email_Base {
 	 *     @type string $answer_text
 	 *     @type string $responder_name
 	 *     @type string $responder_role
+	 *     @type string $customer_name
 	 * }
 	 */
 	public function trigger( array $args ) {
@@ -48,6 +49,7 @@ class Quick_Qa_Email_Community_Pending extends Quick_Qa_Email_Base {
 			'answer_text'   => $args['answer_text'] ?? '',
 			'author_name'   => $args['responder_name'] ?? '',
 			'author_role'   => $args['responder_role'] ?? __( 'Community member', 'quick-qa-for-woocommerce' ),
+			'customer_name' => $args['customer_name'] ?? '',
 			'product_name'  => $product ? $product->get_name() : '',
 			'product_url'   => get_permalink( (int) $args['product_id'] ),
 			'answer_url'    => admin_url( 'admin.php?page=quick-qa&qid=' . (int) $args['question_id'] ),

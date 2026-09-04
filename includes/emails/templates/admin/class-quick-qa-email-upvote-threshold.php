@@ -36,6 +36,7 @@ class Quick_Qa_Email_Upvote_Threshold extends Quick_Qa_Email_Base {
 	 *     @type int    $product_id
 	 *     @type string $question_text
 	 *     @type int    $upvote_count
+	 *     @type string $customer_name
 	 * }
 	 */
 	public function trigger( array $args ) {
@@ -44,6 +45,7 @@ class Quick_Qa_Email_Upvote_Threshold extends Quick_Qa_Email_Base {
 		$data = array(
 			'question_text' => $args['question_text'] ?? '',
 			'upvote_count'  => (string) (int) ( $args['upvote_count'] ?? 0 ),
+			'customer_name' => $args['customer_name'] ?? '',
 			'product_name'  => $product ? $product->get_name() : '',
 			'product_url'   => get_permalink( (int) $args['product_id'] ),
 			'answer_url'    => admin_url( 'admin.php?page=quick-qa&qid=' . (int) $args['question_id'] ),
