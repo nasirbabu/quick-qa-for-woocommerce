@@ -109,6 +109,21 @@ abstract class Quick_Qa_Email_Base extends WC_Email {
 	}
 
 	/**
+	 * WC_Email::get_subject() reads a per-email "subject" option this plugin
+	 * never writes, then falls back to the raw, unrendered template subject —
+	 * so without this override every real send goes out with literal
+	 * {tokens} in the subject line. Falls back to the raw template subject
+	 * when called before dispatch() has rendered one (e.g. WooCommerce's own
+	 * admin UI listing this email).
+	 *
+	 * @since  1.2.0
+	 * @return string
+	 */
+	public function get_subject() {
+		return '' !== $this->rendered_subject ? $this->rendered_subject : $this->get_default_subject();
+	}
+
+	/**
 	 * @since  1.2.0
 	 * @return string
 	 */
