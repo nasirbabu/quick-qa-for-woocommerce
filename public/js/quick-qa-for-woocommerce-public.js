@@ -71,6 +71,7 @@
 		bindSort();
 		bindVoteButtons();
 		bindAnswerForm();
+		bindFollowupForm();
 		bindHelpfulVote();
 		bindShowMore();
 		bindFlagButtons();
@@ -824,6 +825,143 @@
 				}
 				submitBtn.disabled    = false;
 				submitBtn.textContent = i18n( 'submitAnswer', 'Submit answer' );
+			} );
+	}
+
+	// =========================================================================
+	// Follow-up form (reply to an answer: open / cancel / submit)
+	// =========================================================================
+
+	/**
+	 * Delegate click events inside #qa-thread-list for the inline follow-up
+	 * form attached to each answer. Mirrors bindAnswerForm()'s open/cancel/
+	 * submit pattern, keyed by answer id instead of question id.
+	 */
+	function bindFollowupForm() {
+		var threadList = document.getElementById( 'qa-thread-list' );
+		if ( ! threadList ) {
+			return;
+		}
+
+		threadList.addEventListener( 'click', function ( e ) {
+			var openBtn = e.target.closest( '[data-action="open-followup-form"]' );
+			if ( openBtn ) {
+				var aid  = openBtn.dataset.answerId;
+				var form = document.getElementById( 'qa-followup-form-' + aid );
+				if ( form ) {
+					form.style.display = 'block';
+					form.setAttribute( 'aria-hidden', 'false' );
+					var textarea = form.querySelector( '.qa-followup-textarea' );
+					if ( textarea ) textarea.focus();
+				}
+				return;
+			}
+
+			var cancelBtn = e.target.closest( '[data-action="cancel-followup"]' );
+			if ( cancelBtn ) {
+				closeFollowupForm( cancelBtn.dataset.answerId );
+				return;
+			}
+
+			var submitBtn = e.target.closest( '[data-action="submit-followup"]' );
+			if ( submitBtn && ! submitBtn.disabled ) {
+				handleFollowupSubmit( submitBtn );
+			}
+		} );
+	}
+
+	function closeFollowupForm( answerId ) {
+		var form = document.getElementById( 'qa-followup-form-' + answerId );
+		if ( ! form ) {
+			return;
+		}
+		form.style.display = 'none';
+		form.setAttribute( 'aria-hidden', 'true' );
+		var textarea = form.querySelector( '.qa-followup-textarea' );
+		if ( textarea ) {
+			textarea.value = '';
+		}
+		var errorEl = form.querySelector( '.qa-followup-error' );
+		if ( errorEl ) {
+			errorEl.style.display = 'none';
+			errorEl.textContent   = '';
+		}
+	}
+
+	function handleFollowupSubmit( submitBtn ) {
+		var answerId = parseInt( submitBtn.dataset.answerId, 10 );
+		var form     = document.getElementById( 'qa-followup-form-' + answerId );
+		if ( ! form ) {
+			return;
+		}
+
+		var textarea = form.querySelector( '.qa-followup-textarea' );
+		var errorEl  = form.querySelector( '.qa-followup-error' );
+
+		if ( errorEl ) {
+			errorEl.style.display = 'none';
+			errorEl.textContent   = '';
+		}
+
+		var text = textarea ? textarea.value.trim() : '';
+		if ( text.length < 10 ) {
+			if ( errorEl ) {
+				errorEl.textContent   = i18n( 'answerMinLength', 'Your answer must be at least 10 characters.' );
+				errorEl.style.display = 'block';
+			}
+			if ( textarea ) textarea.focus();
+			return;
+		}
+
+		submitBtn.disabled    = true;
+		submitBtn.textContent = i18n( 'submitting', 'Submitting…' );
+
+		var settings = ( typeof quickQaSettings !== 'undefined' ) ? quickQaSettings : {};
+
+		fetch( ( settings.restUrl || '' ) + 'answers/' + answerId + '/followup', {
+			method:      'POST',
+			credentials: 'same-origin',
+			headers:     {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce':   settings.nonce || '',
+			},
+			body: JSON.stringify( {
+				followup_text: text,
+			} ),
+		} )
+			.then( function ( response ) {
+				return response.json().then( function ( data ) {
+					if ( ! response.ok ) {
+						throw new Error(
+							data.message ||
+							i18n( 'errorGeneric', 'Something went wrong. Please try again.' )
+						);
+					}
+					return data;
+				} );
+			} )
+			.then( function ( data ) {
+				if ( 'approved' === data.status ) {
+					// Auto-approved (the default `followup_approval` mode):
+					// reload so the new follow-up appears under its answer.
+					setTimeout( function () {
+						window.location.reload();
+					}, 400 );
+					return;
+				}
+				// Queued for moderator review: replace the form with a short
+				// inline confirmation instead of reloading to nothing new.
+				form.innerHTML = '<div class="qa-followup-pending">' +
+					i18n( 'followupPending', 'Your reply has been submitted for review.' ) +
+					'</div>';
+			} )
+			.catch( function ( err ) {
+				if ( errorEl ) {
+					errorEl.textContent   = err.message;
+					errorEl.style.display = 'block';
+				}
+				submitBtn.disabled    = false;
+				submitBtn.textContent = i18n( 'submitReply', 'Submit reply' );
 			} );
 	}
 

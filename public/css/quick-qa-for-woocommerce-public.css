@@ -842,6 +842,52 @@
 }
 
 /* ============================================================
+   Follow-ups (a customer reply to an answer) + reply form
+   ============================================================ */
+.qa-widget .qa-followups {
+	margin-top:    10px;
+	padding-left:  14px;
+	border-left:   2px solid #ebebeb;
+	display:       flex;
+	flex-direction: column;
+	gap:           10px;
+}
+
+.qa-widget .qa-followup-form {
+	background:    #FAFAF8;
+	border:        1px solid #ebebeb;
+	border-radius: var(--qa-radius);
+	padding:       12px;
+	margin-top:    8px;
+}
+
+.qa-widget .qa-followup-form .qa-followup-textarea {
+	width:         100%;
+	box-sizing:    border-box;
+	border:        1px solid #d8d8d8;
+	border-radius: var(--qa-radius);
+	padding:       8px 10px;
+	font-size:     var(--qa-fs-base);
+	font-family:   inherit;
+	line-height:   1.5;
+	resize:        vertical;
+	min-height:    60px;
+	background:    #fff;
+	color:         inherit;
+}
+
+.qa-widget .qa-followup-form .qa-followup-textarea:focus {
+	outline:      none;
+	border-color: var(--qa-color);
+}
+
+.qa-widget .qa-followup-pending {
+	font-size: var(--qa-fs-small);
+	color:     #888;
+	padding:   4px 0;
+}
+
+/* ============================================================
    Inline text-button (used for "clear the search" link)
    ============================================================ */
 .qa-widget .qa-link {

@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.0.1';
+	const DB_VERSION = '1.0.2';
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -242,10 +242,13 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// ------------------------------------------------------------------ //
 		// Table: wp_quick_qa_answers
 		// ------------------------------------------------------------------ //
-		// answer_type: 'admin' for store owner/staff, 'community' for customers.
+		// answer_type: 'admin' for store owner/staff, 'community' for customers,
+		// 'followup' for a customer follow-up reply to a prior answer.
 		// status mirrors questions: 'pending' | 'approved' | 'rejected'.
 		// is_verified_buyer is set when user_id had a completed order for the
 		// question's product at the time the answer was submitted.
+		// parent_answer_id is set only for answer_type = 'followup': the id of
+		// the answer being followed up on (NULL for admin/community answers).
 		// ------------------------------------------------------------------ //
 		$table_answers = $wpdb->prefix . 'quick_qa_answers';
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -259,10 +262,12 @@ class Quick_Qa_For_Woocommerce_Activator {
 				status varchar(20) NOT NULL DEFAULT 'pending',
 				upvotes int(10) UNSIGNED NOT NULL DEFAULT 0,
 				is_verified_buyer tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				parent_answer_id bigint(20) UNSIGNED NULL DEFAULT NULL,
 				created_at datetime DEFAULT NULL,
 				updated_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
-				KEY question_status (question_id, status)
+				KEY question_status (question_id, status),
+				KEY parent_answer_id (parent_answer_id)
 			) {$charset_collate};"
 		);
 
