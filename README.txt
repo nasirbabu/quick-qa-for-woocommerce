@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,16 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.2.0 (06-09-2026) =
+* Added: A full Settings → Notifications panel — instant or daily-digest email alerts for new questions, an optional Slack webhook integration, and unanswered-question reminders — now available on the free tier.
+* Added: Settings → Email templates lets you customize the subject, body, and variables for all 10 of Askora's emails, with a sidebar of clickable variables, a live preview, and a "Send test email" button.
+* Fixed: Unanswered-question reminder emails no longer repeat for the same question once a reminder has already gone out for it.
+* Fixed: New-question notification emails now include a direct link straight to the question in your dashboard.
+* Fixed: A sent email's subject line now correctly substitutes variables like {product_name} and {customer_name} — previously only the email body rendered them, and every subject went out with the raw, unrendered text.
+* Fixed: The {customer_name} variable now populates with the real asker's name on the "Community answer pending" and "Upvote threshold" admin emails, instead of always falling back to "a customer."
+* Fixed: The Custom CSS help text and placeholder in Settings → Appearance now reference the widget's real `.qa-widget` wrapper class, so custom CSS written exactly as instructed actually takes effect.
+* Fixed: Matching search terms in the admin All Q&A list are now highlighted, instead of only filtering results with no visual indication of the match.
 
 = 1.1.0 (30-08-2026) =
 * Fixed: Switching tabs in the admin All Q&A panel now clears the search box instead of silently carrying a stale query into the new tab.
