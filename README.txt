@@ -49,9 +49,9 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Run it only where it makes sense.** Scope control lets you turn Askora on for every product, only certain categories, only specific products, or everything except a list you choose.
 * **Use it on a multisite network.** Askora works across WordPress Multisite without extra setup.
 
-= Notifications (coming soon) =
+= Notifications, so you never have to keep checking =
 
-You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with an optional Slack alert for teams who moderate from Slack instead of an inbox. A daily digest option bundles everything into one email instead of one per question, and unanswered-question reminders make sure nothing sits ignored for a week without you noticing.
+You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with a direct link straight to it, plus an optional Slack alert for teams who moderate from Slack instead of an inbox. Choose instant alerts or a daily digest that bundles everything into one email instead of one per question, and set an unanswered-question reminder so nothing sits ignored without you noticing. Every one of Askora's 10 emails can be customized from Settings → Email templates: edit the subject and body, insert variables like the customer's name or the product, and check a live preview before it ever reaches an inbox.
 
 = Spam protection in this product QA plugin (coming soon) =
 
