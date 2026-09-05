@@ -9,6 +9,7 @@ import CommunityTab    from './tabs/CommunityTab';
 import AppearanceTab   from './tabs/AppearanceTab';
 import EmailTemplatesTab from './tabs/EmailTemplatesTab';
 import SEOTab           from './tabs/SEOTab';
+import ImportExportTab  from './tabs/ImportExportTab';
 
 async function apiFetch(path, options = {}) {
   const base = window.quickQaAdmin?.restUrl || '';
@@ -114,6 +115,8 @@ export default function Settings() {
         return <EmailTemplatesTab />;
       case 'seo':
         return <SEOTab draft={draft} onChange={setDraft} settings={settings} />;
+      case 'import-export':
+        return <ImportExportTab categories={categories} />;
       default: {
         const tab = TABS.find(t => t.key === activeTab);
         return <ComingSoonTab label={tab?.label ?? activeTab} />;
@@ -140,7 +143,7 @@ export default function Settings() {
         <div className="qq-settings-content">
           {renderTab()}
 
-          {activeTab !== 'email-templates' && (
+          {activeTab !== 'email-templates' && activeTab !== 'import-export' && (
             <div className="qq-savebar">
               <div className="qq-savebar-msg">
                 {saveStatus === 'error'

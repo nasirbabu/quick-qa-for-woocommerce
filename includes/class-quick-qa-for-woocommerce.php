@@ -130,6 +130,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-schema.php';
 
 		/**
+		 * CSV export of Q&A data, streamed via admin-post.php (KAN-26).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-export.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';
@@ -142,6 +147,7 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-templates.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-email-templates.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-import-export.php';
 
 		/**
 		 * Email templates: storage, variable substitution, and the facade
@@ -184,6 +190,10 @@ class Quick_Qa_For_Woocommerce {
 		$this->loader->add_action( 'admin_menu',            $plugin_admin, 'register_admin_menu' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		// Streams a CSV download of Q&A data (KAN-26).
+		$plugin_export = new Quick_Qa_For_Woocommerce_Export( $this->get_plugin_name(), $this->get_version() );
+		$this->loader->add_action( 'admin_action_quick_qa_export_csv', $plugin_export, 'handle_export_csv' );
 
 	}
 
@@ -255,6 +265,7 @@ class Quick_Qa_For_Woocommerce {
 			new Quick_Qa_Rest_Templates(),
 			new Quick_Qa_Rest_Settings(),
 			new Quick_Qa_Rest_Email_Templates(),
+			new Quick_Qa_Rest_Import_Export(),
 		) as $controller ) {
 			$this->loader->add_action( 'rest_api_init', $controller, 'register_routes' );
 		}

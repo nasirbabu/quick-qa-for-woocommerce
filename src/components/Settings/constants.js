@@ -100,4 +100,5 @@ export const TABS = [
   { key: 'appearance',      label: 'Appearance' },
   { key: 'email-templates', label: 'Email templates' },
   { key: 'seo',             label: 'SEO' },
+  { key: 'import-export',   label: 'Import / Export' },
 ];
