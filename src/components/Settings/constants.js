@@ -81,6 +81,11 @@ export const DEFAULT_SETTINGS = {
   followup_approval:        'auto',
   enable_trust_tier:        false,
   trust_helpful_threshold:  3,
+
+  // Advanced
+  adv_cron_engine:          'wp_cron',
+  adv_rest_api_enabled:     true,
+  adv_debug_log_enabled:    true,
 };
 
 export const TABS = [
@@ -91,4 +96,5 @@ export const TABS = [
   { key: 'community',       label: 'Community' },
   { key: 'appearance',      label: 'Appearance' },
   { key: 'email-templates', label: 'Email templates' },
+  { key: 'advanced',        label: 'Advanced' },
 ];

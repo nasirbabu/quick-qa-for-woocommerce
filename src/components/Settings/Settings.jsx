@@ -8,6 +8,7 @@ import NotificationsTab from './tabs/NotificationsTab';
 import CommunityTab    from './tabs/CommunityTab';
 import AppearanceTab   from './tabs/AppearanceTab';
 import EmailTemplatesTab from './tabs/EmailTemplatesTab';
+import AdvancedTab      from './tabs/AdvancedTab';
 
 async function apiFetch(path, options = {}) {
   const base = window.quickQaAdmin?.restUrl || '';
@@ -111,6 +112,8 @@ export default function Settings() {
         return <AppearanceTab draft={draft} onChange={setDraft} />;
       case 'email-templates':
         return <EmailTemplatesTab />;
+      case 'advanced':
+        return <AdvancedTab draft={draft} onChange={setDraft} />;
       default: {
         const tab = TABS.find(t => t.key === activeTab);
         return <ComingSoonTab label={tab?.label ?? activeTab} />;

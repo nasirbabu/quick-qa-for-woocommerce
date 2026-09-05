@@ -185,6 +185,11 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'followup_approval'         => (string) $s['followup_approval'],
 			'enable_trust_tier'         => (bool) $s['enable_trust_tier'],
 			'trust_helpful_threshold'   => (int) $s['trust_helpful_threshold'],
+
+			// Advanced
+			'adv_cron_engine'           => (string) $s['adv_cron_engine'],
+			'adv_rest_api_enabled'      => (bool) $s['adv_rest_api_enabled'],
+			'adv_debug_log_enabled'     => (bool) $s['adv_debug_log_enabled'],
 		) );
 	}
 
@@ -221,6 +226,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'verified_buyer_approval' => array( 'require', 'auto' ),
 			'community_approval'      => array( 'always', 'auto_trusted' ),
 			'followup_approval'       => array( 'auto', 'require' ),
+			'adv_cron_engine'         => array( 'wp_cron', 'action_scheduler' ),
 		);
 		foreach ( $enums as $key => $allowed ) {
 			if ( isset( $body[ $key ] ) && in_array( $body[ $key ], $allowed, true ) ) {
@@ -284,6 +290,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'notify_flag_threshold',
 			'require_email_for_guests', 'enable_honeypot', 'recaptcha_enabled',
 			'allow_verified_buyers', 'allow_logged_in_customers', 'enable_trust_tier',
+			'adv_rest_api_enabled', 'adv_debug_log_enabled',
 		);
 		foreach ( $bool_keys as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -481,6 +488,11 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'followup_approval'         => 'auto',
 			'enable_trust_tier'         => false,
 			'trust_helpful_threshold'   => 3,
+
+			// Advanced
+			'adv_cron_engine'           => 'wp_cron',
+			'adv_rest_api_enabled'      => true,
+			'adv_debug_log_enabled'     => true,
 		);
 	}
 
