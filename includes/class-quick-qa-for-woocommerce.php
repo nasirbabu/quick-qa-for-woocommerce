@@ -125,6 +125,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-quick-qa-for-woocommerce-public.php';
 
 		/**
+		 * JSON-LD schema (QAPage/FAQPage) output for product pages.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-schema.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';
@@ -212,6 +217,10 @@ class Quick_Qa_For_Woocommerce {
 
 		// Render Q&A section below the tabs area when position = 'below_reviews'.
 		$this->loader->add_action( 'woocommerce_after_single_product_summary', $plugin_public, 'render_qa_below_reviews', 25 );
+
+		// JSON-LD schema (QAPage/FAQPage) for answered Q&A (KAN-25).
+		$plugin_schema = new Quick_Qa_For_Woocommerce_Schema( $this->get_plugin_name(), $this->get_version() );
+		$this->loader->add_action( 'wp_head', $plugin_schema, 'render_schema', 5 );
 
 	}
 

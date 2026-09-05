@@ -55,11 +55,13 @@ class Quick_Qa_For_Woocommerce_Public {
 	/**
 	 * Load and cache plugin settings from the single `quick_qa_settings` option.
 	 *
+	 * Public so the schema-output class (and other collaborators) can reuse
+	 * the same cached settings/scope-check logic instead of duplicating it.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @return array
 	 */
-	private function get_settings() {
+	public function get_settings() {
 		static $cache = null;
 		if ( null !== $cache ) {
 			return $cache;
@@ -107,6 +109,13 @@ class Quick_Qa_For_Woocommerce_Public {
 			'appr_show_best_highlight' => true,
 			'appr_show_avatars'        => true,
 			'appr_custom_css'          => '',
+			// SEO — JSON-LD schema output
+			'seo_enabled'                => true,
+			'seo_schema_type'            => 'QAPage', // 'QAPage' | 'FAQPage'
+			'seo_delegate_to_seo_plugin' => false,
+			'seo_include_rule'           => 'all-answered', // 'all-answered' | 'staff-only' | 'upvoted'
+			'seo_upvote_min'             => 1,
+			'seo_max_per_product'        => 10,
 		);
 
 		$saved  = get_option( 'quick_qa_settings', array() );
@@ -118,13 +127,14 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Check whether the Q&A widget should be shown for the given product,
 	 * based on the `enable_scope` setting.
 	 *
+	 * Public so the schema-output class can respect the same scope rules.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  array $s          Plugin settings array (from get_settings()).
 	 * @param  int   $product_id WooCommerce product post ID.
 	 * @return bool
 	 */
-	private function is_qa_enabled_for_product( $s, $product_id ) {
+	public function is_qa_enabled_for_product( $s, $product_id ) {
 		switch ( $s['enable_scope'] ) {
 			case 'categories':
 				if ( empty( $s['enabled_categories'] ) ) {
@@ -341,8 +351,10 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Executes two queries: one for questions, one for all their answers (to
 	 * avoid N+1). Answers are grouped onto each question object as `->answers`.
 	 *
+	 * Public so the schema-output class can reuse the same query instead of
+	 * duplicating it.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  int    $product_id WooCommerce product post ID.
 	 * @param  int    $offset     Number of rows to skip.
 	 * @param  int    $limit      Maximum rows to return.
@@ -350,7 +362,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * @return object[]
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_questions( $product_id, $offset = 0, $limit = 10, $sort = 'recent' ) {
+	public function get_approved_questions( $product_id, $offset = 0, $limit = 10, $sort = 'recent' ) {
 		global $wpdb;
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
@@ -428,13 +440,15 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Admin answers sort before community answers; within each type, higher
 	 * upvote counts sort first, then chronologically oldest first.
 	 *
+	 * Public so the schema-output class can reuse the same query instead of
+	 * duplicating it.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  int[] $question_ids Array of question IDs.
 	 * @return object[]
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_answers( array $question_ids ) {
+	public function get_approved_answers( array $question_ids ) {
 		if ( empty( $question_ids ) ) {
 			return array();
 		}

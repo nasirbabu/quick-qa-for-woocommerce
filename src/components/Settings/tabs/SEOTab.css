@@ -1,0 +1,51 @@
+.qq-settings-empty {
+  padding: 28px 16px;
+  text-align: center;
+  background: var(--cream-2);
+  border-radius: var(--r-md);
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.qq-settings-empty-mark  { font-size: 24px; margin-bottom: 8px; color: var(--text-4); }
+.qq-settings-empty-title { color: var(--text-2); font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+
+.qq-schema-preview-wrap {
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.qq-schema-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--cream-2);
+  border-bottom: 0.5px solid var(--hairline);
+  font-size: 12px;
+  color: var(--text-3);
+}
+.qq-schema-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.qq-schema-preview-actions a {
+  color: var(--coral);
+  text-decoration: none;
+  font-size: 12px;
+}
+.qq-schema-preview-actions a:hover { text-decoration: underline; }
+.qq-schema-preview-body {
+  margin: 0;
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px 16px;
+  background: #1e2530;
+  color: #e8eaed;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+}

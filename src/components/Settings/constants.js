@@ -86,6 +86,14 @@ export const DEFAULT_SETTINGS = {
   adv_cron_engine:          'wp_cron',
   adv_rest_api_enabled:     true,
   adv_debug_log_enabled:    true,
+
+  // SEO — JSON-LD schema output
+  seo_enabled:                true,
+  seo_schema_type:            'QAPage',
+  seo_delegate_to_seo_plugin: false,
+  seo_include_rule:           'all-answered',
+  seo_upvote_min:             1,
+  seo_max_per_product:        10,
 };
 
 export const TABS = [
@@ -96,5 +104,6 @@ export const TABS = [
   { key: 'community',       label: 'Community' },
   { key: 'appearance',      label: 'Appearance' },
   { key: 'email-templates', label: 'Email templates' },
+  { key: 'seo',             label: 'SEO' },
   { key: 'advanced',        label: 'Advanced' },
 ];

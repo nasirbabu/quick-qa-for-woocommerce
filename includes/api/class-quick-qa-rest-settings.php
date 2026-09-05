@@ -82,6 +82,16 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 				'permission_callback' => array( $this, 'require_admin' ),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/settings/seo-preview',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_seo_preview' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+			)
+		);
 	}
 
 	// =========================================================================
@@ -190,6 +200,15 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'adv_cron_engine'           => (string) $s['adv_cron_engine'],
 			'adv_rest_api_enabled'      => (bool) $s['adv_rest_api_enabled'],
 			'adv_debug_log_enabled'     => (bool) $s['adv_debug_log_enabled'],
+
+			// SEO — JSON-LD schema output
+			'seo_enabled'                => (bool) $s['seo_enabled'],
+			'seo_schema_type'            => (string) $s['seo_schema_type'],
+			'seo_delegate_to_seo_plugin' => (bool) $s['seo_delegate_to_seo_plugin'],
+			'seo_include_rule'           => (string) $s['seo_include_rule'],
+			'seo_upvote_min'             => (int) $s['seo_upvote_min'],
+			'seo_max_per_product'        => (int) $s['seo_max_per_product'],
+			'detected_seo_plugin'        => Quick_Qa_For_Woocommerce_Schema::detect_seo_plugin(),
 		) );
 	}
 
@@ -227,6 +246,8 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'community_approval'      => array( 'always', 'auto_trusted' ),
 			'followup_approval'       => array( 'auto', 'require' ),
 			'adv_cron_engine'         => array( 'wp_cron', 'action_scheduler' ),
+			'seo_schema_type'         => array( 'QAPage', 'FAQPage' ),
+			'seo_include_rule'        => array( 'all-answered', 'staff-only', 'upvoted' ),
 		);
 		foreach ( $enums as $key => $allowed ) {
 			if ( isset( $body[ $key ] ) && in_array( $body[ $key ], $allowed, true ) ) {
@@ -291,6 +312,7 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'require_email_for_guests', 'enable_honeypot', 'recaptcha_enabled',
 			'allow_verified_buyers', 'allow_logged_in_customers', 'enable_trust_tier',
 			'adv_rest_api_enabled', 'adv_debug_log_enabled',
+			'seo_enabled', 'seo_delegate_to_seo_plugin',
 		);
 		foreach ( $bool_keys as $key ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -308,6 +330,8 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'submission_rate_limit'    => array( 1, 100 ),
 			'trust_helpful_threshold'  => array( 1, 50 ),
 			'flag_auto_hide_threshold' => array( 1, 999 ),
+			'seo_upvote_min'           => array( 0, 999 ),
+			'seo_max_per_product'      => array( 1, 20 ),
 		);
 		foreach ( $int_fields as $key => $range ) {
 			if ( array_key_exists( $key, $body ) ) {
@@ -388,6 +412,53 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 		}
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * GET /wp-json/quick-qa/v1/admin/settings/seo-preview
+	 *
+	 * Returns the JSON-LD block that would actually be output for the most
+	 * recently answered, in-scope question on the store — so the Settings →
+	 * SEO preview card never drifts from real output (both go through
+	 * Quick_Qa_For_Woocommerce_Schema::build_schema_blocks()). Returns a
+	 * null `schema` when the store has no qualifying Q&A yet.
+	 *
+	 * @since  1.3.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 */
+	public function get_seo_preview( WP_REST_Request $request ) {
+		$s = $this->load();
+
+		global $wpdb;
+		$questions_table = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$product_ids = $wpdb->get_col(
+			"SELECT DISTINCT q.product_id FROM {$questions_table} q
+			 INNER JOIN {$answers_table} a ON a.question_id = q.id AND a.status = 'approved'
+			 WHERE q.status = 'approved'
+			 ORDER BY q.created_at DESC
+			 LIMIT 20"
+		);
+
+		$public = new Quick_Qa_For_Woocommerce_Public( 'quick-qa-for-woocommerce', '' );
+		$schema = new Quick_Qa_For_Woocommerce_Schema( 'quick-qa-for-woocommerce', '' );
+
+		foreach ( $product_ids as $product_id ) {
+			$product_id = absint( $product_id );
+			if ( ! $public->is_qa_enabled_for_product( $s, $product_id ) ) {
+				continue;
+			}
+
+			$blocks = $schema->build_schema_blocks( $product_id, $s );
+			if ( ! empty( $blocks ) ) {
+				return rest_ensure_response( array( 'schema' => $blocks[0] ) );
+			}
+		}
+
+		return rest_ensure_response( array( 'schema' => null ) );
 	}
 
 	// =========================================================================
@@ -493,6 +564,14 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			'adv_cron_engine'           => 'wp_cron',
 			'adv_rest_api_enabled'      => true,
 			'adv_debug_log_enabled'     => true,
+
+			// SEO — JSON-LD schema output
+			'seo_enabled'                => true,
+			'seo_schema_type'            => 'QAPage',
+			'seo_delegate_to_seo_plugin' => false,
+			'seo_include_rule'           => 'all-answered',
+			'seo_upvote_min'             => 1,
+			'seo_max_per_product'        => 10,
 		);
 	}
 

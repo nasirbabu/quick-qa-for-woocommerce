@@ -8,6 +8,7 @@ import NotificationsTab from './tabs/NotificationsTab';
 import CommunityTab    from './tabs/CommunityTab';
 import AppearanceTab   from './tabs/AppearanceTab';
 import EmailTemplatesTab from './tabs/EmailTemplatesTab';
+import SEOTab           from './tabs/SEOTab';
 import AdvancedTab      from './tabs/AdvancedTab';
 
 async function apiFetch(path, options = {}) {
@@ -112,6 +113,8 @@ export default function Settings() {
         return <AppearanceTab draft={draft} onChange={setDraft} />;
       case 'email-templates':
         return <EmailTemplatesTab />;
+      case 'seo':
+        return <SEOTab draft={draft} onChange={setDraft} settings={settings} />;
       case 'advanced':
         return <AdvancedTab draft={draft} onChange={setDraft} />;
       default: {
