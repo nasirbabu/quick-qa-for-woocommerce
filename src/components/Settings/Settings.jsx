@@ -7,6 +7,7 @@ import ModerationTab    from './tabs/ModerationTab';
 import NotificationsTab from './tabs/NotificationsTab';
 import CommunityTab    from './tabs/CommunityTab';
 import AppearanceTab   from './tabs/AppearanceTab';
+import EmailTemplatesTab from './tabs/EmailTemplatesTab';
 
 async function apiFetch(path, options = {}) {
   const base = window.quickQaAdmin?.restUrl || '';
@@ -108,6 +109,8 @@ export default function Settings() {
         return <CommunityTab draft={draft} onChange={setDraft} />;
       case 'appearance':
         return <AppearanceTab draft={draft} onChange={setDraft} />;
+      case 'email-templates':
+        return <EmailTemplatesTab />;
       default: {
         const tab = TABS.find(t => t.key === activeTab);
         return <ComingSoonTab label={tab?.label ?? activeTab} />;
@@ -134,21 +137,23 @@ export default function Settings() {
         <div className="qq-settings-content">
           {renderTab()}
 
-          <div className="qq-savebar">
-            <div className="qq-savebar-msg">
-              {saveStatus === 'error'
-                ? <b className="qq-savebar-error">Save failed. Please try again.</b>
-                : isDirty
-                  ? <><b>Unsaved changes.</b> They will not apply until you save.</>
-                  : 'All changes saved'}
+          {activeTab !== 'email-templates' && (
+            <div className="qq-savebar">
+              <div className="qq-savebar-msg">
+                {saveStatus === 'error'
+                  ? <b className="qq-savebar-error">Save failed. Please try again.</b>
+                  : isDirty
+                    ? <><b>Unsaved changes.</b> They will not apply until you save.</>
+                    : 'All changes saved'}
+              </div>
+              <div className="qq-savebar-actions">
+                <button className="btn btn-ghost"    onClick={handleDiscard} disabled={!isDirty || saving}>Discard</button>
+                <button className="btn btn-primary"  onClick={handleSave}    disabled={!isDirty || saving}>
+                  {saving ? 'Saving…' : 'Save changes'}
+                </button>
+              </div>
             </div>
-            <div className="qq-savebar-actions">
-              <button className="btn btn-ghost"    onClick={handleDiscard} disabled={!isDirty || saving}>Discard</button>
-              <button className="btn btn-primary"  onClick={handleSave}    disabled={!isDirty || saving}>
-                {saving ? 'Saving…' : 'Save changes'}
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

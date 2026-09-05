@@ -1,5 +1,20 @@
 import React from 'react';
 
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlightMatch(text, query) {
+  const q = query.trim();
+  if (!q || text == null) return text;
+  const parts = String(text).split(new RegExp(`(${escapeRegExp(q)})`, 'gi'));
+  return parts.map((part, i) =>
+    part.toLowerCase() === q.toLowerCase()
+      ? <mark key={i}>{part}</mark>
+      : part
+  );
+}
+
 function StatusPill({ status }) {
   const map = {
     pending:          ['pending',        'Pending'],
@@ -13,7 +28,7 @@ function StatusPill({ status }) {
   return <span className={`qq-status-pill ${cls}`}>{label}</span>;
 }
 
-export default function QuestionList({ items, selectedId, onSelect, showAllBadge, selectedIds = [], onToggleSelect = () => {}, bulkMode = false }) {
+export default function QuestionList({ items, selectedId, onSelect, showAllBadge, selectedIds = [], onToggleSelect = () => {}, bulkMode = false, search = '' }) {
   if (items.length === 0) {
     return (
       <div className="qq-queue-list">
@@ -53,11 +68,11 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
               {isSelected ? '✓' : ''}
             </div>
             <div className="qq-row-top">
-              <span className="qq-row-name">{displayName}</span>
+              <span className="qq-row-name">{highlightMatch(displayName, search)}</span>
               <span className="qq-row-time">{item.time}</span>
             </div>
-            <div className="qq-row-product">{item.product}</div>
-            <div className="qq-row-q">{displayText}</div>
+            <div className="qq-row-product">{highlightMatch(item.product, search)}</div>
+            <div className="qq-row-q">{highlightMatch(displayText, search)}</div>
             <div className="qq-row-foot">
               <span>↑ {item.upvotes}</span>
               {flagBadgeCount > 0 && (

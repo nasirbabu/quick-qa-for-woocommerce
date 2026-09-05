@@ -70,7 +70,7 @@ class Quick_Qa_For_Woocommerce {
 		if ( defined( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION' ) ) {
 			$this->version = QUICK_QA_FOR_WOOCOMMERCE_VERSION;
 		} else {
-			$this->version = '1.1.0';
+			$this->version = '1.2.0';
 		}
 		$this->plugin_name = 'quick-qa-for-woocommerce';
 
@@ -79,6 +79,7 @@ class Quick_Qa_For_Woocommerce {
 		$this->define_public_hooks();
 		$this->define_rest_hooks();
 		$this->define_notification_hooks();
+		$this->define_email_hooks();
 
 	}
 
@@ -135,6 +136,25 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-moderation.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-templates.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-settings.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-email-templates.php';
+
+		/**
+		 * Email templates: storage, variable substitution, and the facade
+		 * that registers the 10 WC_Email subclasses.
+		 *
+		 * The base class and the 10 subclasses themselves (each
+		 * `extends WC_Email`) are intentionally NOT required here — this
+		 * plugin's bootstrap runs at top-level file-include time and cannot
+		 * guarantee WooCommerce's WC_Email class already exists by then.
+		 * Quick_Qa_Emails::register() require_once's them lazily, only once
+		 * the woocommerce_email_classes filter actually fires (see
+		 * define_email_hooks() below), by which point WC_Email is always
+		 * defined.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/emails/class-quick-qa-email-store.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/emails/class-quick-qa-email-vars.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/emails/class-quick-qa-email-renderer.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/emails/class-quick-qa-emails.php';
 
 		/**
 		 * Notification dispatcher — email alerts, digest, Slack, and WP Cron jobs.
@@ -193,11 +213,23 @@ class Quick_Qa_For_Woocommerce {
 	 */
 	private function define_notification_hooks() {
 		// Cron callbacks — must be registered on every request so WP Cron can fire them.
-		add_action( Quick_Qa_Notifier::DIGEST_HOOK,   array( 'Quick_Qa_Notifier', 'send_digest' ) );
-		add_action( Quick_Qa_Notifier::REMINDER_HOOK, array( 'Quick_Qa_Notifier', 'send_unanswered_reminder' ) );
+		add_action( Quick_Qa_Notifier::DIGEST_HOOK,       array( 'Quick_Qa_Notifier', 'send_digest' ) );
+		add_action( Quick_Qa_Notifier::REMINDER_HOOK,     array( 'Quick_Qa_Notifier', 'send_unanswered_reminder' ) );
+		add_action( Quick_Qa_Notifier::REVIEW_INVITE_HOOK, array( 'Quick_Qa_Notifier', 'send_review_invitations' ) );
 
 		// Lazily schedule missing cron events once the site is initialised.
 		add_action( 'init', array( 'Quick_Qa_Notifier', 'ensure_crons' ) );
+	}
+
+	/**
+	 * Register the 10 email templates onto WooCommerce's own email system so
+	 * they appear under WooCommerce → Settings → Emails.
+	 *
+	 * @since    1.2.0
+	 * @access   private
+	 */
+	private function define_email_hooks() {
+		add_filter( 'woocommerce_email_classes', array( 'Quick_Qa_Emails', 'register' ) );
 	}
 
 	/**
@@ -213,6 +245,7 @@ class Quick_Qa_For_Woocommerce {
 			new Quick_Qa_Rest_Moderation(),
 			new Quick_Qa_Rest_Templates(),
 			new Quick_Qa_Rest_Settings(),
+			new Quick_Qa_Rest_Email_Templates(),
 		) as $controller ) {
 			$this->loader->add_action( 'rest_api_init', $controller, 'register_routes' );
 		}

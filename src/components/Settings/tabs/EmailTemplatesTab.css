@@ -1,0 +1,180 @@
+.qq-email-global-actions {
+  margin-top: 12px;
+}
+
+.qq-email-list {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.qq-email-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--bg-2, #f7f6f4);
+  padding: 8px 20px;
+}
+
+.qq-email-row {
+  display: grid;
+  grid-template-columns: 38px 1fr 140px 70px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--hairline);
+  cursor: pointer;
+}
+
+.qq-email-row:hover {
+  background: var(--bg-2, #faf9f7);
+}
+
+.qq-email-row.disabled {
+  opacity: 0.55;
+}
+
+.qq-email-row-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.qq-email-row-subject {
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qq-email-row-recipient {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.qq-email-row-edit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--coral);
+  text-align: right;
+}
+
+/* ── Editor ───────────────────────────────────────────────────────── */
+
+.qq-email-back {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--coral);
+  cursor: pointer;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.qq-email-editor-grid {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.qq-email-editor-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.qq-email-editor-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 20px;
+}
+
+.qq-email-body-textarea {
+  min-height: 260px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.qq-email-test-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.qq-email-test-status--ok {
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qq-email-test-status--error {
+  color: #c0392b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qq-email-save-row {
+  margin-top: 4px;
+}
+
+.qq-email-var-list {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.qq-email-var {
+  cursor: pointer;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--hairline);
+}
+
+.qq-email-var:last-child {
+  border-bottom: none;
+}
+
+.qq-email-var-code {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #fff2ee;
+  color: var(--coral, #ff6b4a);
+  border-radius: 4px;
+}
+
+.qq-email-var-desc {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.qq-email-preview {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.qq-email-preview-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qq-email-preview-subject {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.qq-email-preview-body {
+  white-space: pre-wrap;
+  color: var(--text);
+  line-height: 1.5;
+}

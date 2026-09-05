@@ -84,10 +84,11 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const TABS = [
-  { key: 'general',       label: 'General' },
-  { key: 'submission',    label: 'Submission' },
-  { key: 'moderation',    label: 'Moderation' },
-  { key: 'notifications', label: 'Notifications' },
-  { key: 'community',     label: 'Community' },
-  { key: 'appearance',    label: 'Appearance' },
+  { key: 'general',         label: 'General' },
+  { key: 'submission',      label: 'Submission' },
+  { key: 'moderation',      label: 'Moderation' },
+  { key: 'notifications',   label: 'Notifications' },
+  { key: 'community',       label: 'Community' },
+  { key: 'appearance',      label: 'Appearance' },
+  { key: 'email-templates', label: 'Email templates' },
 ];
