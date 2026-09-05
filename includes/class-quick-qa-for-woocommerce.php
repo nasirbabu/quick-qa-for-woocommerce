@@ -142,12 +142,6 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-templates.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-email-templates.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-advanced.php';
-
-		/**
-		 * Debug logger backing Settings → Advanced's log viewer.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-logger.php';
 
 		/**
 		 * Email templates: storage, variable substitution, and the facade
@@ -190,11 +184,6 @@ class Quick_Qa_For_Woocommerce {
 		$this->loader->add_action( 'admin_menu',            $plugin_admin, 'register_admin_menu' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
-		// Streams the Advanced tab's debug log file as a download. Uses
-		// admin-post.php (not the REST API) because it needs to serve a raw
-		// file to a plain browser navigation, not a JSON response.
-		$this->loader->add_action( 'admin_post_quick_qa_download_log', $plugin_admin, 'handle_log_download' );
 
 	}
 
@@ -260,24 +249,15 @@ class Quick_Qa_For_Woocommerce {
 	 */
 	private function define_rest_hooks() {
 
-		$advanced_controller = new Quick_Qa_Rest_Advanced();
-
 		foreach ( array(
 			new Quick_Qa_Rest_Questions(),
 			new Quick_Qa_Rest_Moderation(),
 			new Quick_Qa_Rest_Templates(),
 			new Quick_Qa_Rest_Settings(),
 			new Quick_Qa_Rest_Email_Templates(),
-			$advanced_controller,
 		) as $controller ) {
 			$this->loader->add_action( 'rest_api_init', $controller, 'register_routes' );
 		}
-
-		// Actually disables the public-facing endpoints when the Advanced
-		// tab's "Public REST API" toggle is off (not merely a hidden state
-		// in the admin UI). Registered outside rest_api_init since it must
-		// also run for requests to routes it is itself blocking.
-		$this->loader->add_filter( 'rest_pre_dispatch', $advanced_controller, 'guard_rest_api', 10, 3 );
 
 	}
 

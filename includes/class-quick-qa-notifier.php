@@ -112,15 +112,6 @@ class Quick_Qa_Notifier {
 	// =========================================================================
 
 	/**
-	 * Action Scheduler group used for all three recurring jobs, when the
-	 * Advanced tab's "Job scheduler" setting is 'action_scheduler'.
-	 *
-	 * @since 1.3.0
-	 * @var   string
-	 */
-	const AS_GROUP = 'quick-qa';
-
-	/**
 	 * Ensure the cron events are scheduled if they should be.
 	 *
 	 * Called on WordPress 'init' every request. Only schedules an event when it
@@ -134,55 +125,54 @@ class Quick_Qa_Notifier {
 
 		// Daily digest cron — only when mode is 'digest' and new-question notify is on.
 		$need_digest = ! empty( $s['notify_new_question'] ) && 'digest' === $s['notify_mode'];
-		if ( $need_digest && ! self::is_job_scheduled( self::DIGEST_HOOK ) ) {
-			self::schedule_job( self::DIGEST_HOOK, self::next_utc_occurrence( $s['digest_time'] ) );
+		if ( $need_digest && ! wp_next_scheduled( self::DIGEST_HOOK ) ) {
+			wp_schedule_event( self::next_utc_occurrence( $s['digest_time'] ), 'daily', self::DIGEST_HOOK );
 		} elseif ( ! $need_digest ) {
-			self::unschedule_job( self::DIGEST_HOOK );
+			wp_clear_scheduled_hook( self::DIGEST_HOOK );
 		}
 
 		// Unanswered-reminder cron — daily at midnight site time.
 		$need_reminder = ! empty( $s['notify_unanswered_reminder'] );
-		if ( $need_reminder && ! self::is_job_scheduled( self::REMINDER_HOOK ) ) {
-			self::schedule_job( self::REMINDER_HOOK, self::next_utc_occurrence( '00:00' ) );
+		if ( $need_reminder && ! wp_next_scheduled( self::REMINDER_HOOK ) ) {
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REMINDER_HOOK );
 		} elseif ( ! $need_reminder ) {
-			self::unschedule_job( self::REMINDER_HOOK );
+			wp_clear_scheduled_hook( self::REMINDER_HOOK );
 		}
 
 		// Review-invitation cron — gated on the email-templates store, not
 		// quick_qa_settings, since its enabled state lives there now.
 		$need_review_invite = class_exists( 'Quick_Qa_Email_Store' ) && Quick_Qa_Email_Store::is_enabled( 'e-review-invitation' );
-		if ( $need_review_invite && ! self::is_job_scheduled( self::REVIEW_INVITE_HOOK ) ) {
-			self::schedule_job( self::REVIEW_INVITE_HOOK, self::next_utc_occurrence( '00:00' ) );
+		if ( $need_review_invite && ! wp_next_scheduled( self::REVIEW_INVITE_HOOK ) ) {
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REVIEW_INVITE_HOOK );
 		} elseif ( ! $need_review_invite ) {
-			self::unschedule_job( self::REVIEW_INVITE_HOOK );
+			wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
 		}
 	}
 
 	/**
 	 * Unconditionally clear and reschedule the cron events.
 	 *
-	 * Called after notification (or Advanced → Job scheduler) settings are
-	 * saved so timing, on/off state, and the WP-Cron/Action Scheduler choice
-	 * are all immediately applied without waiting for the next page load.
+	 * Called after notification settings are saved so timing and on/off state
+	 * are immediately applied without waiting for the next page load.
 	 *
 	 * @since 1.0.0
 	 */
 	public static function schedule_crons() {
 		$s = self::settings( true ); // bust the static cache to read fresh settings
 
-		self::unschedule_job( self::DIGEST_HOOK );
+		wp_clear_scheduled_hook( self::DIGEST_HOOK );
 		if ( ! empty( $s['notify_new_question'] ) && 'digest' === $s['notify_mode'] ) {
-			self::schedule_job( self::DIGEST_HOOK, self::next_utc_occurrence( $s['digest_time'] ) );
+			wp_schedule_event( self::next_utc_occurrence( $s['digest_time'] ), 'daily', self::DIGEST_HOOK );
 		}
 
-		self::unschedule_job( self::REMINDER_HOOK );
+		wp_clear_scheduled_hook( self::REMINDER_HOOK );
 		if ( ! empty( $s['notify_unanswered_reminder'] ) ) {
-			self::schedule_job( self::REMINDER_HOOK, self::next_utc_occurrence( '00:00' ) );
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REMINDER_HOOK );
 		}
 
-		self::unschedule_job( self::REVIEW_INVITE_HOOK );
+		wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
 		if ( class_exists( 'Quick_Qa_Email_Store' ) && Quick_Qa_Email_Store::is_enabled( 'e-review-invitation' ) ) {
-			self::schedule_job( self::REVIEW_INVITE_HOOK, self::next_utc_occurrence( '00:00' ) );
+			wp_schedule_event( self::next_utc_occurrence( '00:00' ), 'daily', self::REVIEW_INVITE_HOOK );
 		}
 	}
 
@@ -192,70 +182,9 @@ class Quick_Qa_Notifier {
 	 * @since 1.0.0
 	 */
 	public static function clear_crons() {
-		self::unschedule_job( self::DIGEST_HOOK );
-		self::unschedule_job( self::REMINDER_HOOK );
-		self::unschedule_job( self::REVIEW_INVITE_HOOK );
-	}
-
-	/**
-	 * The scheduling backend currently in effect. Falls back to WP-Cron when
-	 * Action Scheduler is selected but not actually available (e.g. WooCommerce
-	 * not yet loaded), so a job is never silently left unscheduled.
-	 *
-	 * @since  1.3.0
-	 * @return string 'wp_cron' | 'action_scheduler'
-	 */
-	private static function cron_engine() {
-		$s      = self::settings();
-		$engine = isset( $s['adv_cron_engine'] ) ? $s['adv_cron_engine'] : 'wp_cron';
-
-		if ( 'action_scheduler' === $engine && function_exists( 'as_schedule_recurring_action' ) ) {
-			return 'action_scheduler';
-		}
-
-		return 'wp_cron';
-	}
-
-	/**
-	 * @since  1.3.0
-	 * @param  string $hook
-	 * @return bool
-	 */
-	private static function is_job_scheduled( $hook ) {
-		if ( 'action_scheduler' === self::cron_engine() ) {
-			return false !== as_next_scheduled_action( $hook, array(), self::AS_GROUP );
-		}
-
-		return (bool) wp_next_scheduled( $hook );
-	}
-
-	/**
-	 * @since 1.3.0
-	 * @param string $hook
-	 * @param int    $timestamp First run time, as a UTC Unix timestamp.
-	 */
-	private static function schedule_job( $hook, $timestamp ) {
-		if ( 'action_scheduler' === self::cron_engine() ) {
-			as_schedule_recurring_action( $timestamp, DAY_IN_SECONDS, $hook, array(), self::AS_GROUP );
-			return;
-		}
-
-		wp_schedule_event( $timestamp, 'daily', $hook );
-	}
-
-	/**
-	 * Clears both backends unconditionally so switching the Job scheduler
-	 * setting never leaves a stray duplicate job running on the old one.
-	 *
-	 * @since 1.3.0
-	 * @param string $hook
-	 */
-	private static function unschedule_job( $hook ) {
-		wp_clear_scheduled_hook( $hook );
-
-		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( $hook, array(), self::AS_GROUP );
-		}
+		wp_clear_scheduled_hook( self::DIGEST_HOOK );
+		wp_clear_scheduled_hook( self::REMINDER_HOOK );
+		wp_clear_scheduled_hook( self::REVIEW_INVITE_HOOK );
 	}
 
 	// =========================================================================
@@ -545,7 +474,6 @@ class Quick_Qa_Notifier {
 	public static function send_digest() {
 		$queue = get_option( self::DIGEST_QUEUE, array() );
 		if ( empty( $queue ) ) {
-			Quick_Qa_Logger::log( 'info', 'Daily digest: no new questions queued since the last run, nothing to send.' );
 			return;
 		}
 		delete_option( self::DIGEST_QUEUE );
@@ -953,8 +881,6 @@ class Quick_Qa_Notifier {
 		if ( empty( $webhook ) ) {
 			return;
 		}
-
-		Quick_Qa_Logger::log( 'info', sprintf( 'Slack: posting "%s"', $subject ) );
 
 		wp_remote_post(
 			$webhook,

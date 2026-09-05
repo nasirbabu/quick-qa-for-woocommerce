@@ -82,11 +82,6 @@ export const DEFAULT_SETTINGS = {
   enable_trust_tier:        false,
   trust_helpful_threshold:  3,
 
-  // Advanced
-  adv_cron_engine:          'wp_cron',
-  adv_rest_api_enabled:     true,
-  adv_debug_log_enabled:    true,
-
   // SEO — JSON-LD schema output
   seo_enabled:                true,
   seo_schema_type:            'QAPage',
@@ -105,5 +100,4 @@ export const TABS = [
   { key: 'appearance',      label: 'Appearance' },
   { key: 'email-templates', label: 'Email templates' },
   { key: 'seo',             label: 'SEO' },
-  { key: 'advanced',        label: 'Advanced' },
 ];

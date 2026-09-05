@@ -67,20 +67,17 @@ abstract class Quick_Qa_Email_Base extends WC_Email {
 	 */
 	protected function dispatch( array $data, $to ) {
 		if ( ! $this->is_enabled() ) {
-			Quick_Qa_Logger::log( 'info', sprintf( '%s: skipped, this email template is disabled.', $this->id ) );
 			return false;
 		}
 
 		$to = is_array( $to ) ? array_values( array_filter( array_unique( $to ) ) ) : array( $to );
 		$to = array_values( array_filter( $to, 'is_email' ) );
 		if ( empty( $to ) ) {
-			Quick_Qa_Logger::log( 'warning', sprintf( '%s: skipped, no valid recipient email address.', $this->id ) );
 			return false;
 		}
 
 		$template = Quick_Qa_Email_Store::get( $this->id );
 		if ( ! $template ) {
-			Quick_Qa_Logger::log( 'error', sprintf( '%s: skipped, template not found in the email store.', $this->id ) );
 			return false;
 		}
 
@@ -99,14 +96,7 @@ abstract class Quick_Qa_Email_Base extends WC_Email {
 
 		$this->recipient = implode( ', ', $to );
 
-		$sent = (bool) $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-
-		Quick_Qa_Logger::log(
-			$sent ? 'info' : 'error',
-			sprintf( '%s: %s to %s — "%s"', $this->id, $sent ? 'sent' : 'FAILED to send', implode( ', ', $to ), $this->rendered_subject )
-		);
-
-		return $sent;
+		return (bool) $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 	}
 
 	/**
