@@ -55,6 +55,14 @@ function transformItem(q) {
   const approvedAnswers = (q.answers || []).filter(a => a.status === 'approved');
   const flaggedAnswers  = (q.answers || []).filter(a => a.status === 'flagged');
 
+  // Follow-ups (and admin replies to them) render nested under their parent
+  // answer instead of in the flat top-level answers list.
+  const followupRows      = approvedAnswers.filter(a => a.answer_type === 'followup');
+  const followupReplyRows = approvedAnswers.filter(a => a.answer_type !== 'followup' && parseInt(a.parent_answer_id, 10) > 0);
+  const topLevelAnswers   = approvedAnswers.filter(a =>
+    a.answer_type !== 'followup' && !(parseInt(a.parent_answer_id, 10) > 0)
+  );
+
   let tab, status;
   if (q.status === 'rejected') {
     tab = 'rejected'; status = 'rejected';
@@ -89,7 +97,8 @@ function transformItem(q) {
     upvotes:   parseInt(q.upvotes, 10) || 0,
     createdAt: q.created_at ? new Date(q.created_at + 'Z').getTime() : 0,
     time:      timeAgo(q.created_at),
-    answers:   approvedAnswers.map(a => ({
+    isLocked:  parseInt(q.is_locked, 10) === 1,
+    answers:   topLevelAnswers.map(a => ({
       id:        String(a.id),
       dbId:      parseInt(a.id, 10),
       author:    a.author_name || 'Team',
@@ -114,7 +123,7 @@ function transformItem(q) {
       role:   pa.answer_type === 'admin' ? 'staff' : 'community',
       text:   pa.answer_text || '',
       time:   timeAgo(pa.created_at),
-      meta:   [pa.answer_type === 'admin' ? 'Staff answer' : 'Community answer'],
+      meta:   [pa.answer_type === 'admin' ? 'Staff answer' : (pa.answer_type === 'followup' ? 'Follow-up' : 'Community answer')],
     } : null,
     flagCount: parseInt(q.flag_count, 10) || 0,
     flags:     (q.flags || []).map(f => ({
@@ -137,7 +146,26 @@ function transformItem(q) {
         time:     timeAgo(f.created_at),
       })),
     })),
-    followups: [],
+    followups: followupRows.map(fu => {
+      const replyRow = followupReplyRows.find(r => parseInt(r.parent_answer_id, 10) === parseInt(fu.id, 10)) || null;
+      return {
+        id:              String(fu.id),
+        dbId:            parseInt(fu.id, 10),
+        parentAnswerId:  parseInt(fu.parent_answer_id, 10),
+        author:          fu.author_name || customer,
+        avatar:          makeInitials(fu.author_name || customer),
+        time:            timeAgo(fu.created_at),
+        text:            fu.answer_text || '',
+        reply: replyRow ? {
+          id:     String(replyRow.id),
+          dbId:   parseInt(replyRow.id, 10),
+          author: replyRow.author_name || 'Team',
+          avatar: makeInitials(replyRow.author_name || 'Team'),
+          time:   timeAgo(replyRow.created_at),
+          text:   replyRow.answer_text || '',
+        } : null,
+      };
+    }),
   };
 }
 
@@ -488,6 +516,24 @@ export default function AllQA() {
         }
         await loadQuestions();
         setActiveTab('answered');
+        setSelectedId(id);
+
+      } else if (action === 'reply-followup') {
+        await apiFetch(`admin/questions/${item.dbId}/answer`, {
+          method: 'POST',
+          body: { answer_text: payload.answer_text, parent_answer_id: payload.parent_answer_id },
+        });
+        await loadQuestions();
+        setSelectedId(id);
+
+      } else if (action === 'lock-thread') {
+        await apiFetch(`admin/questions/${item.dbId}/lock`, { method: 'POST', body: {} });
+        await loadQuestions();
+        setSelectedId(id);
+
+      } else if (action === 'unlock-thread') {
+        await apiFetch(`admin/questions/${item.dbId}/unlock`, { method: 'POST', body: {} });
+        await loadQuestions();
         setSelectedId(id);
 
       } else if (action === 'dismiss-flags') {

@@ -438,7 +438,13 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Fetch approved answers for a set of question IDs.
 	 *
 	 * Admin answers sort before community answers; within each type, higher
-	 * upvote counts sort first, then chronologically oldest first.
+	 * upvote counts sort first, then chronologically oldest first. Customer
+	 * follow-ups (and any admin reply to one) are fetched separately and
+	 * attached onto their parent answer as `->followups`, mirroring
+	 * Quick_Qa_Rest_Questions::get_questions_page() so the initial page
+	 * render and the REST "show more" pagination stay consistent, and so
+	 * follow-ups never leak into answerCount/suggestedAnswer in the JSON-LD
+	 * schema output.
 	 *
 	 * Public so the schema-output class can reuse the same query instead of
 	 * duplicating it.
@@ -459,13 +465,61 @@ class Quick_Qa_For_Woocommerce_Public {
 		$placeholders  = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return $wpdb->get_results(
+		$answers = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
+				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' AND answer_type != 'followup' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
 				...$question_ids
 			)
 		);
+
+		$answer_ids = array_map( function ( $a ) { return (int) $a->id; }, $answers );
+		if ( empty( $answer_ids ) ) {
+			foreach ( $answers as $answer ) {
+				$answer->followups = array();
+			}
+			return $answers;
+		}
+
+		$fu_placeholders = implode( ', ', array_fill( 0, count( $answer_ids ), '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$followups = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$fu_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+				...$answer_ids
+			)
+		);
+
+		// A follow-up can itself have one admin reply nested under it (the
+		// "Reply" step of the Question -> Answer -> Follow-up -> Reply cap).
+		$followup_ids = array_map( function ( $f ) { return (int) $f->id; }, $followups );
+		$replies_map  = array();
+		if ( ! empty( $followup_ids ) ) {
+			$reply_placeholders = implode( ', ', array_fill( 0, count( $followup_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$replies = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$reply_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+					...$followup_ids
+				)
+			);
+			foreach ( $replies as $reply ) {
+				$replies_map[ (int) $reply->parent_answer_id ] = $reply;
+			}
+		}
+
+		$followups_map = array();
+		foreach ( $followups as $followup ) {
+			$followup->reply = $replies_map[ (int) $followup->id ] ?? null;
+			$followups_map[ (int) $followup->parent_answer_id ][] = $followup;
+		}
+		foreach ( $answers as $answer ) {
+			$answer->followups = $followups_map[ (int) $answer->id ] ?? array();
+		}
+
+		return $answers;
 	}
 
 	/**

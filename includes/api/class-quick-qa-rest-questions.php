@@ -16,6 +16,8 @@
  *     GET  /admin/questions
  *     POST /admin/questions/{id}
  *     POST /admin/questions/{id}/answer
+ *     POST /admin/questions/{id}/lock
+ *     POST /admin/questions/{id}/unlock
  *     POST /admin/questions/{id}/delete
  *     POST /admin/answers/{id}
  *     POST /admin/answers/{id}/delete
@@ -74,8 +76,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 				'callback'            => array( $this, 'admin_publish_answer' ),
 				'permission_callback' => array( $this, 'require_admin' ),
 				'args'                => array(
-					'id'          => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
-					'answer_text' => array(
+					'id'                => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+					'answer_text'       => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
@@ -84,6 +86,41 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 							return $len >= 1 && $len <= 5000;
 						},
 					),
+					'parent_answer_id'  => array(
+						'required'          => false,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+						/* translators: REST API parameter description. */
+						'description'       => __( 'When replying to a customer follow-up, the id of that follow-up answer.', 'quick-qa-for-woocommerce' ),
+					),
+				),
+			)
+		);
+
+		// ── Admin: lock/unlock a question thread against further follow-ups ────
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)/lock',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_lock_question' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/admin/questions/(?P<id>\d+)/unlock',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'admin_unlock_question' ),
+				'permission_callback' => array( $this, 'require_admin' ),
+				'args'                => array(
+					'id' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'sanitize_callback' => 'absint' ),
 				),
 			)
 		);
@@ -455,6 +492,66 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	}
 
 	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}/lock
+	 *
+	 * Manually locks a thread early, stopping any further follow-ups
+	 * regardless of depth.
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_lock_question( WP_REST_Request $request ) {
+		return $this->set_question_lock( (int) $request->get_param( 'id' ), true );
+	}
+
+	/**
+	 * POST /wp-json/quick-qa/v1/admin/questions/{id}/unlock
+	 *
+	 * @since  1.2.0
+	 * @param  WP_REST_Request $request
+	 * @return WP_REST_Response
+	 * @global wpdb $wpdb
+	 */
+	public function admin_unlock_question( WP_REST_Request $request ) {
+		return $this->set_question_lock( (int) $request->get_param( 'id' ), false );
+	}
+
+	/**
+	 * Shared helper backing admin_lock_question()/admin_unlock_question().
+	 *
+	 * @since  1.2.0
+	 * @param  int  $id     Question id.
+	 * @param  bool $locked True to lock, false to unlock.
+	 * @return WP_REST_Response|WP_Error
+	 * @global wpdb $wpdb
+	 */
+	private function set_question_lock( $id, $locked ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'quick_qa_questions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$updated = $wpdb->update(
+			$table,
+			array(
+				'is_locked'  => $locked ? 1 : 0,
+				'updated_at' => current_time( 'mysql', true ),
+			),
+			array( 'id' => $id ),
+			array( '%d', '%s' ),
+			array( '%d' )
+		);
+
+		if ( false === $updated ) {
+			return new WP_Error( 'quick_qa_db_error', __( 'Unable to update the thread.', 'quick-qa-for-woocommerce' ), array( 'status' => 500 ) );
+		}
+
+		return rest_ensure_response( array( 'id' => $id, 'is_locked' => $locked ) );
+	}
+
+	/**
 	 * POST /wp-json/quick-qa/v1/admin/answers/{id}
 	 *
 	 * Update answer status (approved, rejected, pending).
@@ -576,11 +673,12 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	public function admin_publish_answer( WP_REST_Request $request ) {
 		global $wpdb;
 
-		$question_id     = (int) $request->get_param( 'id' );
-		$answer_text     = $request->get_param( 'answer_text' );
-		$user_id         = get_current_user_id();
-		$questions_table = $wpdb->prefix . 'quick_qa_questions';
-		$answers_table   = $wpdb->prefix . 'quick_qa_answers';
+		$question_id       = (int) $request->get_param( 'id' );
+		$answer_text       = $request->get_param( 'answer_text' );
+		$parent_answer_id  = (int) $request->get_param( 'parent_answer_id' );
+		$user_id           = get_current_user_id();
+		$questions_table   = $wpdb->prefix . 'quick_qa_questions';
+		$answers_table     = $wpdb->prefix . 'quick_qa_answers';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$question = $wpdb->get_row(
@@ -593,6 +691,28 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		if ( ! $question ) {
 			return new WP_Error( 'quick_qa_not_found', 'Question not found.', array( 'status' => 404 ) );
+		}
+
+		// When replying to a customer follow-up, confirm it belongs to this
+		// question — this is the "Reply" step that closes out the
+		// Question -> Answer -> Follow-up -> Reply depth cap.
+		$replying_to_followup = false;
+		if ( $parent_answer_id > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$parent_followup = $wpdb->get_row(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT id FROM {$answers_table} WHERE id = %d AND question_id = %d AND answer_type = 'followup'",
+					$parent_answer_id,
+					$question_id
+				)
+			);
+
+			if ( ! $parent_followup ) {
+				return new WP_Error( 'quick_qa_not_found', __( 'Follow-up not found.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
+			}
+
+			$replying_to_followup = true;
 		}
 
 		// Auto-approve the question when an admin publishes a reply to it.
@@ -609,21 +729,38 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		$now = current_time( 'mysql', true );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->insert(
-			$answers_table,
-			array(
-				'question_id' => $question_id,
-				'user_id'     => $user_id,
-				'answer_type' => 'admin',
-				'answer_text' => $answer_text,
-				'status'      => 'approved',
-				'upvotes'     => 0,
-				'created_at'  => $now,
-				'updated_at'  => $now,
-			),
-			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+		$insert_data   = array(
+			'question_id' => $question_id,
+			'user_id'     => $user_id,
+			'answer_type' => 'admin',
+			'answer_text' => $answer_text,
+			'status'      => 'approved',
+			'upvotes'     => 0,
+			'created_at'  => $now,
+			'updated_at'  => $now,
 		);
+		$insert_format = array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s' );
+
+		if ( $replying_to_followup ) {
+			$insert_data['parent_answer_id'] = $parent_answer_id;
+			$insert_format[]                 = '%d';
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->insert( $answers_table, $insert_data, $insert_format );
+
+		// A reply to the follow-up reaches the Question -> Answer ->
+		// Follow-up -> Reply depth cap — lock the thread automatically.
+		if ( $replying_to_followup ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->update(
+				$questions_table,
+				array( 'is_locked' => 1, 'updated_at' => $now ),
+				array( 'id' => $question_id ),
+				array( '%d', '%s' ),
+				array( '%d' )
+			);
+		}
 
 		$asker    = Quick_Qa_Notifier::resolve_asker( $question );
 		$answerer = get_userdata( $user_id );
@@ -641,6 +778,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			array(
 				'question_id' => $question_id,
 				'answer_id'   => (int) $wpdb->insert_id,
+				'is_locked'   => $replying_to_followup,
 			)
 		);
 	}
@@ -813,7 +951,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		// Follow-ups are fetched separately and attached to their parent
 		// answer (->followups) rather than mixed into the main answer list,
 		// so the existing "first item is the best/staff answer" ordering
-		// above is unaffected by them.
+		// above is unaffected by them. A follow-up can itself have one admin
+		// reply nested under it (the "Reply" step of the depth cap).
 		$answer_ids_for_followups = array_map( function ( $a ) { return (int) $a->id; }, $answers );
 		$followups_map            = array();
 		if ( ! empty( $answer_ids_for_followups ) ) {
@@ -826,7 +965,26 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					...$answer_ids_for_followups
 				)
 			);
+
+			$followup_ids = array_map( function ( $f ) { return (int) $f->id; }, $followups );
+			$replies_map  = array();
+			if ( ! empty( $followup_ids ) ) {
+				$reply_placeholders = implode( ', ', array_fill( 0, count( $followup_ids ), '%d' ) );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$replies = $wpdb->get_results(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$reply_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+						...$followup_ids
+					)
+				);
+				foreach ( $replies as $reply ) {
+					$replies_map[ (int) $reply->parent_answer_id ] = $reply;
+				}
+			}
+
 			foreach ( $followups as $followup ) {
+				$followup->reply = $replies_map[ (int) $followup->id ] ?? null;
 				$followups_map[ (int) $followup->parent_answer_id ][] = $followup;
 			}
 		}
@@ -842,6 +1000,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		// Resolve current-user vote state for upvote/helpful buttons.
 		$is_logged_in     = is_user_logged_in();
+		$current_user_id  = $is_logged_in ? absint( get_current_user_id() ) : 0;
 		$user_voted_ids   = array();
 		$user_helpful_ids = array();
 
@@ -1304,7 +1463,7 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		// Admins auto-publish. Verified buyers auto-publish only when
 		// verified_buyer_approval = 'auto'. Everyone else needs approval —
 		// community_approval's 'auto_trusted' branch is intentionally not
-		// handled here since trust-tier logic is unbuilt (KAN-27 / KAN-34).
+		// handled here since trust-tier logic is unbuilt (KAN-34).
 		if ( $is_admin ) {
 			$status = 'approved';
 		} elseif ( $is_verified && 'auto' === $verified_buyer_approval ) {
@@ -1397,12 +1556,17 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 	/**
 	 * POST /wp-json/quick-qa/v1/answers/{id}/followup
 	 *
-	 * A customer replies to an already-approved answer. Reuses the answers
-	 * table (answer_type = 'followup', parent_answer_id = the answer being
-	 * replied to) so the existing status/moderation-queue plumbing applies
-	 * unchanged. Approval follows the `followup_approval` setting: 'auto'
-	 * publishes immediately, 'require' queues it for moderator review like
-	 * any other pending answer.
+	 * The original asker replies to an already-approved answer. Reuses the
+	 * answers table (answer_type = 'followup', parent_answer_id = the answer
+	 * being replied to) so the existing status/moderation-queue plumbing
+	 * applies unchanged. Approval follows the `followup_approval` setting:
+	 * 'auto' publishes immediately, 'require' queues it for moderator review
+	 * like any other pending answer.
+	 *
+	 * Only the original asker may call this successfully (KAN-27); it is
+	 * capped at one follow-up per thread and blocked once the thread is
+	 * locked (depth cap Question -> Answer -> Follow-up -> Reply reached, or
+	 * an admin locked it manually).
 	 *
 	 * @since  1.2.0
 	 * @param  WP_REST_Request $request
@@ -1422,8 +1586,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		$parent = $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT a.id, a.question_id, a.answer_text, a.user_id AS answerer_user_id,
-				        q.product_id, q.question_text
+				"SELECT a.id, a.question_id, a.answer_text, a.user_id AS answerer_user_id, a.answer_type AS parent_answer_type,
+				        q.product_id, q.question_text, q.user_id AS asker_user_id, q.is_locked
 				 FROM {$answers_table} a
 				 INNER JOIN {$questions_table} q ON q.id = a.question_id
 				 WHERE a.id = %d AND a.status = 'approved'",
@@ -1433,6 +1597,53 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 
 		if ( ! $parent ) {
 			return new WP_Error( 'quick_qa_not_found', __( 'Answer not found.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
+		}
+
+		// Asker-only: only the person who originally asked the question may
+		// post a follow-up on it. Guest-authored questions (asker_user_id = 0)
+		// can never match a logged-in user, so they simply never qualify.
+		if ( (int) $parent->asker_user_id === 0 || $user_id !== (int) $parent->asker_user_id ) {
+			return new WP_Error(
+				'quick_qa_not_permitted',
+				__( 'Only the original asker can post a follow-up here.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( ! empty( $parent->is_locked ) ) {
+			return new WP_Error(
+				'quick_qa_thread_locked',
+				__( 'This thread is closed for further follow-ups.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Depth cap: Question -> Answer -> Follow-up -> Reply. A follow-up can
+		// only target a top-level answer, never another follow-up.
+		if ( 'followup' === $parent->parent_answer_type ) {
+			return new WP_Error(
+				'quick_qa_depth_exceeded',
+				__( 'This thread has already reached its follow-up limit.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		// One follow-up per thread: once the asker has used theirs, no more
+		// are allowed until/unless an admin unlocks the thread.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$existing_followup = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id FROM {$answers_table} WHERE question_id = %d AND answer_type = 'followup' LIMIT 1",
+				$parent->question_id
+			)
+		);
+		if ( $existing_followup ) {
+			return new WP_Error(
+				'quick_qa_followup_exists',
+				__( 'A follow-up has already been posted on this thread.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 409 )
+			);
 		}
 
 		$qq_s = get_option( 'quick_qa_settings', array() );

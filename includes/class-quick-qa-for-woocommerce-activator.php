@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.0.2';
+	const DB_VERSION = '1.0.3';
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -217,6 +217,8 @@ class Quick_Qa_For_Woocommerce_Activator {
 		// Stores questions submitted on WooCommerce product pages.
 		// guest_name / guest_email are empty strings for logged-in users.
 		// is_verified_buyer is set when user_id has a completed order for product_id.
+		// is_locked stops further follow-ups once the Q->A->Follow-up->Reply
+		// depth cap is reached, or when an admin locks the thread early.
 		// ------------------------------------------------------------------ //
 		$table_questions = $wpdb->prefix . 'quick_qa_questions';
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -231,6 +233,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 				status varchar(20) NOT NULL DEFAULT 'pending',
 				upvotes int(10) UNSIGNED NOT NULL DEFAULT 0,
 				is_verified_buyer tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				is_locked tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 				created_at datetime DEFAULT NULL,
 				updated_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
