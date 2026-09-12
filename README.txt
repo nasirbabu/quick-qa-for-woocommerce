@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,11 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.3.0 (13-09-2026) =
+* Added: Customers can now post one follow-up question directly under their own answered question — visible only to the original asker — so a quick clarification doesn't need a whole new question. An admin reply closes the thread out, and admins can also lock a thread manually at any time.
+* Added: SEO structured data — Askora can output JSON-LD (QAPage/FAQPage) for your answered questions, helping them show up as rich snippets in Google search results. Choose the schema type, which questions qualify, and a per-product cap in Settings → SEO.
+* Added: CSV import and export for your Q&A. Bulk-import historical questions and answers with a validation preview before anything is saved, or export filtered by date, status, or product category, from the new Settings → Import/Export tab.
 
 = 1.2.0 (06-09-2026) =
 * Added: A full Settings → Notifications panel — instant or daily-digest email alerts for new questions, an optional Slack webhook integration, and unanswered-question reminders — now available on the free tier.
