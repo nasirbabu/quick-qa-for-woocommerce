@@ -193,7 +193,7 @@ class Quick_Qa_For_Woocommerce {
 
 		// Streams a CSV download of Q&A data (KAN-26).
 		$plugin_export = new Quick_Qa_For_Woocommerce_Export( $this->get_plugin_name(), $this->get_version() );
-		$this->loader->add_action( 'admin_action_quick_qa_export_csv', $plugin_export, 'handle_export_csv' );
+		$this->loader->add_action( 'admin_post_quick_qa_export_csv', $plugin_export, 'handle_export_csv' );
 
 	}
 
