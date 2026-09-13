@@ -66,6 +66,13 @@ foreach ( $questions as $question ) :
 		__( '%s ago', 'quick-qa-for-woocommerce' ),
 		human_time_diff( strtotime( $question->created_at ), current_time( 'timestamp', true ) )
 	);
+
+	// Asker-only follow-up gating (KAN-27): only the person who originally
+	// asked can see/use the follow-up link, and only while the thread hasn't
+	// hit its Question -> Answer -> Follow-up -> Reply depth cap.
+	$viewer_id      = isset( $current_user_id ) ? (int) $current_user_id : 0;
+	$is_asker       = $is_logged_in && $viewer_id > 0 && (int) $question->user_id === $viewer_id;
+	$thread_locked_for_followups = ! empty( $question->is_locked );
 	?>
 	<div class="qa-thread"
 		data-question-id="<?php echo esc_attr( $question->id ); ?>"
@@ -104,6 +111,10 @@ foreach ( $questions as $question ) :
 					<?php if ( ! $is_answered ) : ?>
 						<span class="qa-awaiting">
 							<?php esc_html_e( '· Awaiting answer', 'quick-qa-for-woocommerce' ); ?>
+						</span>
+					<?php elseif ( $thread_locked_for_followups ) : ?>
+						<span class="qa-resolved-badge">
+							<?php esc_html_e( 'Resolved', 'quick-qa-for-woocommerce' ); ?>
 						</span>
 					<?php endif; ?>
 				</div>
@@ -273,11 +284,13 @@ foreach ( $questions as $question ) :
 											<span class="qa-helpful-count">(<?php echo esc_html( $answer->upvotes ); ?>)</span>
 										</button>
 										<?php endif; ?>
+										<?php if ( $is_asker && ! $thread_locked_for_followups && empty( $answer->followups ) ) : ?>
 										<button class="qa-foot-link"
 											type="button"
 											data-action="open-followup-form"
 											data-answer-id="<?php echo esc_attr( $answer->id ); ?>"
-										><?php esc_html_e( 'Reply', 'quick-qa-for-woocommerce' ); ?></button>
+										><?php esc_html_e( '+ Ask a follow-up', 'quick-qa-for-woocommerce' ); ?></button>
+										<?php endif; ?>
 										<button class="qa-foot-link qa-flag-link"
 											type="button"
 											data-action="open-flag"
@@ -306,11 +319,33 @@ foreach ( $questions as $question ) :
 												</div>
 												<div class="qa-q-text"><?php echo esc_html( $followup->answer_text ); ?></div>
 											</div>
+
+											<?php if ( ! empty( $followup->reply ) ) : ?>
+												<?php
+												$reply_user = $followup->reply->user_id ? get_userdata( absint( $followup->reply->user_id ) ) : null;
+												$reply_name = $reply_user ? $reply_user->display_name : __( 'Team', 'quick-qa-for-woocommerce' );
+												$reply_time = sprintf(
+													/* translators: %s: human-readable time difference */
+													__( '%s ago', 'quick-qa-for-woocommerce' ),
+													human_time_diff( strtotime( $followup->reply->created_at ), current_time( 'timestamp', true ) )
+												);
+												?>
+												<div class="qa-followup qa-followup--reply">
+													<div class="qa-q-meta">
+														<b><?php echo esc_html( $reply_name ); ?></b>
+														<span class="qa-role qa-role--staff">
+															<?php esc_html_e( 'Store staff', 'quick-qa-for-woocommerce' ); ?>
+														</span>
+														<span>· <?php echo esc_html( $reply_time ); ?></span>
+													</div>
+													<div class="qa-q-text"><?php echo esc_html( $followup->reply->answer_text ); ?></div>
+												</div>
+											<?php endif; ?>
 										<?php endforeach; ?>
 									</div>
 								<?php endif; ?>
 
-								<?php if ( $is_logged_in ) : ?>
+								<?php if ( $is_asker && ! $thread_locked_for_followups && empty( $answer->followups ) ) : ?>
 									<div class="qa-followup-form"
 										id="qa-followup-form-<?php echo esc_attr( $answer->id ); ?>"
 										style="display:none;"

@@ -55,11 +55,13 @@ class Quick_Qa_For_Woocommerce_Public {
 	/**
 	 * Load and cache plugin settings from the single `quick_qa_settings` option.
 	 *
+	 * Public so the schema-output class (and other collaborators) can reuse
+	 * the same cached settings/scope-check logic instead of duplicating it.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @return array
 	 */
-	private function get_settings() {
+	public function get_settings() {
 		static $cache = null;
 		if ( null !== $cache ) {
 			return $cache;
@@ -107,6 +109,13 @@ class Quick_Qa_For_Woocommerce_Public {
 			'appr_show_best_highlight' => true,
 			'appr_show_avatars'        => true,
 			'appr_custom_css'          => '',
+			// SEO — JSON-LD schema output
+			'seo_enabled'                => true,
+			'seo_schema_type'            => 'QAPage', // 'QAPage' | 'FAQPage'
+			'seo_delegate_to_seo_plugin' => false,
+			'seo_include_rule'           => 'all-answered', // 'all-answered' | 'staff-only' | 'upvoted'
+			'seo_upvote_min'             => 1,
+			'seo_max_per_product'        => 10,
 		);
 
 		$saved  = get_option( 'quick_qa_settings', array() );
@@ -118,13 +127,14 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Check whether the Q&A widget should be shown for the given product,
 	 * based on the `enable_scope` setting.
 	 *
+	 * Public so the schema-output class can respect the same scope rules.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  array $s          Plugin settings array (from get_settings()).
 	 * @param  int   $product_id WooCommerce product post ID.
 	 * @return bool
 	 */
-	private function is_qa_enabled_for_product( $s, $product_id ) {
+	public function is_qa_enabled_for_product( $s, $product_id ) {
 		switch ( $s['enable_scope'] ) {
 			case 'categories':
 				if ( empty( $s['enabled_categories'] ) ) {
@@ -341,8 +351,10 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Executes two queries: one for questions, one for all their answers (to
 	 * avoid N+1). Answers are grouped onto each question object as `->answers`.
 	 *
+	 * Public so the schema-output class can reuse the same query instead of
+	 * duplicating it.
+	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  int    $product_id WooCommerce product post ID.
 	 * @param  int    $offset     Number of rows to skip.
 	 * @param  int    $limit      Maximum rows to return.
@@ -350,7 +362,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * @return object[]
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_questions( $product_id, $offset = 0, $limit = 10, $sort = 'recent' ) {
+	public function get_approved_questions( $product_id, $offset = 0, $limit = 10, $sort = 'recent' ) {
 		global $wpdb;
 
 		$questions_table = $wpdb->prefix . 'quick_qa_questions';
@@ -426,15 +438,23 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * Fetch approved answers for a set of question IDs.
 	 *
 	 * Admin answers sort before community answers; within each type, higher
-	 * upvote counts sort first, then chronologically oldest first.
+	 * upvote counts sort first, then chronologically oldest first. Customer
+	 * follow-ups (and any admin reply to one) are fetched separately and
+	 * attached onto their parent answer as `->followups`, mirroring
+	 * Quick_Qa_Rest_Questions::get_questions_page() so the initial page
+	 * render and the REST "show more" pagination stay consistent, and so
+	 * follow-ups never leak into answerCount/suggestedAnswer in the JSON-LD
+	 * schema output.
+	 *
+	 * Public so the schema-output class can reuse the same query instead of
+	 * duplicating it.
 	 *
 	 * @since  1.0.0
-	 * @access private
 	 * @param  int[] $question_ids Array of question IDs.
 	 * @return object[]
 	 * @global wpdb $wpdb
 	 */
-	private function get_approved_answers( array $question_ids ) {
+	public function get_approved_answers( array $question_ids ) {
 		if ( empty( $question_ids ) ) {
 			return array();
 		}
@@ -445,13 +465,61 @@ class Quick_Qa_For_Woocommerce_Public {
 		$placeholders  = implode( ', ', array_fill( 0, count( $question_ids ), '%d' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return $wpdb->get_results(
+		$answers = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
+				"SELECT * FROM {$answers_table} WHERE question_id IN ( {$placeholders} ) AND status = 'approved' AND answer_type != 'followup' ORDER BY answer_type DESC, upvotes DESC, created_at ASC",
 				...$question_ids
 			)
 		);
+
+		$answer_ids = array_map( function ( $a ) { return (int) $a->id; }, $answers );
+		if ( empty( $answer_ids ) ) {
+			foreach ( $answers as $answer ) {
+				$answer->followups = array();
+			}
+			return $answers;
+		}
+
+		$fu_placeholders = implode( ', ', array_fill( 0, count( $answer_ids ), '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$followups = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$fu_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+				...$answer_ids
+			)
+		);
+
+		// A follow-up can itself have one admin reply nested under it (the
+		// "Reply" step of the Question -> Answer -> Follow-up -> Reply cap).
+		$followup_ids = array_map( function ( $f ) { return (int) $f->id; }, $followups );
+		$replies_map  = array();
+		if ( ! empty( $followup_ids ) ) {
+			$reply_placeholders = implode( ', ', array_fill( 0, count( $followup_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$replies = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$answers_table} WHERE parent_answer_id IN ( {$reply_placeholders} ) AND status = 'approved' ORDER BY created_at ASC",
+					...$followup_ids
+				)
+			);
+			foreach ( $replies as $reply ) {
+				$replies_map[ (int) $reply->parent_answer_id ] = $reply;
+			}
+		}
+
+		$followups_map = array();
+		foreach ( $followups as $followup ) {
+			$followup->reply = $replies_map[ (int) $followup->id ] ?? null;
+			$followups_map[ (int) $followup->parent_answer_id ][] = $followup;
+		}
+		foreach ( $answers as $answer ) {
+			$answer->followups = $followups_map[ (int) $answer->id ] ?? array();
+		}
+
+		return $answers;
 	}
 
 	/**

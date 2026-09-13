@@ -102,7 +102,6 @@ export default function CommunityTab({ draft, onChange }) {
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
               Customer follow-ups
-              <span className="qq-badge-soon">Coming soon</span>
             </div>
             <div className="qq-settings-field-help">
               When the original asker replies again after your answer — same person continuing the conversation.
@@ -113,7 +112,6 @@ export default function CommunityTab({ draft, onChange }) {
               className="qq-settings-select"
               value={draft.followup_approval}
               onChange={field(draft, 'followup_approval', onChange)}
-              disabled
             >
               <option value="auto">Auto-publish (recommended)</option>
               <option value="require">Require my approval</option>

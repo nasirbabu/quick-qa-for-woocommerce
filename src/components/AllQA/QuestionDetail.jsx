@@ -33,6 +33,7 @@ function RoleBadge({ role }) {
   if (role === 'verified-buyer') return <span className="qq-msg-role-buyer">Verified buyer</span>;
   if (role === 'community')      return <span className="qq-msg-role">Community</span>;
   if (role === 'guest')          return <span className="qq-msg-role">Guest</span>;
+  if (role === 'customer')       return <span className="qq-msg-role">Original asker</span>;
   return <span className="qq-msg-role">Customer</span>;
 }
 
@@ -313,9 +314,46 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
   );
 }
 
+// ── Follow-up reply composer (admin replying to a customer follow-up) ────────
+
+function FollowupReplyComposer({ onReply, saving }) {
+  const [text, setText] = useState('');
+
+  function handleSubmit() {
+    if (!text.trim()) return;
+    onReply(text);
+    setText('');
+  }
+
+  return (
+    <div className="qq-composer qq-followup-composer">
+      <div className="qq-composer-card">
+        <textarea
+          className="qq-textarea"
+          placeholder="Reply to this follow-up…"
+          value={text}
+          onChange={e => setText(e.target.value)}
+        />
+        <div className="qq-bar">
+          <div className="qq-bar-left" />
+          <div className="qq-bar-right">
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleSubmit}
+              disabled={!text.trim() || saving}
+            >
+              {saving ? 'Replying…' : 'Reply & resolve thread'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Answered / approved question ─────────────────────────────────────────────
 
-function AnsweredDetail({ item, onPublish, saving }) {
+function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving }) {
   const [reply,              setReply]              = useState('');
   const [pickerOpen,         setPickerOpen]          = useState(false);
   const [insertedTemplateId, setInsertedTemplateId]  = useState(null);
@@ -341,10 +379,18 @@ function AnsweredDetail({ item, onPublish, saving }) {
             {item.answers.length > 0
               ? `Answered · ${item.answers.length} answer${item.answers.length !== 1 ? 's' : ''}`
               : 'Approved · no answers yet'}
+            {item.isLocked && <span className="qq-resolved-badge">Resolved</span>}
           </div>
         </div>
         <div className="qq-conv-meta-actions">
           <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View on product page</a>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={onToggleLock}
+            disabled={saving}
+          >
+            {item.isLocked ? 'Unlock thread' : 'Lock thread'}
+          </button>
         </div>
       </div>
 
@@ -387,6 +433,42 @@ function AnsweredDetail({ item, onPublish, saving }) {
         ) : (
           <div className="qq-section-divider">No answers yet — be the first to reply</div>
         )}
+
+        {item.followups && item.followups.length > 0 && item.followups.map(fu => (
+          <div key={fu.id} className="qq-followup">
+            <div className="qq-thread-divider">Customer follow-up</div>
+            <div className="qq-msg">
+              <Avatar initials={fu.avatar} role="customer" />
+              <div className="qq-msg-body">
+                <div className="qq-msg-meta">
+                  <b>{fu.author}</b>
+                  <RoleBadge role="customer" />
+                  <span>· {fu.time}</span>
+                </div>
+                <div className="qq-msg-text">{fu.text}</div>
+              </div>
+            </div>
+
+            {fu.reply ? (
+              <div className="qq-msg">
+                <Avatar initials={fu.reply.avatar} role="staff" />
+                <div className="qq-msg-body">
+                  <div className="qq-msg-meta">
+                    <b>{fu.reply.author}</b>
+                    <RoleBadge role="staff" />
+                    <span>· {fu.reply.time}</span>
+                  </div>
+                  <div className="qq-msg-text">{fu.reply.text}</div>
+                </div>
+              </div>
+            ) : (
+              <FollowupReplyComposer
+                onReply={(text) => onReplyFollowup(fu.dbId, text)}
+                saving={saving}
+              />
+            )}
+          </div>
+        ))}
       </div>
 
       <div className="qq-composer">
@@ -690,6 +772,8 @@ export default function QuestionDetail({ item, onAction, saving }) {
   const handleApproveAnswer    = () => onAction('approve-answer', item.id);
   const handleRejectAnswer     = () => onAction('reject-answer', item.id);
   const handlePublish          = (reply, templateId) => onAction('publish', item.id, { answer_text: reply, template_id: templateId });
+  const handleReplyFollowup    = (parentAnswerId, text) => onAction('reply-followup', item.id, { answer_text: text, parent_answer_id: parentAnswerId });
+  const handleToggleLock       = () => onAction(item.isLocked ? 'unlock-thread' : 'lock-thread', item.id);
   const handleRestore          = () => onAction('approve-question', item.id);
   const handleDismissFlags     = () => onAction('dismiss-flags', item.id);
   const handleDeleteFlagged    = () => onAction('delete-flagged', item.id);
@@ -747,6 +831,8 @@ export default function QuestionDetail({ item, onAction, saving }) {
         <AnsweredDetail
           item={item}
           onPublish={handlePublish}
+          onReplyFollowup={handleReplyFollowup}
+          onToggleLock={handleToggleLock}
           saving={saving}
         />
       )}

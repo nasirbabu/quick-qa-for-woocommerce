@@ -96,8 +96,10 @@ class Quick_Qa_For_Woocommerce_Admin {
 				'quick-qa-react-app',
 				'quickQaAdmin',
 				array(
-					'restUrl' => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
-					'nonce'   => wp_create_nonce( 'wp_rest' ),
+					'restUrl'     => esc_url_raw( rest_url( 'quick-qa/v1/' ) ),
+					'nonce'       => wp_create_nonce( 'wp_rest' ),
+					'ajaxUrl'     => admin_url( 'admin-post.php' ),
+					'exportNonce' => wp_create_nonce( 'quick_qa_export_csv' ),
 				)
 			);
 		}

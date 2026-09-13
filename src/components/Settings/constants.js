@@ -81,6 +81,14 @@ export const DEFAULT_SETTINGS = {
   followup_approval:        'auto',
   enable_trust_tier:        false,
   trust_helpful_threshold:  3,
+
+  // SEO — JSON-LD schema output
+  seo_enabled:                true,
+  seo_schema_type:            'QAPage',
+  seo_delegate_to_seo_plugin: false,
+  seo_include_rule:           'all-answered',
+  seo_upvote_min:             1,
+  seo_max_per_product:        10,
 };
 
 export const TABS = [
@@ -91,4 +99,6 @@ export const TABS = [
   { key: 'community',       label: 'Community' },
   { key: 'appearance',      label: 'Appearance' },
   { key: 'email-templates', label: 'Email templates' },
+  { key: 'seo',             label: 'SEO' },
+  { key: 'import-export',   label: 'Import / Export' },
 ];
