@@ -70,13 +70,15 @@ class Quick_Qa_For_Woocommerce {
 		if ( defined( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION' ) ) {
 			$this->version = QUICK_QA_FOR_WOOCOMMERCE_VERSION;
 		} else {
-			$this->version = '1.3.0';
+			$this->version = '1.4.0';
 		}
 		$this->plugin_name = 'quick-qa-for-woocommerce';
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_shortcode_hooks();
+		$this->define_block_hooks();
 		$this->define_rest_hooks();
 		$this->define_notification_hooks();
 		$this->define_email_hooks();
@@ -172,6 +174,18 @@ class Quick_Qa_For_Woocommerce {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-notifier.php';
 
+		/**
+		 * The [askora] shortcode — manual placement for custom templates and
+		 * page builders (KAN-28).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-shortcode.php';
+
+		/**
+		 * The "Askora Q&A" Gutenberg block — manual placement in the block
+		 * editor and block-aware page builders (KAN-28).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-blocks.php';
+
 		$this->loader = new Quick_Qa_For_Woocommerce_Loader();
 
 	}
@@ -220,6 +234,41 @@ class Quick_Qa_For_Woocommerce {
 		// JSON-LD schema (QAPage/FAQPage) for answered Q&A (KAN-25).
 		$plugin_schema = new Quick_Qa_For_Woocommerce_Schema( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'wp_head', $plugin_schema, 'render_schema', 5 );
+
+	}
+
+	/**
+	 * Register the [askora] shortcode for manual placement in custom
+	 * templates and page builders (KAN-28).
+	 *
+	 * @since    1.4.0
+	 * @access   private
+	 */
+	private function define_shortcode_hooks() {
+
+		$plugin_public    = new Quick_Qa_For_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_shortcode = new Quick_Qa_For_Woocommerce_Shortcode( $plugin_public );
+
+		$this->loader->add_action( 'init', $plugin_shortcode, 'register' );
+
+	}
+
+	/**
+	 * Register the "Askora Q&A" Gutenberg block for manual placement in the
+	 * block editor and block-aware page builders (KAN-28).
+	 *
+	 * @since    1.4.0
+	 * @access   private
+	 */
+	private function define_block_hooks() {
+
+		$plugin_public = new Quick_Qa_For_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_blocks = new Quick_Qa_For_Woocommerce_Blocks( $plugin_public, $this->get_version() );
+
+		$this->loader->add_action( 'init', $plugin_blocks, 'register_editor_script' );
+		$this->loader->add_action( 'init', $plugin_blocks, 'register_block' );
+		$this->loader->add_filter( 'block_categories_all', $plugin_blocks, 'register_block_category', 10, 2 );
+		$this->loader->add_action( 'enqueue_block_editor_assets', $plugin_blocks, 'enqueue_editor_assets' );
 
 	}
 

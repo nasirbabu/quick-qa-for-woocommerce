@@ -53,6 +53,19 @@ class Quick_Qa_For_Woocommerce_Public {
 	}
 
 	/**
+	 * The plugin name / asset handle used for the public stylesheet and script.
+	 *
+	 * Exposed so collaborators (shortcode, block render callbacks) can target
+	 * the exact same enqueued handles without hardcoding the string.
+	 *
+	 * @since  1.4.0
+	 * @return string
+	 */
+	public function get_plugin_name() {
+		return $this->plugin_name;
+	}
+
+	/**
 	 * Load and cache plugin settings from the single `quick_qa_settings` option.
 	 *
 	 * Public so the schema-output class (and other collaborators) can reuse
@@ -211,10 +224,29 @@ class Quick_Qa_For_Woocommerce_Public {
 		$tabs['quick_qa'] = array(
 			'title'    => $title,
 			'priority' => 50,
-			'callback' => array( $this, 'render_qa_tab' ),
+			'callback' => array( $this, 'render_qa_tab_callback' ),
 		);
 
 		return $tabs;
+	}
+
+	/**
+	 * WooCommerce product tab callback wrapper.
+	 *
+	 * WooCommerce invokes a tab's callback as
+	 * `call_user_func( $callback, $key, $tab )`, passing the tab key string
+	 * and the tab array as positional arguments. render_qa_tab() now accepts
+	 * an optional `$product` argument for manual placements (shortcode,
+	 * block) — passing it directly as the WooCommerce tab callback would
+	 * bind the tab key string to that parameter and break rendering. This
+	 * thin wrapper discards WooCommerce's own arguments and calls
+	 * render_qa_tab() with none, preserving its original global-$product
+	 * behavior for automatic placement.
+	 *
+	 * @since 1.4.0
+	 */
+	public function render_qa_tab_callback() {
+		$this->render_qa_tab();
 	}
 
 	/**
@@ -258,17 +290,40 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * answers, determines the visitor's user context (logged-in / guest /
 	 * verified buyer), then loads the tab partial template.
 	 *
+	 * Accepts an optional explicit `$product` so manual placements (shortcode,
+	 * block) can pass a resolved product without relying on `global $product`
+	 * being set — the two automatic hook call sites (`register_product_tab()`,
+	 * `render_qa_below_reviews()`) still call this with no args and keep
+	 * falling back to the global exactly as before.
+	 *
 	 * @since 1.0.0
+	 * @param WC_Product|null $product Optional. Explicit product to render for.
 	 */
-	public function render_qa_tab() {
-		global $product;
+	public function render_qa_tab( $product = null ) {
+		if ( null === $product ) {
+			global $product;
+		}
 
 		if ( ! $product instanceof WC_Product ) {
 			return;
 		}
 
+		$product_id = absint( $product->get_id() );
+
+		// Guard against rendering the widget's fixed-ID markup twice on the same
+		// page (e.g. automatic tab + a manually placed shortcode/block for the
+		// same product) — the public JS targets fixed element IDs and would only
+		// ever wire up the first instance.
+		static $rendered_product_ids = array();
+		if ( in_array( $product_id, $rendered_product_ids, true ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				echo '<!-- Askora: Q&A widget already rendered for product ' . esc_html( $product_id ) . ', skipping duplicate instance. -->';
+			}
+			return;
+		}
+		$rendered_product_ids[] = $product_id;
+
 		$s            = $this->get_settings();
-		$product_id   = absint( $product->get_id() );
 		$current_user = wp_get_current_user();
 		$is_logged_in = is_user_logged_in();
 		$is_verified  = $is_logged_in && $this->is_verified_buyer(
@@ -620,15 +675,97 @@ class Quick_Qa_For_Woocommerce_Public {
 	}
 
 	/**
+	 * Whether the current request should load the public CSS/JS — either the
+	 * automatic single product page, or a page/template whose post content
+	 * contains the `[askora]` shortcode or the `askora/qa-widget` block.
+	 *
+	 * Note: this can't detect a shortcode placed by a page builder that stores
+	 * its own content outside `post_content` (e.g. Elementor's `_elementor_data`
+	 * meta) — the shortcode and block render callbacks additionally force-enqueue
+	 * the assets themselves to cover that case.
+	 *
+	 * @since  1.3.0
+	 * @return bool
+	 */
+	public function current_page_has_widget() {
+		if ( is_product() ) {
+			return true;
+		}
+
+		$post = get_post();
+		if ( ! $post ) {
+			return false;
+		}
+
+		if ( has_shortcode( (string) $post->post_content, 'askora' ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'has_block' ) && has_block( 'askora/qa-widget', $post ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve which WC_Product a manually placed shortcode/block should render
+	 * for, in order: an explicit product ID attribute, the `global $product`
+	 * (set on normal single product page loads), then the current queried post
+	 * (covers the block editor's ServerSideRender preview, which sets up
+	 * `global $post` for the edited post but not `global $product`).
+	 *
+	 * @since  1.3.0
+	 * @param  int $product_id Optional. Explicit product ID (e.g. shortcode/block attribute).
+	 * @return WC_Product|null
+	 */
+	public function resolve_product_for_manual_placement( $product_id = 0 ) {
+		$product_id = absint( $product_id );
+		if ( $product_id > 0 ) {
+			$product = wc_get_product( $product_id );
+			return $product instanceof WC_Product ? $product : null;
+		}
+
+		global $product;
+		if ( $product instanceof WC_Product ) {
+			return $product;
+		}
+
+		$current_id = get_the_ID();
+		if ( $current_id ) {
+			$resolved = wc_get_product( $current_id );
+			if ( $resolved instanceof WC_Product ) {
+				return $resolved;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Enqueue the public stylesheet — only on single product pages.
 	 *
 	 * @since 1.0.0
 	 */
 	public function enqueue_styles() {
-		if ( ! is_product() ) {
+		if ( ! $this->current_page_has_widget() ) {
 			return;
 		}
 
+		$this->enqueue_public_style();
+	}
+
+	/**
+	 * Enqueue the public stylesheet and its appearance-settings inline CSS.
+	 *
+	 * Split out from `enqueue_styles()` so manual placements (shortcode, block
+	 * render callback, block editor) can force-load assets regardless of the
+	 * `is_product()`/`current_page_has_widget()` gate — `wp_enqueue_style()` is
+	 * idempotent by handle, so calling this more than once per request is safe.
+	 *
+	 * @since 1.3.0
+	 */
+	public function enqueue_public_style() {
 		wp_enqueue_style(
 			$this->plugin_name,
 			plugin_dir_url( __FILE__ ) . 'css/quick-qa-for-woocommerce-public.css',
@@ -654,10 +791,22 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * @since 1.0.0
 	 */
 	public function enqueue_scripts() {
-		if ( ! is_product() ) {
+		if ( ! $this->current_page_has_widget() ) {
 			return;
 		}
 
+		$this->enqueue_public_script();
+	}
+
+	/**
+	 * Enqueue the public JavaScript and its localized settings.
+	 *
+	 * Split out from `enqueue_scripts()` for the same reason as
+	 * `enqueue_public_style()` — see its docblock.
+	 *
+	 * @since 1.3.0
+	 */
+	public function enqueue_public_script() {
 		wp_enqueue_script(
 			$this->plugin_name,
 			plugin_dir_url( __FILE__ ) . 'js/quick-qa-for-woocommerce-public.js',
