@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ImportExportTab.css';
+import { __, _n, sprintf } from '../../../i18n';
 
 const admin = window.quickQaAdmin || { restUrl: '', nonce: '', ajaxUrl: '', exportNonce: '' };
 
@@ -10,7 +11,10 @@ async function apiFetch(path, options = {}) {
     ...options,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+  if (!res.ok) {
+    // translators: %d is the HTTP status code returned by the server
+    throw new Error(data?.message || sprintf(__('Request failed (%d)', 'quick-qa-for-woocommerce'), res.status));
+  }
   return data;
 }
 
@@ -84,7 +88,7 @@ export default function ImportExportTab({ categories }) {
         body: formData,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || 'Upload failed');
+      if (!res.ok) throw new Error(data?.message || __('Upload failed', 'quick-qa-for-woocommerce'));
       setPreview(data);
       setActiveFilter('all');
       setView('preview');
@@ -103,11 +107,25 @@ export default function ImportExportTab({ categories }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rows: rowsToSend }),
       });
-      setToast(`Imported ${result.imported} Q&A pair${result.imported === 1 ? '' : 's'}${result.skipped ? ` (${result.skipped} skipped)` : ''}`);
+      const importedText = sprintf(
+        // translators: %d is the number of Q&A pairs successfully imported
+        _n('Imported %d Q&A pair', 'Imported %d Q&A pairs', result.imported, 'quick-qa-for-woocommerce'),
+        result.imported
+      );
+      const toastMessage = result.skipped
+        ? sprintf(
+            // translators: 1: import summary text, 2: number of rows skipped
+            __('%1$s (%2$d skipped)', 'quick-qa-for-woocommerce'),
+            importedText,
+            result.skipped
+          )
+        : importedText;
+      setToast(toastMessage);
       setView('form');
       setPreview(null);
     } catch (err) {
-      setToast(`Error: ${err.message}`);
+      // translators: %s is the error message
+      setToast(sprintf(__('Error: %s', 'quick-qa-for-woocommerce'), err.message));
     } finally {
       setCommitting(false);
     }
@@ -130,44 +148,53 @@ export default function ImportExportTab({ categories }) {
       <>
         {toast && <Toast message={toast} onDone={() => setToast(null)} />}
         <div className="qq-settings-card">
-          <div className="qq-settings-card-title">Review before importing</div>
+          <div className="qq-settings-card-title">{__('Review before importing', 'quick-qa-for-woocommerce')}</div>
           <div className="qq-settings-card-desc">
-            {preview.total} row{preview.total === 1 ? '' : 's'} detected. Nothing has been imported yet.
+            {sprintf(
+              _n(
+                // translators: %d is the number of rows detected in the uploaded CSV
+                '%d row detected. Nothing has been imported yet.',
+                '%d rows detected. Nothing has been imported yet.',
+                preview.total,
+                'quick-qa-for-woocommerce'
+              ),
+              preview.total
+            )}
           </div>
 
           <div className="qq-import-summary">
             <div className="qq-import-summary-cell">
-              <div className="qq-import-summary-label">Total rows</div>
+              <div className="qq-import-summary-label">{__('Total rows', 'quick-qa-for-woocommerce')}</div>
               <div className="qq-import-summary-num">{preview.total}</div>
             </div>
             <div className="qq-import-summary-cell">
-              <div className="qq-import-summary-label">Ready to import</div>
+              <div className="qq-import-summary-label">{__('Ready to import', 'quick-qa-for-woocommerce')}</div>
               <div className="qq-import-summary-num good">{preview.ready}</div>
             </div>
             <div className="qq-import-summary-cell">
-              <div className="qq-import-summary-label">Needs attention</div>
+              <div className="qq-import-summary-label">{__('Needs attention', 'quick-qa-for-woocommerce')}</div>
               <div className="qq-import-summary-num warn">{preview.needs_attention}</div>
             </div>
           </div>
 
           <div className="qq-import-tabs">
             <div className={`qq-import-tab${activeFilter === 'all' ? ' active' : ''}`} onClick={() => setActiveFilter('all')}>
-              All <span className="qq-import-tab-num">{preview.total}</span>
+              {__('All', 'quick-qa-for-woocommerce')} <span className="qq-import-tab-num">{preview.total}</span>
             </div>
             <div className={`qq-import-tab${activeFilter === 'ready' ? ' active' : ''}`} onClick={() => setActiveFilter('ready')}>
-              Ready <span className="qq-import-tab-num">{preview.ready}</span>
+              {__('Ready', 'quick-qa-for-woocommerce')} <span className="qq-import-tab-num">{preview.ready}</span>
             </div>
             <div className={`qq-import-tab errors${activeFilter === 'errors' ? ' active' : ''}`} onClick={() => setActiveFilter('errors')}>
-              Errors <span className="qq-import-tab-num">{preview.needs_attention}</span>
+              {__('Errors', 'quick-qa-for-woocommerce')} <span className="qq-import-tab-num">{preview.needs_attention}</span>
             </div>
           </div>
 
           <div className="qq-import-table">
             <div className="qq-import-row head">
               <div></div>
-              <div>Row · Product</div>
-              <div>Question</div>
-              <div>Status</div>
+              <div>{__('Row · Product', 'quick-qa-for-woocommerce')}</div>
+              <div>{__('Question', 'quick-qa-for-woocommerce')}</div>
+              <div>{__('Status', 'quick-qa-for-woocommerce')}</div>
             </div>
             {filteredRows.map(row => (
               <div key={row.row_number} className={`qq-import-row${row.valid ? '' : ' error'}`}>
@@ -184,16 +211,33 @@ export default function ImportExportTab({ categories }) {
           </div>
 
           <div className="qq-import-foot">
-            <div className="qq-import-foot-left">Showing {filteredRows.length} of {preview.total} rows</div>
+            <div className="qq-import-foot-left">
+              {sprintf(
+                // translators: 1: number of rows currently shown, 2: total number of rows
+                __('Showing %1$d of %2$d rows', 'quick-qa-for-woocommerce'),
+                filteredRows.length,
+                preview.total
+              )}
+            </div>
             <div className="qq-import-foot-actions">
-              <button className="btn btn-ghost" onClick={handleBackToUpload} disabled={committing}>Cancel</button>
+              <button className="btn btn-ghost" onClick={handleBackToUpload} disabled={committing}>{__('Cancel', 'quick-qa-for-woocommerce')}</button>
               {preview.needs_attention > 0 && (
                 <button
                   className="btn btn-secondary"
                   disabled={committing || preview.ready === 0}
                   onClick={() => handleCommit(rows.filter(r => r.valid))}
                 >
-                  {committing ? 'Importing…' : `Skip ${preview.needs_attention} error${preview.needs_attention === 1 ? '' : 's'} and import ${preview.ready}`}
+                  {committing ? __('Importing…', 'quick-qa-for-woocommerce') : sprintf(
+                    _n(
+                      // translators: 1: number of rows with errors that will be skipped, 2: number of rows that will be imported
+                      'Skip %1$d error and import %2$d',
+                      'Skip %1$d errors and import %2$d',
+                      preview.needs_attention,
+                      'quick-qa-for-woocommerce'
+                    ),
+                    preview.needs_attention,
+                    preview.ready
+                  )}
                 </button>
               )}
               <button
@@ -201,7 +245,11 @@ export default function ImportExportTab({ categories }) {
                 disabled={committing || preview.needs_attention > 0}
                 onClick={() => handleCommit(rows)}
               >
-                {committing ? 'Importing…' : preview.needs_attention > 0 ? `Import ${preview.total} (fix errors first)` : `Import ${preview.total}`}
+                {committing
+                  ? __('Importing…', 'quick-qa-for-woocommerce')
+                  : preview.needs_attention > 0
+                    ? sprintf(__('Import %d (fix errors first)', 'quick-qa-for-woocommerce'), preview.total)
+                    : sprintf(__('Import %d', 'quick-qa-for-woocommerce'), preview.total)}
               </button>
             </div>
           </div>
@@ -213,39 +261,39 @@ export default function ImportExportTab({ categories }) {
   return (
     <>
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-      <h1 className="qq-settings-page-title">Import / Export</h1>
-      <p className="qq-settings-page-sub">Move Q&amp;A data in or out of your store. Useful for migrations, backups, and reports.</p>
+      <h1 className="qq-settings-page-title">{__('Import / Export', 'quick-qa-for-woocommerce')}</h1>
+      <p className="qq-settings-page-sub">{__('Move Q&A data in or out of your store. Useful for migrations, backups, and reports.', 'quick-qa-for-woocommerce')}</p>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Export Q&amp;A</div>
-        <div className="qq-settings-card-desc">Generate a CSV download of your Q&amp;A. Pick a date range, status, and product category to filter what gets included.</div>
+        <div className="qq-settings-card-title">{__('Export Q&A', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('Generate a CSV download of your Q&A. Pick a date range, status, and product category to filter what gets included.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">Date range</div>
-          <div className="qq-settings-field-help">Only Q&amp;A created within this range will be exported. Leave blank for all time.</div>
+          <div className="qq-settings-field-label">{__('Date range', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-help">{__('Only Q&A created within this range will be exported. Leave blank for all time.', 'quick-qa-for-woocommerce')}</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input className="qq-settings-input qq-settings-input--md" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-            <span style={{ color: 'var(--text-3)', fontSize: 13 }}>to</span>
+            <span style={{ color: 'var(--text-3)', fontSize: 13 }}>{__('to', 'quick-qa-for-woocommerce')}</span>
             <input className="qq-settings-input qq-settings-input--md" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
           </div>
         </div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">Status</div>
-          <div className="qq-settings-field-help">Choose which question states are included.</div>
+          <div className="qq-settings-field-label">{__('Status', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-help">{__('Choose which question states are included.', 'quick-qa-for-woocommerce')}</div>
           <select className="qq-settings-select" value={status} onChange={e => setStatus(e.target.value)}>
-            <option value="all">All statuses</option>
-            <option value="approved">Answered / approved only</option>
-            <option value="pending">Pending only</option>
-            <option value="rejected">Rejected only</option>
+            <option value="all">{__('All statuses', 'quick-qa-for-woocommerce')}</option>
+            <option value="approved">{__('Answered / approved only', 'quick-qa-for-woocommerce')}</option>
+            <option value="pending">{__('Pending only', 'quick-qa-for-woocommerce')}</option>
+            <option value="rejected">{__('Rejected only', 'quick-qa-for-woocommerce')}</option>
           </select>
         </div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">Product category</div>
-          <div className="qq-settings-field-help">Limit the export to one category, or include all products.</div>
+          <div className="qq-settings-field-label">{__('Product category', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-help">{__('Limit the export to one category, or include all products.', 'quick-qa-for-woocommerce')}</div>
           <select className="qq-settings-select" value={category} onChange={e => setCategory(e.target.value)}>
-            <option value="">All categories</option>
+            <option value="">{__('All categories', 'quick-qa-for-woocommerce')}</option>
             {(categories || []).map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -253,25 +301,25 @@ export default function ImportExportTab({ categories }) {
         </div>
 
         <div style={{ marginTop: 20 }}>
-          <a className="btn btn-primary" href={buildExportHref()}>Generate download</a>
+          <a className="btn btn-primary" href={buildExportHref()}>{__('Generate download', 'quick-qa-for-woocommerce')}</a>
         </div>
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Import Q&amp;A</div>
-        <div className="qq-settings-card-desc">Bring in existing Q&amp;A from another store, a previous export, or a content team's spreadsheet. You'll preview every row before anything is imported.</div>
+        <div className="qq-settings-card-title">{__('Import Q&A', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__("Bring in existing Q&A from another store, a previous export, or a content team's spreadsheet. You'll preview every row before anything is imported.", 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">Upload a CSV</div>
+          <div className="qq-settings-field-label">{__('Upload a CSV', 'quick-qa-for-woocommerce')}</div>
           <div className="qq-settings-field-help">
-            Need a starter file?{' '}
-            <button type="button" className="qq-import-template-link" onClick={handleTemplateDownload}>Download CSV template</button>{' '}
-            with the correct column headers.
+            {__('Need a starter file?', 'quick-qa-for-woocommerce')}{' '}
+            <button type="button" className="qq-import-template-link" onClick={handleTemplateDownload}>{__('Download CSV template', 'quick-qa-for-woocommerce')}</button>{' '}
+            {__('with the correct column headers.', 'quick-qa-for-woocommerce')}
           </div>
           <div className="qq-import-dropzone" onClick={() => fileRef.current && fileRef.current.click()}>
             <div className="qq-import-dropzone-icon">⬆</div>
-            <div className="qq-import-dropzone-title">{uploading ? 'Uploading…' : 'Click to browse for a CSV'}</div>
-            <div className="qq-import-dropzone-sub">UTF-8 encoding · CSV format</div>
+            <div className="qq-import-dropzone-title">{uploading ? __('Uploading…', 'quick-qa-for-woocommerce') : __('Click to browse for a CSV', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-import-dropzone-sub">{__('UTF-8 encoding · CSV format', 'quick-qa-for-woocommerce')}</div>
             <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
           </div>
           {uploadError && <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 8 }}>{uploadError}</div>}
@@ -280,7 +328,7 @@ export default function ImportExportTab({ categories }) {
         <div className="qq-settings-banner" style={{ marginTop: 16, marginBottom: 0 }}>
           <span className="qq-settings-banner-mark">ℹ</span>
           <div className="qq-settings-banner-body">
-            You'll review every row in a preview screen and can skip rows with errors before anything is committed. Nothing imports until you confirm.
+            {__("You'll review every row in a preview screen and can skip rows with errors before anything is committed. Nothing imports until you confirm.", 'quick-qa-for-woocommerce')}
           </div>
         </div>
       </div>

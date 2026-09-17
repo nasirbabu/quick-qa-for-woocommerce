@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '../../../i18n';
 
 const RADIUS_MAP = { sharp: '0px', rounded: '8px', pill: '999px' };
 
@@ -41,23 +42,23 @@ export default function AppearancePreview({ draft, previewState }) {
     <div className={widgetCls} style={widgetStyle}>
 
       <div className="qq-pw-q-bar">
-        <span>3 questions</span>
+        <span>{ __( '3 questions', 'quick-qa-for-woocommerce' ) }</span>
         <button className="qq-pw-ask-btn">
-          {requiresLogin ? 'Log in to ask' : 'Ask a question'}
+          {requiresLogin ? __( 'Log in to ask', 'quick-qa-for-woocommerce' ) : __( 'Ask a question', 'quick-qa-for-woocommerce' )}
         </button>
       </div>
 
       {requiresLogin && (
         <div className="qq-pw-login-prompt">
           <div className="qq-pw-login-mark">💬</div>
-          <div className="qq-pw-login-title">Have a question?</div>
-          <div className="qq-pw-login-text">Log in or create a free account to ask. It only takes a minute.</div>
+          <div className="qq-pw-login-title">{ __( 'Have a question?', 'quick-qa-for-woocommerce' ) }</div>
+          <div className="qq-pw-login-text">{ __( 'Log in or create a free account to ask. It only takes a minute.', 'quick-qa-for-woocommerce' ) }</div>
           <div className="qq-pw-login-actions">
-            <button className="qq-pw-login-btn">Log in</button>
-            <button className="qq-pw-login-btn secondary">Create account</button>
+            <button className="qq-pw-login-btn">{ __( 'Log in', 'quick-qa-for-woocommerce' ) }</button>
+            <button className="qq-pw-login-btn secondary">{ __( 'Create account', 'quick-qa-for-woocommerce' ) }</button>
           </div>
           <div className="qq-pw-login-note">
-            Already a customer? Your purchase history makes your answers more useful to other buyers.
+            { __( 'Already a customer? Your purchase history makes your answers more useful to other buyers.', 'quick-qa-for-woocommerce' ) }
           </div>
         </div>
       )}
@@ -68,10 +69,10 @@ export default function AppearancePreview({ draft, previewState }) {
           <div className="qq-pw-msg-body">
             <div className="qq-pw-msg-meta">
               <b>Sarah K.</b>
-              <RoleBadge role="" label="Customer" />
-              <span>· 2 days ago</span>
+              <RoleBadge role="" label={ __( 'Customer', 'quick-qa-for-woocommerce' ) } />
+              <span>· { __( '2 days ago', 'quick-qa-for-woocommerce' ) }</span>
             </div>
-            <div className="qq-pw-msg-text">Does this bag fit a 15-inch laptop with room for accessories?</div>
+            <div className="qq-pw-msg-text">{ __( 'Does this bag fit a 15-inch laptop with room for accessories?', 'quick-qa-for-woocommerce' ) }</div>
             {showUpvotes && (
               <div className="qq-pw-msg-foot">
                 <span className="qq-pw-vote">
@@ -83,23 +84,23 @@ export default function AppearancePreview({ draft, previewState }) {
           </div>
         </div>
 
-        <div className="qq-pw-divider">2 answers</div>
+        <div className="qq-pw-divider">{ __( '2 answers', 'quick-qa-for-woocommerce' ) }</div>
 
         <div className={`qq-pw-msg${draft.appr_show_best_highlight ? ' best' : ''}`}>
           <div className={avatarCls}>QA</div>
           <div className="qq-pw-msg-body">
             <div className="qq-pw-msg-meta">
               <b>Acme Goods</b>
-              <RoleBadge role="staff" label="Store staff" />
+              <RoleBadge role="staff" label={ __( 'Store staff', 'quick-qa-for-woocommerce' ) } />
               {draft.appr_show_best_highlight && (
-                <span className="qq-pw-best-tag">★ Best answer</span>
+                <span className="qq-pw-best-tag">{ __( '★ Best answer', 'quick-qa-for-woocommerce' ) }</span>
               )}
-              <span>· 1 day ago</span>
+              <span>· { __( '1 day ago', 'quick-qa-for-woocommerce' ) }</span>
             </div>
-            <div className="qq-pw-msg-text">Yes, the main compartment fits up to a 16-inch laptop. You'll still have room for the charger and a small notebook.</div>
+            <div className="qq-pw-msg-text">{ __( "Yes, the main compartment fits up to a 16-inch laptop. You'll still have room for the charger and a small notebook.", 'quick-qa-for-woocommerce' ) }</div>
             {showHelpful && (
               <div className="qq-pw-msg-foot">
-                <span className="qq-pw-helpful">↑ 12 found this helpful</span>
+                <span className="qq-pw-helpful">{ __( '↑ 12 found this helpful', 'quick-qa-for-woocommerce' ) }</span>
               </div>
             )}
           </div>
@@ -110,13 +111,13 @@ export default function AppearancePreview({ draft, previewState }) {
           <div className="qq-pw-msg-body">
             <div className="qq-pw-msg-meta">
               <b>Sandra M.</b>
-              <RoleBadge role="" label="Verified buyer" />
-              <span>· 18 hours ago</span>
+              <RoleBadge role="" label={ __( 'Verified buyer', 'quick-qa-for-woocommerce' ) } />
+              <span>· { __( '18 hours ago', 'quick-qa-for-woocommerce' ) }</span>
             </div>
-            <div className="qq-pw-msg-text">Can confirm — my 15-inch MacBook Pro fits easily with the charger.</div>
+            <div className="qq-pw-msg-text">{ __( 'Can confirm — my 15-inch MacBook Pro fits easily with the charger.', 'quick-qa-for-woocommerce' ) }</div>
             {showHelpful && (
               <div className="qq-pw-msg-foot">
-                <span className="qq-pw-helpful">↑ 4 found this helpful</span>
+                <span className="qq-pw-helpful">{ __( '↑ 4 found this helpful', 'quick-qa-for-woocommerce' ) }</span>
               </div>
             )}
           </div>

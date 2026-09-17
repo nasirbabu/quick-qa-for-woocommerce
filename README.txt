@@ -48,6 +48,7 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Find anything fast.** Admin-side search covers questions, customers, and products, so you're never scrolling to find one specific thread.
 * **Run it only where it makes sense.** Scope control lets you turn Askora on for every product, only certain categories, only specific products, or everything except a list you choose.
 * **Use it on a multisite network.** Askora works across WordPress Multisite without extra setup.
+* **Runs on multilingual stores.** With WPML or Polylang active, each language's product keeps its own separate Q&A — questions asked on one language version never show up on another.
 * **Place it exactly where you want.** Not every theme or page builder supports Askora's automatic placement — drag the "Askora Q&A" block into the editor (or Elementor), or drop the `[askora]` shortcode into a custom template, and it renders with all your current settings, just like the automatic placement.
 
 = Notifications, so you never have to keep checking =
@@ -72,7 +73,6 @@ These aren't vague promises. They're already in progress:
 * Follow-up questions, letting the original asker ask one clarifying question after their answer (coming soon)
 * A "My Questions" tab inside WooCommerce My Account (coming soon)
 * CSV import and export for migrations and backups (coming soon)
-* Multilingual support via WPML and Polylang (coming soon)
 
 None of this sits behind a paywall. It's simply not built yet, and when it ships, it ships in this same free plugin.
 
@@ -205,6 +205,8 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 
 = 1.4.0 (15-09-2026) =
 * Added: An "Askora Q&A" Gutenberg block and an `[askora]` shortcode, for themes and page builders (Elementor, Divi, block-based FSE themes) that don't use WooCommerce's automatic tab placement. Both render the widget exactly like automatic placement, using all your current Askora settings. The block's sidebar has a Product ID field for placements where the product can't be inferred automatically.
+* Added: WPML and Polylang compatibility — each language version of a product keeps its own separate Q&A, and the `[askora]` shortcode/block and product/category scope settings now resolve correctly across translated products.
+* Added: Full translation support for the plugin's admin dashboard (Settings, All Q&A, Reply Templates) via standard WordPress i18n, plus a regenerated `.pot` file in `/languages/` for translators.
 
 = 1.3.0 (13-09-2026) =
 * Added: Customers can now post one follow-up question directly under their own answered question — visible only to the original asker — so a quick clarification doesn't need a whole new question. An admin reply closes the thread out, and admins can also lock a thread manually at any time.

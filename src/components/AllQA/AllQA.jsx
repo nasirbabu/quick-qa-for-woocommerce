@@ -2,14 +2,15 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './AllQA.css';
 import QuestionList from './QuestionList';
 import QuestionDetail from './QuestionDetail';
+import { __, _n, sprintf } from '../../i18n';
 
 const TABS = [
-  { key: 'all',       label: 'All' },
-  { key: 'pending-q', label: 'Pending questions' },
-  { key: 'pending-a', label: 'Pending answers' },
-  { key: 'flagged',   label: 'Flagged' },
-  { key: 'answered',  label: 'Answered' },
-  { key: 'rejected',  label: 'Rejected' },
+  { key: 'all',       label: __( 'All', 'quick-qa-for-woocommerce' ) },
+  { key: 'pending-q', label: __( 'Pending questions', 'quick-qa-for-woocommerce' ) },
+  { key: 'pending-a', label: __( 'Pending answers', 'quick-qa-for-woocommerce' ) },
+  { key: 'flagged',   label: __( 'Flagged', 'quick-qa-for-woocommerce' ) },
+  { key: 'answered',  label: __( 'Answered', 'quick-qa-for-woocommerce' ) },
+  { key: 'rejected',  label: __( 'Rejected', 'quick-qa-for-woocommerce' ) },
 ];
 
 // ── API helpers ──────────────────────────────────────────────────────────────
@@ -28,7 +29,7 @@ async function apiFetch(path, options = {}) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Request failed (${res.status})`);
+    throw new Error(err.message || sprintf( __( 'Request failed (%d)', 'quick-qa-for-woocommerce' ), res.status ));
   }
   return res.json();
 }
@@ -42,15 +43,15 @@ function makeInitials(name) {
 function timeAgo(dateStr) {
   if (!dateStr) return '—';
   const diff = (Date.now() - new Date(dateStr + 'Z').getTime()) / 1000;
-  if (diff < 60)     return 'just now';
-  if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-  return `${Math.floor(diff / 604800)}w ago`;
+  if (diff < 60)     return __( 'just now', 'quick-qa-for-woocommerce' );
+  if (diff < 3600)   return sprintf( __( '%dm ago', 'quick-qa-for-woocommerce' ), Math.floor(diff / 60) );
+  if (diff < 86400)  return sprintf( __( '%dh ago', 'quick-qa-for-woocommerce' ), Math.floor(diff / 3600) );
+  if (diff < 604800) return sprintf( __( '%dd ago', 'quick-qa-for-woocommerce' ), Math.floor(diff / 86400) );
+  return sprintf( __( '%dw ago', 'quick-qa-for-woocommerce' ), Math.floor(diff / 604800) );
 }
 
 function transformItem(q) {
-  const customer       = q.author_name || q.guest_name || 'Anonymous';
+  const customer       = q.author_name || q.guest_name || __( 'Anonymous', 'quick-qa-for-woocommerce' );
   const pendingAnswers  = (q.answers || []).filter(a => a.status === 'pending');
   const approvedAnswers = (q.answers || []).filter(a => a.status === 'approved');
   const flaggedAnswers  = (q.answers || []).filter(a => a.status === 'flagged');
@@ -91,7 +92,7 @@ function transformItem(q) {
     customer,
     avatar:    makeInitials(customer),
     role:      q.is_verified_buyer == '1' ? 'verified-buyer' : (parseInt(q.user_id) > 0 ? 'customer' : 'guest'),
-    product:          q.product_title || `Product #${q.product_id}`,
+    product:          q.product_title || sprintf( __( 'Product #%d', 'quick-qa-for-woocommerce' ), q.product_id ),
     productId:        parseInt(q.product_id, 10),
     productPermalink: q.product_permalink || '',
     upvotes:   parseInt(q.upvotes, 10) || 0,
@@ -101,8 +102,8 @@ function transformItem(q) {
     answers:   topLevelAnswers.map(a => ({
       id:        String(a.id),
       dbId:      parseInt(a.id, 10),
-      author:    a.author_name || 'Team',
-      avatar:    makeInitials(a.author_name || 'Team'),
+      author:    a.author_name || __( 'Team', 'quick-qa-for-woocommerce' ),
+      avatar:    makeInitials(a.author_name || __( 'Team', 'quick-qa-for-woocommerce' )),
       role:      a.answer_type === 'admin' ? 'staff' : 'community',
       time:      timeAgo(a.created_at),
       text:      a.answer_text || '',
@@ -111,38 +112,42 @@ function transformItem(q) {
       flagCount: parseInt(a.flag_count, 10) || 0,
       flags:     (a.flags || []).map(f => ({
         reason:   f.reason || '',
-        reporter: f.reporter_name || 'A customer',
+        reporter: f.reporter_name || __( 'A customer', 'quick-qa-for-woocommerce' ),
         time:     timeAgo(f.created_at),
       })),
     })),
     pendingAnswer: pa ? {
       id:     String(pa.id),
       dbId:   parseInt(pa.id, 10),
-      author: pa.author_name || 'User',
-      avatar: makeInitials(pa.author_name || 'User'),
+      author: pa.author_name || __( 'User', 'quick-qa-for-woocommerce' ),
+      avatar: makeInitials(pa.author_name || __( 'User', 'quick-qa-for-woocommerce' )),
       role:   pa.answer_type === 'admin' ? 'staff' : 'community',
       text:   pa.answer_text || '',
       time:   timeAgo(pa.created_at),
-      meta:   [pa.answer_type === 'admin' ? 'Staff answer' : (pa.answer_type === 'followup' ? 'Follow-up' : 'Community answer')],
+      meta:   [pa.answer_type === 'admin'
+        ? __( 'Staff answer', 'quick-qa-for-woocommerce' )
+        : (pa.answer_type === 'followup'
+          ? __( 'Follow-up', 'quick-qa-for-woocommerce' )
+          : __( 'Community answer', 'quick-qa-for-woocommerce' ))],
     } : null,
     flagCount: parseInt(q.flag_count, 10) || 0,
     flags:     (q.flags || []).map(f => ({
       reason:   f.reason || '',
-      reporter: f.reporter_name || 'A customer',
+      reporter: f.reporter_name || __( 'A customer', 'quick-qa-for-woocommerce' ),
       time:     timeAgo(f.created_at),
     })),
     flaggedAnswers: flaggedAnswers.map(a => ({
       id:        String(a.id),
       dbId:      parseInt(a.id, 10),
-      author:    a.author_name || 'Team',
-      avatar:    makeInitials(a.author_name || 'Team'),
+      author:    a.author_name || __( 'Team', 'quick-qa-for-woocommerce' ),
+      avatar:    makeInitials(a.author_name || __( 'Team', 'quick-qa-for-woocommerce' )),
       role:      a.answer_type === 'admin' ? 'staff' : 'community',
       time:      timeAgo(a.created_at),
       text:      a.answer_text || '',
       flagCount: parseInt(a.flag_count, 10) || 0,
       flags:     (a.flags || []).map(f => ({
         reason:   f.reason || '',
-        reporter: f.reporter_name || 'A customer',
+        reporter: f.reporter_name || __( 'A customer', 'quick-qa-for-woocommerce' ),
         time:     timeAgo(f.created_at),
       })),
     })),
@@ -159,8 +164,8 @@ function transformItem(q) {
         reply: replyRow ? {
           id:     String(replyRow.id),
           dbId:   parseInt(replyRow.id, 10),
-          author: replyRow.author_name || 'Team',
-          avatar: makeInitials(replyRow.author_name || 'Team'),
+          author: replyRow.author_name || __( 'Team', 'quick-qa-for-woocommerce' ),
+          avatar: makeInitials(replyRow.author_name || __( 'Team', 'quick-qa-for-woocommerce' )),
           time:   timeAgo(replyRow.created_at),
           text:   replyRow.answer_text || '',
         } : null,
@@ -186,9 +191,9 @@ function getProductsInTab(items) {
 const PAGE_SIZE = 20;
 
 const SORT_OPTIONS = [
-  { key: 'recent',  label: 'Most recent' },
-  { key: 'upvoted', label: 'Most upvoted' },
-  { key: 'oldest',  label: 'Oldest first' },
+  { key: 'recent',  label: __( 'Most recent', 'quick-qa-for-woocommerce' ) },
+  { key: 'upvoted', label: __( 'Most upvoted', 'quick-qa-for-woocommerce' ) },
+  { key: 'oldest',  label: __( 'Oldest first', 'quick-qa-for-woocommerce' ) },
 ];
 
 function applySortToItems(items, sortBy) {
@@ -220,13 +225,13 @@ function BulkBar({ selectedCount, totalCount, allSelected, partial, onToggleAll,
         <div className={`qq-bulk-bar-master ${masterCls}`} onClick={onToggleAll}>
           {allSelected ? '✓' : partial ? '−' : ''}
         </div>
-        <span className="qq-bulk-bar-count">{selectedCount} selected</span>
+        <span className="qq-bulk-bar-count">{sprintf( __( '%d selected', 'quick-qa-for-woocommerce' ), selectedCount )}</span>
         {!allSelected && (
           <span className="qq-bulk-bar-link" onClick={onSelectAll}>
-            Select all {totalCount}
+            {sprintf( __( 'Select all %d', 'quick-qa-for-woocommerce' ), totalCount )}
           </span>
         )}
-        <span className="qq-bulk-bar-link" onClick={onClear}>Clear</span>
+        <span className="qq-bulk-bar-link" onClick={onClear}>{__( 'Clear', 'quick-qa-for-woocommerce' )}</span>
       </div>
       <div className="qq-bulk-bar-actions">
         {actions.map(a => (
@@ -251,23 +256,23 @@ function BulkSummary({ selectedItems, activeTab }) {
   const productsAffected  = new Set(selectedItems.map(q => q.product)).size;
   const totalUpvotes      = selectedItems.reduce((s, q) => s + q.upvotes, 0);
   const hints = {
-    'pending-q': 'Approve to publish them, or reject if they are spam or off-topic.',
-    'pending-a': 'Approve to publish these community answers with their trust badges.',
-    'flagged':   'Dismiss flags to restore content, or delete if the flags are valid.',
+    'pending-q': __( 'Approve to publish them, or reject if they are spam or off-topic.', 'quick-qa-for-woocommerce' ),
+    'pending-a': __( 'Approve to publish these community answers with their trust badges.', 'quick-qa-for-woocommerce' ),
+    'flagged':   __( 'Dismiss flags to restore content, or delete if the flags are valid.', 'quick-qa-for-woocommerce' ),
   };
-  const hint = hints[activeTab] || 'Choose a bulk action above.';
+  const hint = hints[activeTab] || __( 'Choose a bulk action above.', 'quick-qa-for-woocommerce' );
 
   return (
     <div className="qq-bulk-summary">
       <div className="qq-bulk-summary-art">📦</div>
       <div className="qq-bulk-summary-num">{count}</div>
-      <div className="qq-bulk-summary-label">{count === 1 ? 'item' : 'items'} selected</div>
+      <div className="qq-bulk-summary-label">{_n( 'item selected', 'items selected', count, 'quick-qa-for-woocommerce' )}</div>
       <div className="qq-bulk-summary-card">
         <div className="qq-bulk-summary-row">
-          <span>Across products</span><b>{productsAffected}</b>
+          <span>{__( 'Across products', 'quick-qa-for-woocommerce' )}</span><b>{productsAffected}</b>
         </div>
         <div className="qq-bulk-summary-row">
-          <span>Total upvotes</span><b>{totalUpvotes}</b>
+          <span>{__( 'Total upvotes', 'quick-qa-for-woocommerce' )}</span><b>{totalUpvotes}</b>
         </div>
       </div>
       <div className="qq-bulk-summary-tip">{hint}</div>
@@ -392,18 +397,18 @@ export default function AllQA() {
   function getBulkActions() {
     const run = action => () => handleBulkAction(action);
     if (activeTab === 'pending-q') return [
-      { key: 'approve', label: 'Approve', primary: true, onClick: run('approve') },
-      { key: 'reject',  label: 'Reject',  danger: true,  onClick: run('reject') },
+      { key: 'approve', label: __( 'Approve', 'quick-qa-for-woocommerce' ), primary: true, onClick: run('approve') },
+      { key: 'reject',  label: __( 'Reject', 'quick-qa-for-woocommerce' ),  danger: true,  onClick: run('reject') },
     ];
     if (activeTab === 'pending-a') return [
-      { key: 'approve-answers', label: 'Approve', primary: true, onClick: run('approve-answers') },
-      { key: 'reject',          label: 'Reject',  danger: true,  onClick: run('reject') },
+      { key: 'approve-answers', label: __( 'Approve', 'quick-qa-for-woocommerce' ), primary: true, onClick: run('approve-answers') },
+      { key: 'reject',          label: __( 'Reject', 'quick-qa-for-woocommerce' ),  danger: true,  onClick: run('reject') },
     ];
     if (activeTab === 'flagged') return [
-      { key: 'dismiss-flags', label: 'Dismiss flags', onClick: run('dismiss-flags') },
-      { key: 'delete',        label: 'Delete', danger: true, onClick: run('delete') },
+      { key: 'dismiss-flags', label: __( 'Dismiss flags', 'quick-qa-for-woocommerce' ), onClick: run('dismiss-flags') },
+      { key: 'delete',        label: __( 'Delete', 'quick-qa-for-woocommerce' ), danger: true, onClick: run('delete') },
     ];
-    return [{ key: 'delete', label: 'Delete', danger: true, onClick: run('delete') }];
+    return [{ key: 'delete', label: __( 'Delete', 'quick-qa-for-woocommerce' ), danger: true, onClick: run('delete') }];
   }
 
   async function handleBulkAction(action) {
@@ -572,7 +577,7 @@ export default function AllQA() {
   if (loading) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg">Loading Q&amp;A data…</div>
+        <div className="qq-state-msg">{__( 'Loading Q&A data…', 'quick-qa-for-woocommerce' )}</div>
       </div>
     );
   }
@@ -580,7 +585,7 @@ export default function AllQA() {
   if (error) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg qq-state-msg--error">Failed to load: {error}</div>
+        <div className="qq-state-msg qq-state-msg--error">{sprintf( __( 'Failed to load: %s', 'quick-qa-for-woocommerce' ), error )}</div>
       </div>
     );
   }
@@ -589,12 +594,12 @@ export default function AllQA() {
     <div className="qq-page">
       <div className="qq-top">
         <div className="qq-top-left">
-          <span className="qq-page-label">All Q&amp;A</span>
+          <span className="qq-page-label">{__( 'All Q&A', 'quick-qa-for-woocommerce' )}</span>
           <div className="qq-search-wrap">
             <input
               type="text"
               className="qq-search"
-              placeholder="Search questions…"
+              placeholder={__( 'Search questions…', 'quick-qa-for-woocommerce' )}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -621,7 +626,17 @@ export default function AllQA() {
 
       {bulkResult && (
         <div className="qq-bulk-result-banner">
-          <span>{bulkResult.succeeded} succeeded, {bulkResult.failed} failed — failed item{bulkResult.failed !== 1 ? 's' : ''} still selected, try again.</span>
+          <span>{sprintf(
+            // translators: %1$d is the number of items that succeeded, %2$d is the number that failed
+            _n(
+              '%1$d succeeded, %2$d failed — failed item still selected, try again.',
+              '%1$d succeeded, %2$d failed — failed items still selected, try again.',
+              bulkResult.failed,
+              'quick-qa-for-woocommerce'
+            ),
+            bulkResult.succeeded,
+            bulkResult.failed
+          )}</span>
           <span className="qq-bulk-result-banner-x" onClick={() => setBulkResult(null)}>×</span>
         </div>
       )}
@@ -643,7 +658,7 @@ export default function AllQA() {
           ) : (
             <div className="qq-queue-head">
               <div className="qq-queue-head-left">
-                <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+                <span>{sprintf( _n( '%d item', '%d items', visibleItems.length, 'quick-qa-for-woocommerce' ), visibleItems.length )}</span>
                 {productFilter && (
                   <span className="qq-active-filter">
                     {productFilter}
@@ -660,14 +675,14 @@ export default function AllQA() {
                   className={`qq-filter-dropdown${productFilter ? ' active' : ''}`}
                   onClick={e => { e.stopPropagation(); setFilterOpen(v => !v); setSortOpen(false); }}
                 >
-                  {productFilter ? '✓ Filtered' : 'Filter ▾'}
+                  {productFilter ? __( '✓ Filtered', 'quick-qa-for-woocommerce' ) : __( 'Filter ▾', 'quick-qa-for-woocommerce' )}
                   {filterOpen && (
                     <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
                       <div
                         className={`qq-filter-popover-item${!productFilter ? ' selected' : ''}`}
                         onClick={() => { setProductFilter(null); setFilterOpen(false); }}
                       >
-                        All products
+                        {__( 'All products', 'quick-qa-for-woocommerce' )}
                         <span className="qq-filter-popover-count">{tabItems.length}</span>
                       </div>
                       {products.map(([name, count]) => (
@@ -689,7 +704,7 @@ export default function AllQA() {
                 className={`qq-filter-dropdown${sortBy !== 'recent' ? ' active' : ''}`}
                 onClick={e => { e.stopPropagation(); setSortOpen(v => !v); setFilterOpen(false); }}
               >
-                {sortBy !== 'recent' ? '✓ Sorted' : 'Sort ▾'}
+                {sortBy !== 'recent' ? __( '✓ Sorted', 'quick-qa-for-woocommerce' ) : __( 'Sort ▾', 'quick-qa-for-woocommerce' )}
                 {sortOpen && (
                   <div className="qq-filter-popover" onClick={e => e.stopPropagation()}>
                     {SORT_OPTIONS.map(opt => (
@@ -719,22 +734,27 @@ export default function AllQA() {
           <div className="qq-page-foot">
             {totalPages > 1 ? (
               <>
-                <span>Page {safePage} of {totalPages}</span>
+                <span>{sprintf(
+                  // translators: %1$d is the current page number, %2$d is the total number of pages
+                  __( 'Page %1$d of %2$d', 'quick-qa-for-woocommerce' ),
+                  safePage,
+                  totalPages
+                )}</span>
                 <div className="qq-page-nav">
                   <button
                     className="qq-page-btn"
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={safePage === 1}
-                  >Prev</button>
+                  >{__( 'Prev', 'quick-qa-for-woocommerce' )}</button>
                   <button
                     className="qq-page-btn"
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={safePage === totalPages}
-                  >Next</button>
+                  >{__( 'Next', 'quick-qa-for-woocommerce' )}</button>
                 </div>
               </>
             ) : (
-              <span>{visibleItems.length} item{visibleItems.length !== 1 ? 's' : ''}</span>
+              <span>{sprintf( _n( '%d item', '%d items', visibleItems.length, 'quick-qa-for-woocommerce' ), visibleItems.length )}</span>
             )}
           </div>
         </div>

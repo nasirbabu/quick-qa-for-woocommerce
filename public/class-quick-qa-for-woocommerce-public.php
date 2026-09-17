@@ -159,26 +159,58 @@ class Quick_Qa_For_Woocommerce_Public {
 				}
 				return ! empty( array_intersect(
 					array_map( 'absint', (array) $term_ids ),
-					array_map( 'absint', (array) $s['enabled_categories'] )
+					$this->translate_scope_ids( $s['enabled_categories'], 'term' )
 				) );
 
 			case 'products':
 				return in_array(
 					$product_id,
-					array_map( 'absint', (array) $s['enabled_products'] ),
+					$this->translate_scope_ids( $s['enabled_products'], 'product' ),
 					true
 				);
 
 			case 'exclude':
 				return ! in_array(
 					$product_id,
-					array_map( 'absint', (array) $s['excluded_products'] ),
+					$this->translate_scope_ids( $s['excluded_products'], 'product' ),
 					true
 				);
 
 			default: // 'all'
 				return true;
 		}
+	}
+
+	/**
+	 * Translate a list of admin-configured product or category IDs into
+	 * their equivalents in the current front-end content language.
+	 *
+	 * Scope settings are picked once, in whatever language the admin was
+	 * editing in — without this, a `products`/`categories`/`exclude` scope
+	 * would silently stop matching on every other language's product pages
+	 * once WPML/Polylang is active (KAN-29).
+	 *
+	 * @since  1.4.0
+	 * @access private
+	 * @param  array  $ids  Raw post or term IDs as stored in settings.
+	 * @param  string $kind 'product' or 'term'.
+	 * @return int[]
+	 */
+	private function translate_scope_ids( $ids, $kind ) {
+		$ids = array_map( 'absint', (array) $ids );
+
+		if ( ! Quick_Qa_For_Woocommerce_Multilingual::is_active() ) {
+			return $ids;
+		}
+
+		return array_map(
+			static function ( $id ) use ( $kind ) {
+				return 'term' === $kind
+					? Quick_Qa_For_Woocommerce_Multilingual::translate_term_id( $id, 'product_cat' )
+					: Quick_Qa_For_Woocommerce_Multilingual::translate_object_id( $id, 'product' );
+			},
+			$ids
+		);
 	}
 
 	/**
@@ -722,7 +754,12 @@ class Quick_Qa_For_Woocommerce_Public {
 	public function resolve_product_for_manual_placement( $product_id = 0 ) {
 		$product_id = absint( $product_id );
 		if ( $product_id > 0 ) {
-			$product = wc_get_product( $product_id );
+			// A hardcoded product_id may have been authored on a different
+			// language's page (e.g. a shortcode copy-pasted across
+			// translations) — resolve it to the current language's product
+			// so the Q&A shown stays scoped to that language (KAN-29).
+			$product_id = Quick_Qa_For_Woocommerce_Multilingual::translate_object_id( $product_id, 'product' );
+			$product    = wc_get_product( $product_id );
 			return $product instanceof WC_Product ? $product : null;
 		}
 
@@ -873,6 +910,14 @@ class Quick_Qa_For_Woocommerce_Public {
 					'submitAnswer'      => __( 'Submit answer', 'quick-qa-for-woocommerce' ),
 					'showMore'          => __( 'Show more questions', 'quick-qa-for-woocommerce' ),
 					'loadingMore'       => __( 'Loading…', 'quick-qa-for-woocommerce' ),
+					'flagModalTitle'    => __( 'Report this content', 'quick-qa-for-woocommerce' ),
+					'flagModalSub'      => __( 'Help us keep Q&A useful. Reports are reviewed by our team.', 'quick-qa-for-woocommerce' ),
+					'flagReasonSpam'       => __( 'Spam or promotional', 'quick-qa-for-woocommerce' ),
+					'flagReasonIncorrect'  => __( 'Incorrect information', 'quick-qa-for-woocommerce' ),
+					'flagReasonOffensive'  => __( 'Offensive language', 'quick-qa-for-woocommerce' ),
+					'flagReasonDuplicate'  => __( 'Duplicate question', 'quick-qa-for-woocommerce' ),
+					'flagReasonOther'      => __( 'Other', 'quick-qa-for-woocommerce' ),
+					'flagThanks'        => __( 'Thanks for letting us know.', 'quick-qa-for-woocommerce' ),
 				),
 			)
 		);

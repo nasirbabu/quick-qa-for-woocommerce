@@ -71,6 +71,8 @@ class Quick_Qa_For_Woocommerce_Blocks {
 			$this->version,
 			true
 		);
+
+		wp_set_script_translations( 'quick-qa-block-editor', 'quick-qa-for-woocommerce', plugin_dir_path( dirname( __FILE__ ) ) . 'languages' );
 	}
 
 	/**

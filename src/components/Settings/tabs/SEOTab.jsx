@@ -1,35 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './SEOTab.css';
 import Toggle from '../components/Toggle';
+import { __, sprintf } from '../../../i18n';
 
 const SCHEMA_TYPE_OPTIONS = [
   {
     val:   'QAPage',
-    title: 'QAPage (recommended for community Q&A)',
-    help:  'Use when your Q&A is community-driven — customers ask questions, your team and other buyers answer. This is the honest choice for most product Q&A.',
+    title: __('QAPage (recommended for community Q&A)', 'quick-qa-for-woocommerce'),
+    help:  __('Use when your Q&A is community-driven — customers ask questions, your team and other buyers answer. This is the honest choice for most product Q&A.', 'quick-qa-for-woocommerce'),
   },
   {
     val:   'FAQPage',
-    title: 'FAQPage (higher visibility, stricter rules)',
-    help:  'Use only if your Q&A reads like genuine FAQs — store-authored questions with definitive answers. Google may show these as expanded rich results, but penalizes pages that misuse the type.',
+    title: __('FAQPage (higher visibility, stricter rules)', 'quick-qa-for-woocommerce'),
+    help:  __('Use only if your Q&A reads like genuine FAQs — store-authored questions with definitive answers. Google may show these as expanded rich results, but penalizes pages that misuse the type.', 'quick-qa-for-woocommerce'),
   },
 ];
 
 const INCLUDE_RULE_OPTIONS = [
   {
     val:   'all-answered',
-    title: 'All answered questions (maximum reach)',
-    help:  'Anything with at least one approved answer becomes searchable.',
+    title: __('All answered questions (maximum reach)', 'quick-qa-for-woocommerce'),
+    help:  __('Anything with at least one approved answer becomes searchable.', 'quick-qa-for-woocommerce'),
   },
   {
     val:   'staff-only',
-    title: 'Only Q&A with staff answers (highest authority)',
-    help:  "Skip community-only answers. Slower to build a Q&A footprint but every entry has your team's stamp.",
+    title: __('Only Q&A with staff answers (highest authority)', 'quick-qa-for-woocommerce'),
+    help:  __("Skip community-only answers. Slower to build a Q&A footprint but every entry has your team's stamp.", 'quick-qa-for-woocommerce'),
   },
   {
     val:   'upvoted',
-    title: 'Only Q&A above an upvote threshold',
-    help:  "Use community signal to filter quality. Below the threshold, schema isn't generated.",
+    title: __('Only Q&A above an upvote threshold', 'quick-qa-for-woocommerce'),
+    help:  __("Use community signal to filter quality. Below the threshold, schema isn't generated.", 'quick-qa-for-woocommerce'),
   },
 ];
 
@@ -39,7 +40,7 @@ async function fetchSeoPreview() {
     headers: { 'X-WP-Nonce': window.quickQaAdmin?.nonce || '' },
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.message || 'Request failed');
+  if (!res.ok) throw new Error(data?.message || __('Request failed', 'quick-qa-for-woocommerce'));
   return data;
 }
 
@@ -69,31 +70,34 @@ export default function SEOTab({ draft, onChange, settings }) {
 
   return (
     <>
-      <h1 className="qq-settings-page-title">SEO</h1>
+      <h1 className="qq-settings-page-title">{__('SEO', 'quick-qa-for-woocommerce')}</h1>
       <p className="qq-settings-page-sub">
-        Make your Q&amp;A discoverable on Google. Q&amp;A pages are some of the highest-converting SEO content you can publish — real customer questions match real search queries.
+        {__('Make your Q&A discoverable on Google. Q&A pages are some of the highest-converting SEO content you can publish — real customer questions match real search queries.', 'quick-qa-for-woocommerce')}
       </p>
 
       {showDetectBanner && (
         <div className="qq-settings-banner qq-settings-banner--warn">
           <span className="qq-settings-banner-mark">⚠</span>
           <div className="qq-settings-banner-body">
-            We detected <b>{detectedSeoPlugin}</b> on your site. If both plugins output schema for the same Q&amp;A, Google may penalize your site for duplicate structured data.{' '}
-            <a onClick={() => set('seo_delegate_to_seo_plugin', true)}>Let {detectedSeoPlugin} handle schema instead →</a>
+            {__('We detected', 'quick-qa-for-woocommerce')} <b>{detectedSeoPlugin}</b> {__('on your site. If both plugins output schema for the same Q&A, Google may penalize your site for duplicate structured data.', 'quick-qa-for-woocommerce')}{' '}
+            <a onClick={() => set('seo_delegate_to_seo_plugin', true)}>
+              {/* translators: %s is the name of the detected SEO plugin (e.g. Yoast, RankMath) */}
+              {sprintf(__('Let %s handle schema instead →', 'quick-qa-for-woocommerce'), detectedSeoPlugin)}
+            </a>
           </div>
         </div>
       )}
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Schema output</div>
+        <div className="qq-settings-card-title">{__('Schema output', 'quick-qa-for-woocommerce')}</div>
         <div className="qq-settings-card-desc">
-          Schema is structured data that helps search engines display your Q&amp;A as rich snippets — those expanded results that show questions and answers directly in Google.
+          {__('Schema is structured data that helps search engines display your Q&A as rich snippets — those expanded results that show questions and answers directly in Google.', 'quick-qa-for-woocommerce')}
         </div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Output JSON-LD schema</div>
-            <div className="qq-settings-field-help">Required for Q&amp;A to appear as rich snippets in Google. Recommended on.</div>
+            <div className="qq-settings-field-label">{__('Output JSON-LD schema', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-help">{__('Required for Q&A to appear as rich snippets in Google. Recommended on.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.seo_enabled} onChange={v => set('seo_enabled', v)} />
@@ -102,8 +106,8 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         {draft.seo_enabled && (
           <div className="qq-settings-field-stacked">
-            <div className="qq-settings-field-label">Schema type</div>
-            <div className="qq-settings-field-help">Pick the type that best matches your content. This affects how Google interprets and displays your Q&amp;A.</div>
+            <div className="qq-settings-field-label">{__('Schema type', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-help">{__('Pick the type that best matches your content. This affects how Google interprets and displays your Q&A.', 'quick-qa-for-woocommerce')}</div>
             <div className="qq-radio-group">
               {SCHEMA_TYPE_OPTIONS.map(opt => (
                 <div
@@ -124,8 +128,8 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Let my SEO plugin handle schema instead</div>
-            <div className="qq-settings-field-help">Turn this on if your SEO plugin (Yoast, RankMath, AIOSEO) already outputs Q&amp;A schema. Two plugins outputting schema for the same content can hurt SEO.</div>
+            <div className="qq-settings-field-label">{__('Let my SEO plugin handle schema instead', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-help">{__('Turn this on if your SEO plugin (Yoast, RankMath, AIOSEO) already outputs Q&A schema. Two plugins outputting schema for the same content can hurt SEO.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.seo_delegate_to_seo_plugin} onChange={v => set('seo_delegate_to_seo_plugin', v)} />
@@ -134,12 +138,12 @@ export default function SEOTab({ draft, onChange, settings }) {
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">What gets included</div>
-        <div className="qq-settings-card-desc">Not every Q&amp;A should go into schema. Quality matters — Google ranks rich snippets based on content depth and authority.</div>
+        <div className="qq-settings-card-title">{__('What gets included', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('Not every Q&A should go into schema. Quality matters — Google ranks rich snippets based on content depth and authority.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">Which questions appear in schema</div>
-          <div className="qq-settings-field-help">Choose the rule that matches your moderation philosophy.</div>
+          <div className="qq-settings-field-label">{__('Which questions appear in schema', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-help">{__('Choose the rule that matches your moderation philosophy.', 'quick-qa-for-woocommerce')}</div>
           <div className="qq-radio-group">
             {INCLUDE_RULE_OPTIONS.map(opt => (
               <div key={opt.val}>
@@ -156,7 +160,7 @@ export default function SEOTab({ draft, onChange, settings }) {
 
                 {opt.val === 'upvoted' && draft.seo_include_rule === 'upvoted' && (
                   <div className="qq-subfield">
-                    <div className="qq-subfield-label">Minimum upvotes</div>
+                    <div className="qq-subfield-label">{__('Minimum upvotes', 'quick-qa-for-woocommerce')}</div>
                     <div className="qq-settings-input-wrap">
                       <input
                         className="qq-settings-input qq-settings-input--short"
@@ -166,7 +170,7 @@ export default function SEOTab({ draft, onChange, settings }) {
                         value={draft.seo_upvote_min}
                         onChange={e => set('seo_upvote_min', Math.max(0, parseInt(e.target.value, 10) || 0))}
                       />
-                      <span className="qq-settings-input-unit">upvotes required</span>
+                      <span className="qq-settings-input-unit">{__('upvotes required', 'quick-qa-for-woocommerce')}</span>
                     </div>
                   </div>
                 )}
@@ -177,8 +181,8 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Maximum questions per product</div>
-            <div className="qq-settings-field-help">Google ignores schema beyond ~10 questions per page anyway, and large schema blocks slow page load. The most upvoted answered questions are picked.</div>
+            <div className="qq-settings-field-label">{__('Maximum questions per product', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-help">{__('Google ignores schema beyond ~10 questions per page anyway, and large schema blocks slow page load. The most upvoted answered questions are picked.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <div className="qq-settings-input-wrap">
@@ -190,41 +194,45 @@ export default function SEOTab({ draft, onChange, settings }) {
                 value={draft.seo_max_per_product}
                 onChange={e => set('seo_max_per_product', Math.max(1, Math.min(20, parseInt(e.target.value, 10) || 10)))}
               />
-              <span className="qq-settings-input-unit">default 10</span>
+              <span className="qq-settings-input-unit">{__('default 10', 'quick-qa-for-woocommerce')}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Schema preview</div>
+        <div className="qq-settings-card-title">{__('Schema preview', 'quick-qa-for-woocommerce')}</div>
         <div className="qq-settings-card-desc">
-          The actual JSON-LD currently being injected into a product page's <code>&lt;head&gt;</code>, based on your last-saved settings. Save changes above, then refresh to see them reflected here. Verify it in Google's Rich Results Test before publishing.
+          {__("The actual JSON-LD currently being injected into a product page's", 'quick-qa-for-woocommerce')} <code>&lt;head&gt;</code>{__(", based on your last-saved settings. Save changes above, then refresh to see them reflected here. Verify it in Google's Rich Results Test before publishing.", 'quick-qa-for-woocommerce')}
         </div>
 
         {schemaIsOff ? (
           <div className="qq-settings-empty">
             <div className="qq-settings-empty-mark">∅</div>
-            <div className="qq-settings-empty-title">No schema is being output</div>
-            <div>{!draft.seo_enabled ? 'JSON-LD output is turned off above.' : 'Your SEO plugin is handling schema instead.'}</div>
+            <div className="qq-settings-empty-title">{__('No schema is being output', 'quick-qa-for-woocommerce')}</div>
+            <div>{!draft.seo_enabled ? __('JSON-LD output is turned off above.', 'quick-qa-for-woocommerce') : __('Your SEO plugin is handling schema instead.', 'quick-qa-for-woocommerce')}</div>
           </div>
         ) : loading ? (
-          <div className="qq-settings-empty">Loading preview…</div>
+          <div className="qq-settings-empty">{__('Loading preview…', 'quick-qa-for-woocommerce')}</div>
         ) : previewError ? (
-          <div className="qq-settings-empty">Couldn't load preview: {previewError}</div>
+          <div className="qq-settings-empty">
+            {/* translators: %s is the error message returned by the server */}
+            {sprintf(__("Couldn't load preview: %s", 'quick-qa-for-woocommerce'), previewError)}
+          </div>
         ) : !preview ? (
           <div className="qq-settings-empty">
             <div className="qq-settings-empty-mark">∅</div>
-            <div className="qq-settings-empty-title">No qualifying Q&amp;A yet</div>
-            <div>Once a question in scope has an approved answer matching your rules above, its schema will preview here.</div>
+            <div className="qq-settings-empty-title">{__('No qualifying Q&A yet', 'quick-qa-for-woocommerce')}</div>
+            <div>{__('Once a question in scope has an approved answer matching your rules above, its schema will preview here.', 'quick-qa-for-woocommerce')}</div>
           </div>
         ) : (
           <div className="qq-schema-preview-wrap">
             <div className="qq-schema-preview-head">
-              <span>{preview['@type']} sample</span>
+              {/* translators: %s is the schema type, e.g. QAPage or FAQPage */}
+              <span>{sprintf(__('%s sample', 'quick-qa-for-woocommerce'), preview['@type'])}</span>
               <div className="qq-schema-preview-actions">
-                <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer">↗ Test in Google Rich Results</a>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={loadPreview}>Refresh</button>
+                <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer">{__('↗ Test in Google Rich Results', 'quick-qa-for-woocommerce')}</a>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={loadPreview}>{__('Refresh', 'quick-qa-for-woocommerce')}</button>
               </div>
             </div>
             <pre className="qq-schema-preview-body">{JSON.stringify(preview, null, 2)}</pre>

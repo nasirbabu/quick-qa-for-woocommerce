@@ -1,5 +1,6 @@
 import React from 'react';
 import Toggle from '../components/Toggle';
+import { __ } from '../../../i18n';
 
 export default function SubmissionTab({ draft, onChange }) {
   function set(key, val) {
@@ -8,29 +9,29 @@ export default function SubmissionTab({ draft, onChange }) {
 
   return (
     <>
-      <h1 className="qq-settings-page-title">Submission</h1>
-      <p className="qq-settings-page-sub">Who can ask questions and how submissions are protected from spam.</p>
+      <h1 className="qq-settings-page-title">{ __( 'Submission', 'quick-qa-for-woocommerce' ) }</h1>
+      <p className="qq-settings-page-sub">{ __( 'Who can ask questions and how submissions are protected from spam.', 'quick-qa-for-woocommerce' ) }</p>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Who can ask questions</div>
-        <div className="qq-settings-card-desc">More people asking means more Q&amp;A content for SEO. Fewer means tighter spam control.</div>
+        <div className="qq-settings-card-title">{ __( 'Who can ask questions', 'quick-qa-for-woocommerce' ) }</div>
+        <div className="qq-settings-card-desc">{ __( 'More people asking means more Q&A content for SEO. Fewer means tighter spam control.', 'quick-qa-for-woocommerce' ) }</div>
 
         <div className="qq-radio-group">
           {[
             {
               val:   'both',
-              title: <><span>Both logged-in customers and guests</span> <span className="qq-muted">(recommended)</span></>,
-              help:  'Anyone visiting your store can ask. Highest volume of Q&A content.',
+              title: <><span>{ __( 'Both logged-in customers and guests', 'quick-qa-for-woocommerce' ) }</span> <span className="qq-muted">({ __( 'recommended', 'quick-qa-for-woocommerce' ) })</span></>,
+              help:  __( 'Anyone visiting your store can ask. Highest volume of Q&A content.', 'quick-qa-for-woocommerce' ),
             },
             {
               val:   'logged-in',
-              title: 'Only logged-in customers',
-              help:  'Visitors must create an account before asking. Reduces spam at the cost of fewer questions.',
+              title: __( 'Only logged-in customers', 'quick-qa-for-woocommerce' ),
+              help:  __( 'Visitors must create an account before asking. Reduces spam at the cost of fewer questions.', 'quick-qa-for-woocommerce' ),
             },
             {
               val:   'guests',
-              title: <><span>Only guests</span> <span className="qq-muted">(rarely used)</span></>,
-              help:  'Unusual setup. Only choose this if your store has anonymous-only browsing.',
+              title: <><span>{ __( 'Only guests', 'quick-qa-for-woocommerce' ) }</span> <span className="qq-muted">({ __( 'rarely used', 'quick-qa-for-woocommerce' ) })</span></>,
+              help:  __( 'Unusual setup. Only choose this if your store has anonymous-only browsing.', 'quick-qa-for-woocommerce' ),
             },
           ].map(opt => (
             <div
@@ -50,9 +51,9 @@ export default function SubmissionTab({ draft, onChange }) {
         {draft.who_can_ask !== 'logged-in' && (
           <div className="qq-settings-field" style={{ marginTop: 16 }}>
             <div className="qq-settings-field-info">
-              <div className="qq-settings-field-label">Require email from guests</div>
+              <div className="qq-settings-field-label">{ __( 'Require email from guests', 'quick-qa-for-woocommerce' ) }</div>
               <div className="qq-settings-field-help">
-                Guest must provide an email so they can be notified when their question is answered. Email is never shown publicly.
+                { __( 'Guest must provide an email so they can be notified when their question is answered. Email is never shown publicly.', 'quick-qa-for-woocommerce' ) }
               </div>
             </div>
             <div className="qq-settings-field-control">
@@ -64,15 +65,15 @@ export default function SubmissionTab({ draft, onChange }) {
 
       <div className="qq-settings-card">
         <div className="qq-settings-card-title">
-          Spam protection
-          <span className="qq-badge-pro">Pro</span>
+          { __( 'Spam protection', 'quick-qa-for-woocommerce' ) }
+          <span className="qq-badge-pro">{ __( 'Pro', 'quick-qa-for-woocommerce' ) }</span>
         </div>
-        <div className="qq-settings-card-desc">Stop bots and abuse before they reach your queue.</div>
+        <div className="qq-settings-card-desc">{ __( 'Stop bots and abuse before they reach your queue.', 'quick-qa-for-woocommerce' ) }</div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Honeypot field</div>
-            <div className="qq-settings-field-help">Invisible field that bots fill but humans don&apos;t. Catches most automated spam silently. Recommended.</div>
+            <div className="qq-settings-field-label">{ __( 'Honeypot field', 'quick-qa-for-woocommerce' ) }</div>
+            <div className="qq-settings-field-help">{ __( "Invisible field that bots fill but humans don't. Catches most automated spam silently. Recommended.", 'quick-qa-for-woocommerce' ) }</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.enable_honeypot} onChange={v => set('enable_honeypot', v)} disabled />
@@ -81,8 +82,8 @@ export default function SubmissionTab({ draft, onChange }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Google reCAPTCHA</div>
-            <div className="qq-settings-field-help">Adds an &ldquo;I&apos;m not a robot&rdquo; check. Stronger than honeypot but adds friction. Use only if you see persistent spam.</div>
+            <div className="qq-settings-field-label">{ __( 'Google reCAPTCHA', 'quick-qa-for-woocommerce' ) }</div>
+            <div className="qq-settings-field-help">{ __( 'Adds an “I\'m not a robot” check. Stronger than honeypot but adds friction. Use only if you see persistent spam.', 'quick-qa-for-woocommerce' ) }</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.recaptcha_enabled} onChange={v => set('recaptcha_enabled', v)} disabled />
@@ -92,40 +93,40 @@ export default function SubmissionTab({ draft, onChange }) {
         {draft.recaptcha_enabled && (
           <div className="qq-settings-recaptcha-keys">
             <div className="qq-settings-recaptcha-hint">
-              reCAPTCHA v2 (&ldquo;I&apos;m not a robot&rdquo;) requires a site key and secret key.{' '}
+              { __( 'reCAPTCHA v2 (“I\'m not a robot”) requires a site key and secret key.', 'quick-qa-for-woocommerce' ) }{' '}
               <a
                 href="https://www.google.com/recaptcha/admin/create"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="qq-settings-link"
               >
-                Get your keys at Google&apos;s reCAPTCHA admin console ↗
+                { __( "Get your keys at Google's reCAPTCHA admin console ↗", 'quick-qa-for-woocommerce' ) }
               </a>
             </div>
             <div className="qq-settings-key-field">
               <label className="qq-settings-key-label">
-                Site key <span className="qq-muted">(public — embedded in the widget)</span>
+                { __( 'Site key', 'quick-qa-for-woocommerce' ) } <span className="qq-muted">({ __( 'public — embedded in the widget', 'quick-qa-for-woocommerce' ) })</span>
               </label>
               <input
                 className="qq-settings-input"
                 type="text"
                 value={draft.recaptcha_site_key}
                 onChange={e => set('recaptcha_site_key', e.target.value)}
-                placeholder="6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                placeholder={ __( '6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'quick-qa-for-woocommerce' ) }
                 spellCheck={false}
                 disabled
               />
             </div>
             <div className="qq-settings-key-field">
               <label className="qq-settings-key-label">
-                Secret key <span className="qq-muted">(server only — never exposed to customers)</span>
+                { __( 'Secret key', 'quick-qa-for-woocommerce' ) } <span className="qq-muted">({ __( 'server only — never exposed to customers', 'quick-qa-for-woocommerce' ) })</span>
               </label>
               <input
                 className="qq-settings-input"
                 type="password"
                 value={draft.recaptcha_secret_key}
                 onChange={e => set('recaptcha_secret_key', e.target.value)}
-                placeholder="6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                placeholder={ __( '6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'quick-qa-for-woocommerce' ) }
                 spellCheck={false}
                 autoComplete="new-password"
                 disabled
@@ -136,8 +137,8 @@ export default function SubmissionTab({ draft, onChange }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Submission rate limit</div>
-            <div className="qq-settings-field-help">Maximum questions a single visitor can submit per hour. Stops flood attacks.</div>
+            <div className="qq-settings-field-label">{ __( 'Submission rate limit', 'quick-qa-for-woocommerce' ) }</div>
+            <div className="qq-settings-field-help">{ __( 'Maximum questions a single visitor can submit per hour. Stops flood attacks.', 'quick-qa-for-woocommerce' ) }</div>
           </div>
           <div className="qq-settings-field-control">
             <div className="qq-settings-input-wrap">
@@ -150,7 +151,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 onChange={e => set('submission_rate_limit', Math.max(1, parseInt(e.target.value, 10) || 3))}
                 disabled
               />
-              <span className="qq-settings-input-unit">per hour</span>
+              <span className="qq-settings-input-unit">{ __( 'per hour', 'quick-qa-for-woocommerce' ) }</span>
             </div>
           </div>
         </div>

@@ -1194,13 +1194,15 @@
 	// Flag modal
 	// =========================================================================
 
-	var FLAG_REASONS = [
-		'Spam or promotional',
-		'Incorrect information',
-		'Offensive language',
-		'Duplicate question',
-		'Other',
-	];
+	function getFlagReasons() {
+		return [
+			i18n( 'flagReasonSpam', 'Spam or promotional' ),
+			i18n( 'flagReasonIncorrect', 'Incorrect information' ),
+			i18n( 'flagReasonOffensive', 'Offensive language' ),
+			i18n( 'flagReasonDuplicate', 'Duplicate question' ),
+			i18n( 'flagReasonOther', 'Other' ),
+		];
+	}
 
 	/**
 	 * Delegate "⚐ Flag" button clicks from the thread list and open the modal.
@@ -1222,29 +1224,52 @@
 	}
 
 	function openFlagModal( objectType, objectId ) {
-		// Build reason buttons HTML.
-		var reasonsHtml = '';
-		for ( var i = 0; i < FLAG_REASONS.length; i++ ) {
-			reasonsHtml +=
-				'<button type="button" class="qa-flag-reason-btn" data-reason="' +
-				FLAG_REASONS[ i ] +
-				'">' +
-				FLAG_REASONS[ i ] +
-				'</button>';
-		}
-
 		var backdrop = document.createElement( 'div' );
 		backdrop.className = 'qa-flag-modal-backdrop';
 		backdrop.id        = 'qa-flag-modal-backdrop';
-		backdrop.innerHTML =
-			'<div class="qa-flag-modal">' +
-				'<h3 class="qa-flag-modal-title">Report this content</h3>' +
-				'<p class="qa-flag-modal-sub">Help us keep Q&amp;A useful. Reports are reviewed by our team.</p>' +
-				'<div class="qa-flag-reasons">' + reasonsHtml + '</div>' +
-				'<div class="qa-flag-actions">' +
-					'<button type="button" class="qa-form-cancel" id="qa-flag-cancel">Cancel</button>' +
-				'</div>' +
-			'</div>';
+
+		var modal = document.createElement( 'div' );
+		modal.className = 'qa-flag-modal';
+
+		var title = document.createElement( 'h3' );
+		title.className  = 'qa-flag-modal-title';
+		title.textContent = i18n( 'flagModalTitle', 'Report this content' );
+
+		var sub = document.createElement( 'p' );
+		sub.className   = 'qa-flag-modal-sub';
+		sub.textContent = i18n( 'flagModalSub', 'Help us keep Q&A useful. Reports are reviewed by our team.' );
+
+		var reasonsWrap = document.createElement( 'div' );
+		reasonsWrap.className = 'qa-flag-reasons';
+
+		getFlagReasons().forEach( function ( reason ) {
+			var reasonBtn = document.createElement( 'button' );
+			reasonBtn.type          = 'button';
+			reasonBtn.className     = 'qa-flag-reason-btn';
+			reasonBtn.textContent   = reason;
+			reasonBtn.dataset.reason = reason;
+			reasonBtn.addEventListener( 'click', function () {
+				submitFlag( objectType, objectId, reason );
+			} );
+			reasonsWrap.appendChild( reasonBtn );
+		} );
+
+		var actions = document.createElement( 'div' );
+		actions.className = 'qa-flag-actions';
+
+		var cancelBtn = document.createElement( 'button' );
+		cancelBtn.type        = 'button';
+		cancelBtn.className   = 'qa-form-cancel';
+		cancelBtn.id          = 'qa-flag-cancel';
+		cancelBtn.textContent = i18n( 'cancel', 'Cancel' );
+		cancelBtn.addEventListener( 'click', closeFlagModal );
+		actions.appendChild( cancelBtn );
+
+		modal.appendChild( title );
+		modal.appendChild( sub );
+		modal.appendChild( reasonsWrap );
+		modal.appendChild( actions );
+		backdrop.appendChild( modal );
 
 		widget.style.position = 'relative';
 		widget.appendChild( backdrop );
@@ -1254,14 +1279,6 @@
 			if ( e.target === backdrop ) {
 				closeFlagModal();
 			}
-		} );
-
-		document.getElementById( 'qa-flag-cancel' ).addEventListener( 'click', closeFlagModal );
-
-		backdrop.querySelectorAll( '.qa-flag-reason-btn' ).forEach( function ( btn ) {
-			btn.addEventListener( 'click', function () {
-				submitFlag( objectType, objectId, btn.dataset.reason );
-			} );
 		} );
 	}
 
@@ -1297,12 +1314,12 @@
 			} )
 			.then( function ( result ) {
 				if ( ! result.ok ) {
-					showFlagToast( 'Something went wrong. Please try again.' );
+					showFlagToast( i18n( 'errorGeneric', 'Something went wrong. Please try again.' ) );
 					return;
 				}
 
 				var data = result.data;
-				showFlagToast( 'Thanks for letting us know.' );
+				showFlagToast( i18n( 'flagThanks', 'Thanks for letting us know.' ) );
 
 				// Auto-hidden: remove the flagged question thread from the DOM so it
 				// disappears without a page reload. For flagged answers we let the
@@ -1319,7 +1336,7 @@
 				}
 			} )
 			.catch( function () {
-				showFlagToast( 'Something went wrong. Please try again.' );
+				showFlagToast( i18n( 'errorGeneric', 'Something went wrong. Please try again.' ) );
 			} );
 	}
 
