@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './EmailTemplatesTab.css';
 import Toggle from '../components/Toggle';
+import { __, sprintf } from '../../../i18n';
 
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 
@@ -15,14 +16,14 @@ async function apiFetch(path, options = {}) {
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.message || 'Request failed');
+  if (!res.ok) throw new Error(data?.message || __('Request failed', 'quick-qa-for-woocommerce'));
   return data;
 }
 
 const RECIPIENT_LABELS = {
-  admin: 'to Admin / staff',
-  asker: 'to Customer',
-  participants: 'to Participants',
+  admin: __('to Admin / staff', 'quick-qa-for-woocommerce'),
+  asker: __('to Customer', 'quick-qa-for-woocommerce'),
+  participants: __('to Participants', 'quick-qa-for-woocommerce'),
 };
 
 export default function EmailTemplatesTab() {
@@ -57,14 +58,17 @@ export default function EmailTemplatesTab() {
   if (loading) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg">Loading email templates…</div>
+        <div className="qq-state-msg">{__('Loading email templates…', 'quick-qa-for-woocommerce')}</div>
       </div>
     );
   }
   if (error) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg qq-state-msg--error">Failed to load email templates: {error}</div>
+        <div className="qq-state-msg qq-state-msg--error">
+          {/* translators: %s is the error message returned by the server */}
+          {sprintf(__('Failed to load email templates: %s', 'quick-qa-for-woocommerce'), error)}
+        </div>
       </div>
     );
   }
@@ -92,24 +96,35 @@ export default function EmailTemplatesTab() {
 
   return (
     <>
-      <h1 className="qq-settings-page-title">Email templates</h1>
+      <h1 className="qq-settings-page-title">{__('Email templates', 'quick-qa-for-woocommerce')}</h1>
       <p className="qq-settings-page-sub">
-        {enabledCount} of {ids.length} are currently enabled.
+        {sprintf(
+          // translators: 1: number of email templates currently enabled, 2: total number of email templates
+          __('%1$d of %2$d are currently enabled.', 'quick-qa-for-woocommerce'),
+          enabledCount,
+          ids.length
+        )}
       </p>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Default sender</div>
-        <div className="qq-settings-card-desc">Used for every email below, unless a template overrides it.</div>
+        <div className="qq-settings-card-title">{__('Default sender', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('Used for every email below, unless a template overrides it.', 'quick-qa-for-woocommerce')}</div>
         <GlobalSenderFields global={resource.global} onSave={saveGlobal} saving={savingGlobal} />
       </div>
 
       <div className="qq-email-list">
-        <div className="qq-email-group-label">Admin emails ({adminIds.length})</div>
+        <div className="qq-email-group-label">
+          {/* translators: %d is the number of admin-facing email templates */}
+          {sprintf(__('Admin emails (%d)', 'quick-qa-for-woocommerce'), adminIds.length)}
+        </div>
         {adminIds.map(id => (
           <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} />
         ))}
 
-        <div className="qq-email-group-label">Customer emails ({customerIds.length})</div>
+        <div className="qq-email-group-label">
+          {/* translators: %d is the number of customer-facing email templates */}
+          {sprintf(__('Customer emails (%d)', 'quick-qa-for-woocommerce'), customerIds.length)}
+        </div>
         {customerIds.map(id => (
           <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} />
         ))}
@@ -129,7 +144,7 @@ function EmailTemplateRow({ id, template, onToggle, onEdit }) {
         <div className="qq-email-row-subject">{template.subject}</div>
       </div>
       <div className="qq-email-row-recipient">{RECIPIENT_LABELS[template.recipient] || ''}</div>
-      <div className="qq-email-row-edit">Edit →</div>
+      <div className="qq-email-row-edit">{__('Edit →', 'quick-qa-for-woocommerce')}</div>
     </div>
   );
 }
@@ -144,7 +159,7 @@ function GlobalSenderFields({ global, onSave, saving }) {
   return (
     <>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">Sender name</div>
+        <div className="qq-settings-field-label">{__('Sender name', 'quick-qa-for-woocommerce')}</div>
         <input
           className="qq-settings-input qq-settings-input--full"
           value={draft.sender_name}
@@ -152,7 +167,7 @@ function GlobalSenderFields({ global, onSave, saving }) {
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">Sender email address</div>
+        <div className="qq-settings-field-label">{__('Sender email address', 'quick-qa-for-woocommerce')}</div>
         <input
           className="qq-settings-input qq-settings-input--full"
           type="email"
@@ -161,7 +176,7 @@ function GlobalSenderFields({ global, onSave, saving }) {
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">Reply-to address</div>
+        <div className="qq-settings-field-label">{__('Reply-to address', 'quick-qa-for-woocommerce')}</div>
         <input
           className="qq-settings-input qq-settings-input--full"
           type="email"
@@ -170,8 +185,8 @@ function GlobalSenderFields({ global, onSave, saving }) {
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">Default email footer</div>
-        <div className="qq-settings-field-help">Appended automatically to customer-facing emails.</div>
+        <div className="qq-settings-field-label">{__('Default email footer', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-field-help">{__('Appended automatically to customer-facing emails.', 'quick-qa-for-woocommerce')}</div>
         <textarea
           className="qq-settings-textarea"
           rows={3}
@@ -181,7 +196,7 @@ function GlobalSenderFields({ global, onSave, saving }) {
       </div>
       <div className="qq-email-global-actions">
         <button className="btn btn-primary" disabled={!dirty || saving} onClick={() => onSave(draft)}>
-          {saving ? 'Saving…' : 'Save sender settings'}
+          {saving ? __('Saving…', 'quick-qa-for-woocommerce') : __('Save sender settings', 'quick-qa-for-woocommerce')}
         </button>
       </div>
     </>
@@ -252,18 +267,18 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
 
   return (
     <>
-      <div className="qq-email-back" onClick={onBack}>&larr; Back to email templates</div>
+      <div className="qq-email-back" onClick={onBack}>{__('← Back to email templates', 'quick-qa-for-woocommerce')}</div>
       <h1 className="qq-settings-page-title">{template.name}</h1>
       <p className="qq-settings-page-sub">{template.description}</p>
 
       <div className="qq-email-editor-grid">
         <div className="qq-email-editor-main">
           <div className="qq-settings-card">
-            <div className="qq-settings-card-title">Email content</div>
-            <div className="qq-settings-card-desc">Click any variable on the right to insert it at your cursor.</div>
+            <div className="qq-settings-card-title">{__('Email content', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-card-desc">{__('Click any variable on the right to insert it at your cursor.', 'quick-qa-for-woocommerce')}</div>
 
             <div className="qq-settings-field-stacked">
-              <div className="qq-settings-field-label">Subject line</div>
+              <div className="qq-settings-field-label">{__('Subject line', 'quick-qa-for-woocommerce')}</div>
               <input
                 className="qq-settings-input qq-settings-input--full"
                 value={subject}
@@ -272,7 +287,7 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
             </div>
 
             <div className="qq-settings-field-stacked">
-              <div className="qq-settings-field-label">Email body</div>
+              <div className="qq-settings-field-label">{__('Email body', 'quick-qa-for-woocommerce')}</div>
               <textarea
                 ref={bodyRef}
                 className="qq-settings-textarea qq-email-body-textarea"
@@ -284,22 +299,22 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
 
             <div className="qq-email-test-row">
               <button className="btn btn-ghost" onClick={handleSendTest} disabled={testStatus === 'sending'}>
-                {testStatus === 'sending' ? 'Sending…' : 'Send test email to me'}
+                {testStatus === 'sending' ? __('Sending…', 'quick-qa-for-woocommerce') : __('Send test email to me', 'quick-qa-for-woocommerce')}
               </button>
-              {testStatus === 'sent' && <span className="qq-email-test-status qq-email-test-status--ok">Sent!</span>}
-              {testStatus === 'error' && <span className="qq-email-test-status qq-email-test-status--error">Failed to send.</span>}
-              <span className="qq-settings-field-help">Sends a copy with sample data to your admin email.</span>
+              {testStatus === 'sent' && <span className="qq-email-test-status qq-email-test-status--ok">{__('Sent!', 'quick-qa-for-woocommerce')}</span>}
+              {testStatus === 'error' && <span className="qq-email-test-status qq-email-test-status--error">{__('Failed to send.', 'quick-qa-for-woocommerce')}</span>}
+              <span className="qq-settings-field-help">{__('Sends a copy with sample data to your admin email.', 'quick-qa-for-woocommerce')}</span>
             </div>
           </div>
 
           <div className="qq-settings-card">
-            <div className="qq-settings-card-title">Email behavior</div>
+            <div className="qq-settings-card-title">{__('Email behavior', 'quick-qa-for-woocommerce')}</div>
 
             <div className="qq-settings-field">
               <div className="qq-settings-field-info">
-                <div className="qq-settings-field-label">Enable this email</div>
+                <div className="qq-settings-field-label">{__('Enable this email', 'quick-qa-for-woocommerce')}</div>
                 <div className="qq-settings-field-help">
-                  {enabled ? 'This email will be sent automatically.' : 'This email is currently off and will not be sent.'}
+                  {enabled ? __('This email will be sent automatically.', 'quick-qa-for-woocommerce') : __('This email is currently off and will not be sent.', 'quick-qa-for-woocommerce')}
                 </div>
               </div>
               <div className="qq-settings-field-control">
@@ -308,8 +323,11 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
             </div>
 
             <div className="qq-settings-field-stacked">
-              <div className="qq-settings-field-label">Sender name override</div>
-              <div className="qq-settings-field-help">Optional. Falls back to your default sender name ({global.sender_name}).</div>
+              <div className="qq-settings-field-label">{__('Sender name override', 'quick-qa-for-woocommerce')}</div>
+              <div className="qq-settings-field-help">
+                {/* translators: %s is the store's default sender name */}
+                {sprintf(__('Optional. Falls back to your default sender name (%s).', 'quick-qa-for-woocommerce'), global.sender_name)}
+              </div>
               <input
                 className="qq-settings-input qq-settings-input--full"
                 value={senderOverride}
@@ -321,15 +339,15 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
 
           <div className="qq-email-save-row">
             <button className="btn btn-primary" onClick={handleSave} disabled={!dirty || saving}>
-              {saving ? 'Saving…' : 'Save changes'}
+              {saving ? __('Saving…', 'quick-qa-for-woocommerce') : __('Save changes', 'quick-qa-for-woocommerce')}
             </button>
           </div>
         </div>
 
         <div className="qq-email-editor-sidebar">
           <div className="qq-settings-card">
-            <div className="qq-settings-card-title">Available variables</div>
-            <div className="qq-settings-card-desc">Click to insert at your cursor position in the body.</div>
+            <div className="qq-settings-card-title">{__('Available variables', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-card-desc">{__('Click to insert at your cursor position in the body.', 'quick-qa-for-woocommerce')}</div>
             <div className="qq-email-var-list">
               {Object.entries(template.variables).map(([token, desc]) => (
                 <div key={token} className="qq-email-var" onClick={() => insertVariable(token)}>
@@ -341,18 +359,18 @@ function EmailTemplateEditor({ id, template, global, onBack, onSaved }) {
           </div>
 
           <div className="qq-settings-card">
-            <div className="qq-settings-card-title">Live preview</div>
+            <div className="qq-settings-card-title">{__('Live preview', 'quick-qa-for-woocommerce')}</div>
             {preview ? (
               <div className="qq-email-preview">
                 <div className="qq-email-preview-meta">
-                  <div><b>From:</b> {preview.from}</div>
-                  <div><b>To:</b> {preview.to}</div>
+                  <div><b>{__('From:', 'quick-qa-for-woocommerce')}</b> {preview.from}</div>
+                  <div><b>{__('To:', 'quick-qa-for-woocommerce')}</b> {preview.to}</div>
                 </div>
                 <div className="qq-email-preview-subject">{preview.subject}</div>
                 <div className="qq-email-preview-body">{preview.body}</div>
               </div>
             ) : (
-              <div className="qq-settings-field-help">Loading preview…</div>
+              <div className="qq-settings-field-help">{__('Loading preview…', 'quick-qa-for-woocommerce')}</div>
             )}
           </div>
         </div>

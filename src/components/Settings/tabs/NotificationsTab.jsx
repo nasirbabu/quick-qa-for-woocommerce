@@ -1,5 +1,6 @@
 import React from 'react';
 import Toggle from '../components/Toggle';
+import { __ } from '../../../i18n';
 
 export default function NotificationsTab({ draft, onChange }) {
   function set(key, val) {
@@ -8,21 +9,21 @@ export default function NotificationsTab({ draft, onChange }) {
 
   return (
     <>
-      <h1 className="qq-settings-page-title">Notifications</h1>
-      <p className="qq-settings-page-sub">Stay informed about new questions and answers without checking the dashboard constantly.</p>
+      <h1 className="qq-settings-page-title">{__('Notifications', 'quick-qa-for-woocommerce')}</h1>
+      <p className="qq-settings-page-sub">{__('Stay informed about new questions and answers without checking the dashboard constantly.', 'quick-qa-for-woocommerce')}</p>
 
       {/* New question alerts */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">New question alerts</div>
-        <div className="qq-settings-card-desc">When a customer asks a new question on any product page.</div>
+        <div className="qq-settings-card-title">{__('New question alerts', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('When a customer asks a new question on any product page.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Email me on new questions
-              <span className="qq-badge-pro">Pro</span>
+              {__('Email me on new questions', 'quick-qa-for-woocommerce')}
+              <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
             </div>
-            <div className="qq-settings-field-help">Sends an email containing the question, customer info, and a direct link to answer.</div>
+            <div className="qq-settings-field-help">{__('Sends an email containing the question, customer info, and a direct link to answer.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.notify_new_question} onChange={v => set('notify_new_question', v)} disabled />
@@ -33,10 +34,10 @@ export default function NotificationsTab({ draft, onChange }) {
           <>
             <div className="qq-settings-field-stacked">
               <div className="qq-settings-field-label">
-                Send to
-                <span className="qq-badge-pro">Pro</span>
+                {__('Send to', 'quick-qa-for-woocommerce')}
+                <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
               </div>
-              <div className="qq-settings-field-help">One email per line. Send to multiple team members for shared moderation duty.</div>
+              <div className="qq-settings-field-help">{__('One email per line. Send to multiple team members for shared moderation duty.', 'quick-qa-for-woocommerce')}</div>
               <textarea
                 className="qq-settings-textarea"
                 value={draft.new_question_recipients}
@@ -50,10 +51,10 @@ export default function NotificationsTab({ draft, onChange }) {
             <div className="qq-settings-field">
               <div className="qq-settings-field-info">
                 <div className="qq-settings-field-label">
-                  Delivery
-                  <span className="qq-badge-pro">Pro</span>
+                  {__('Delivery', 'quick-qa-for-woocommerce')}
+                  <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
                 </div>
-                <div className="qq-settings-field-help">Instant alerts feel responsive but interrupt focus. Daily digest groups everything into one morning email.</div>
+                <div className="qq-settings-field-help">{__('Instant alerts feel responsive but interrupt focus. Daily digest groups everything into one morning email.', 'quick-qa-for-woocommerce')}</div>
               </div>
               <div className="qq-settings-field-control">
                 <select
@@ -62,8 +63,8 @@ export default function NotificationsTab({ draft, onChange }) {
                   onChange={e => set('notify_mode', e.target.value)}
                   disabled
                 >
-                  <option value="instant">Instant — every question</option>
-                  <option value="digest">Daily digest — one email per day</option>
+                  <option value="instant">{__('Instant — every question', 'quick-qa-for-woocommerce')}</option>
+                  <option value="digest">{__('Daily digest — one email per day', 'quick-qa-for-woocommerce')}</option>
                 </select>
               </div>
             </div>
@@ -72,10 +73,10 @@ export default function NotificationsTab({ draft, onChange }) {
               <div className="qq-settings-field">
                 <div className="qq-settings-field-info">
                   <div className="qq-settings-field-label">
-                    Send digest at
-                    <span className="qq-badge-pro">Pro</span>
+                    {__('Send digest at', 'quick-qa-for-woocommerce')}
+                    <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
                   </div>
-                  <div className="qq-settings-field-help">Local store time. Choose when your team usually starts answering.</div>
+                  <div className="qq-settings-field-help">{__('Local store time. Choose when your team usually starts answering.', 'quick-qa-for-woocommerce')}</div>
                 </div>
                 <div className="qq-settings-field-control">
                   <input
@@ -94,16 +95,16 @@ export default function NotificationsTab({ draft, onChange }) {
 
       {/* Other alerts */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Other alerts</div>
-        <div className="qq-settings-card-desc">Other moments when your attention is genuinely useful.</div>
+        <div className="qq-settings-card-title">{__('Other alerts', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('Other moments when your attention is genuinely useful.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Community answer pending review
-              <span className="qq-badge-pro">Pro</span>
+              {__('Community answer pending review', 'quick-qa-for-woocommerce')}
+              <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
             </div>
-            <div className="qq-settings-field-help">When a verified buyer or community member submits an answer that needs your approval.</div>
+            <div className="qq-settings-field-help">{__('When a verified buyer or community member submits an answer that needs your approval.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.notify_community_answer} onChange={v => set('notify_community_answer', v)} disabled />
@@ -113,10 +114,10 @@ export default function NotificationsTab({ draft, onChange }) {
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Question hits upvote threshold
-              <span className="qq-badge-pro">Pro</span>
+              {__('Question hits upvote threshold', 'quick-qa-for-woocommerce')}
+              <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
             </div>
-            <div className="qq-settings-field-help">When many customers upvote the same unanswered question, it&apos;s a priority.</div>
+            <div className="qq-settings-field-help">{__("When many customers upvote the same unanswered question, it's a priority.", 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.notify_upvote_threshold} onChange={v => set('notify_upvote_threshold', v)} disabled />
@@ -127,10 +128,10 @@ export default function NotificationsTab({ draft, onChange }) {
           <div className="qq-settings-field">
             <div className="qq-settings-field-info">
               <div className="qq-settings-field-label">
-                Threshold
-                <span className="qq-badge-pro">Pro</span>
+                {__('Threshold', 'quick-qa-for-woocommerce')}
+                <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
               </div>
-              <div className="qq-settings-field-help">Upvote count that triggers the priority alert.</div>
+              <div className="qq-settings-field-help">{__('Upvote count that triggers the priority alert.', 'quick-qa-for-woocommerce')}</div>
             </div>
             <div className="qq-settings-field-control">
               <div className="qq-settings-input-wrap">
@@ -143,7 +144,7 @@ export default function NotificationsTab({ draft, onChange }) {
                   onChange={e => set('upvote_threshold_value', Math.max(1, parseInt(e.target.value, 10) || 5))}
                   disabled
                 />
-                <span className="qq-settings-input-unit">upvotes</span>
+                <span className="qq-settings-input-unit">{__('upvotes', 'quick-qa-for-woocommerce')}</span>
               </div>
             </div>
           </div>
@@ -152,10 +153,10 @@ export default function NotificationsTab({ draft, onChange }) {
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Content auto-hidden by flags
-              <span className="qq-badge-pro">Pro</span>
+              {__('Content auto-hidden by flags', 'quick-qa-for-woocommerce')}
+              <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
             </div>
-            <div className="qq-settings-field-help">When a question or answer is automatically hidden after crossing your flag threshold.</div>
+            <div className="qq-settings-field-help">{__('When a question or answer is automatically hidden after crossing your flag threshold.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.notify_flag_threshold} onChange={v => set('notify_flag_threshold', v)} disabled />
@@ -165,10 +166,10 @@ export default function NotificationsTab({ draft, onChange }) {
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Unanswered reminder
-              <span className="qq-badge-pro">Pro</span>
+              {__('Unanswered reminder', 'quick-qa-for-woocommerce')}
+              <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
             </div>
-            <div className="qq-settings-field-help">Nudge yourself when a question has been waiting too long.</div>
+            <div className="qq-settings-field-help">{__('Nudge yourself when a question has been waiting too long.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
             <Toggle checked={draft.notify_unanswered_reminder} onChange={v => set('notify_unanswered_reminder', v)} disabled />
@@ -179,10 +180,10 @@ export default function NotificationsTab({ draft, onChange }) {
           <div className="qq-settings-field">
             <div className="qq-settings-field-info">
               <div className="qq-settings-field-label">
-                Remind me after
-                <span className="qq-badge-pro">Pro</span>
+                {__('Remind me after', 'quick-qa-for-woocommerce')}
+                <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
               </div>
-              <div className="qq-settings-field-help">Days a question can sit unanswered before you get a reminder.</div>
+              <div className="qq-settings-field-help">{__('Days a question can sit unanswered before you get a reminder.', 'quick-qa-for-woocommerce')}</div>
             </div>
             <div className="qq-settings-field-control">
               <div className="qq-settings-input-wrap">
@@ -195,7 +196,7 @@ export default function NotificationsTab({ draft, onChange }) {
                   onChange={e => set('unanswered_reminder_days', Math.max(1, parseInt(e.target.value, 10) || 3))}
                   disabled
                 />
-                <span className="qq-settings-input-unit">days</span>
+                <span className="qq-settings-input-unit">{__('days', 'quick-qa-for-woocommerce')}</span>
               </div>
             </div>
           </div>
@@ -204,15 +205,15 @@ export default function NotificationsTab({ draft, onChange }) {
 
       {/* Slack integration */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Slack integration</div>
-        <div className="qq-settings-card-desc">Pipe notifications into a Slack channel instead of (or alongside) email.</div>
+        <div className="qq-settings-card-title">{__('Slack integration', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-desc">{__('Pipe notifications into a Slack channel instead of (or alongside) email.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked qq-settings-field-stacked--solo">
           <div className="qq-settings-field-label">
-            Slack webhook URL
-            <span className="qq-badge-pro">Pro</span>
+            {__('Slack webhook URL', 'quick-qa-for-woocommerce')}
+            <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>
           </div>
-          <div className="qq-settings-field-help">Paste your Slack incoming webhook URL. Notifications will post to that channel using your alert preferences above.</div>
+          <div className="qq-settings-field-help">{__('Paste your Slack incoming webhook URL. Notifications will post to that channel using your alert preferences above.', 'quick-qa-for-woocommerce')}</div>
           <input
             className="qq-settings-input qq-settings-input--full"
             type="url"

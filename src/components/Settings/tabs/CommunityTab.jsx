@@ -1,5 +1,6 @@
 import React from 'react';
 import Toggle from '../components/Toggle';
+import { __ } from '../../../i18n';
 
 function field(draft, key, onChange) {
   return e => onChange({ ...draft, [key]: e.target.value });
@@ -10,23 +11,23 @@ export default function CommunityTab({ draft, onChange }) {
 
   return (
     <>
-      <h1 className="qq-settings-page-title">Community</h1>
+      <h1 className="qq-settings-page-title">{ __( 'Community', 'quick-qa-for-woocommerce' ) }</h1>
       <p className="qq-settings-page-sub">
-        Control who can answer questions and what gets your approval before going public.
+        { __( 'Control who can answer questions and what gets your approval before going public.', 'quick-qa-for-woocommerce' ) }
       </p>
 
       {/* ── Who can answer ── */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Who can answer</div>
+        <div className="qq-settings-card-title">{ __( 'Who can answer', 'quick-qa-for-woocommerce' ) }</div>
         <div className="qq-settings-card-desc">
-          Beyond your team, you can let real customers answer questions on product pages.
+          { __( 'Beyond your team, you can let real customers answer questions on product pages.', 'quick-qa-for-woocommerce' ) }
         </div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Allow verified buyers to answer</div>
+            <div className="qq-settings-field-label">{ __( 'Allow verified buyers to answer', 'quick-qa-for-woocommerce' ) }</div>
             <div className="qq-settings-field-help">
-              Customers who have purchased the specific product. Their answers earn the strongest trust badge.
+              { __( 'Customers who have purchased the specific product. Their answers earn the strongest trust badge.', 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -39,9 +40,9 @@ export default function CommunityTab({ draft, onChange }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Allow other logged-in customers to answer</div>
+            <div className="qq-settings-field-label">{ __( 'Allow other logged-in customers to answer', 'quick-qa-for-woocommerce' ) }</div>
             <div className="qq-settings-field-help">
-              Any customer with an account, even if they haven't purchased this specific product. Useful when buyers know related products.
+              { __( "Any customer with an account, even if they haven't purchased this specific product. Useful when buyers know related products.", 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -55,16 +56,16 @@ export default function CommunityTab({ draft, onChange }) {
 
       {/* ── Approval rules ── */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Approval rules</div>
+        <div className="qq-settings-card-title">{ __( 'Approval rules', 'quick-qa-for-woocommerce' ) }</div>
         <div className="qq-settings-card-desc">
-          Decide which answers and replies need your manual review before going live.
+          { __( 'Decide which answers and replies need your manual review before going live.', 'quick-qa-for-woocommerce' ) }
         </div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Verified buyer answers</div>
+            <div className="qq-settings-field-label">{ __( 'Verified buyer answers', 'quick-qa-for-woocommerce' ) }</div>
             <div className="qq-settings-field-help">
-              When someone who purchased the product writes an answer.
+              { __( 'When someone who purchased the product writes an answer.', 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -73,17 +74,17 @@ export default function CommunityTab({ draft, onChange }) {
               value={draft.verified_buyer_approval}
               onChange={field(draft, 'verified_buyer_approval', onChange)}
             >
-              <option value="require">Require my approval</option>
-              <option value="auto">Auto-publish</option>
+              <option value="require">{ __( 'Require my approval', 'quick-qa-for-woocommerce' ) }</option>
+              <option value="auto">{ __( 'Auto-publish', 'quick-qa-for-woocommerce' ) }</option>
             </select>
           </div>
         </div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">Other community member answers</div>
+            <div className="qq-settings-field-label">{ __( 'Other community member answers', 'quick-qa-for-woocommerce' ) }</div>
             <div className="qq-settings-field-help">
-              When a logged-in customer answers, but hasn't purchased the product.
+              { __( "When a logged-in customer answers, but hasn't purchased the product.", 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -92,8 +93,8 @@ export default function CommunityTab({ draft, onChange }) {
               value={draft.community_approval}
               onChange={field(draft, 'community_approval', onChange)}
             >
-              <option value="always">Always require approval</option>
-              <option value="auto_trusted">Auto-publish if trusted</option>
+              <option value="always">{ __( 'Always require approval', 'quick-qa-for-woocommerce' ) }</option>
+              <option value="auto_trusted">{ __( 'Auto-publish if trusted', 'quick-qa-for-woocommerce' ) }</option>
             </select>
           </div>
         </div>
@@ -101,10 +102,10 @@ export default function CommunityTab({ draft, onChange }) {
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Customer follow-ups
+              { __( 'Customer follow-ups', 'quick-qa-for-woocommerce' ) }
             </div>
             <div className="qq-settings-field-help">
-              When the original asker replies again after your answer — same person continuing the conversation.
+              { __( 'When the original asker replies again after your answer — same person continuing the conversation.', 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -113,8 +114,8 @@ export default function CommunityTab({ draft, onChange }) {
               value={draft.followup_approval}
               onChange={field(draft, 'followup_approval', onChange)}
             >
-              <option value="auto">Auto-publish (recommended)</option>
-              <option value="require">Require my approval</option>
+              <option value="auto">{ __( 'Auto-publish (recommended)', 'quick-qa-for-woocommerce' ) }</option>
+              <option value="require">{ __( 'Require my approval', 'quick-qa-for-woocommerce' ) }</option>
             </select>
           </div>
         </div>
@@ -122,19 +123,19 @@ export default function CommunityTab({ draft, onChange }) {
 
       {/* ── Trust tier ── */}
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">Trust tier</div>
+        <div className="qq-settings-card-title">{ __( 'Trust tier', 'quick-qa-for-woocommerce' ) }</div>
         <div className="qq-settings-card-desc">
-          Reward consistently helpful customers by auto-publishing their future answers.
+          { __( 'Reward consistently helpful customers by auto-publishing their future answers.', 'quick-qa-for-woocommerce' ) }
         </div>
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
             <div className="qq-settings-field-label">
-              Enable trust tier
-              <span className="qq-badge-soon">Coming soon</span>
+              { __( 'Enable trust tier', 'quick-qa-for-woocommerce' ) }
+              <span className="qq-badge-soon">{ __( 'Coming soon', 'quick-qa-for-woocommerce' ) }</span>
             </div>
             <div className="qq-settings-field-help">
-              After a customer's answers have been marked helpful several times, automatically trust their future answers without review.
+              { __( "After a customer's answers have been marked helpful several times, automatically trust their future answers without review.", 'quick-qa-for-woocommerce' ) }
             </div>
           </div>
           <div className="qq-settings-field-control">
@@ -149,9 +150,9 @@ export default function CommunityTab({ draft, onChange }) {
         {draft.enable_trust_tier && (
           <div className="qq-settings-field">
             <div className="qq-settings-field-info">
-              <div className="qq-settings-field-label">Helpful answers required</div>
+              <div className="qq-settings-field-label">{ __( 'Helpful answers required', 'quick-qa-for-woocommerce' ) }</div>
               <div className="qq-settings-field-help">
-                How many of a customer's answers must be approved and marked helpful before they earn trusted status.
+                { __( "How many of a customer's answers must be approved and marked helpful before they earn trusted status.", 'quick-qa-for-woocommerce' ) }
               </div>
             </div>
             <div className="qq-settings-field-control">
@@ -165,7 +166,7 @@ export default function CommunityTab({ draft, onChange }) {
                   onChange={e => set('trust_helpful_threshold', Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 1)))}
                   disabled
                 />
-                <span className="qq-settings-input-unit">default 3</span>
+                <span className="qq-settings-input-unit">{ __( 'default 3', 'quick-qa-for-woocommerce' ) }</span>
               </div>
             </div>
           </div>

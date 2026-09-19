@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "askora/qa-widget",
+	"title": "Askora Q&A",
+	"category": "askora",
+	"description": "Manually place the Askora product Q&A widget — renders identically to the automatic placement, using all current Askora settings.",
+	"keywords": [ "askora", "questions", "answers", "q&a", "woocommerce" ],
+	"icon": "testimonial",
+	"textdomain": "quick-qa-for-woocommerce",
+	"attributes": {
+		"productId": {
+			"type": "integer",
+			"default": 0
+		}
+	},
+	"usesContext": [ "postId" ],
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ]
+	},
+	"editorScript": "quick-qa-block-editor"
+}

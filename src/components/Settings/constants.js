@@ -1,3 +1,5 @@
+import { __ } from '../../i18n';
+
 export const DEFAULT_SETTINGS = {
   // General — scope
   enable_scope:        'all',
@@ -7,7 +9,7 @@ export const DEFAULT_SETTINGS = {
 
   // General — display
   position:            'tab',
-  tab_name:            'Questions & Answers',
+  tab_name:            __( 'Questions & Answers', 'quick-qa-for-woocommerce' ),
   per_page:            10,
 
   // General — sorting & filters
@@ -92,13 +94,13 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const TABS = [
-  { key: 'general',         label: 'General' },
-  { key: 'submission',      label: 'Submission' },
-  { key: 'moderation',      label: 'Moderation' },
-  { key: 'notifications',   label: 'Notifications' },
-  { key: 'community',       label: 'Community' },
-  { key: 'appearance',      label: 'Appearance' },
-  { key: 'email-templates', label: 'Email templates' },
-  { key: 'seo',             label: 'SEO' },
-  { key: 'import-export',   label: 'Import / Export' },
+  { key: 'general',         label: __( 'General', 'quick-qa-for-woocommerce' ) },
+  { key: 'submission',      label: __( 'Submission', 'quick-qa-for-woocommerce' ) },
+  { key: 'moderation',      label: __( 'Moderation', 'quick-qa-for-woocommerce' ) },
+  { key: 'notifications',   label: __( 'Notifications', 'quick-qa-for-woocommerce' ) },
+  { key: 'community',       label: __( 'Community', 'quick-qa-for-woocommerce' ) },
+  { key: 'appearance',      label: __( 'Appearance', 'quick-qa-for-woocommerce' ) },
+  { key: 'email-templates', label: __( 'Email templates', 'quick-qa-for-woocommerce' ) },
+  { key: 'seo',             label: __( 'SEO', 'quick-qa-for-woocommerce' ) },
+  { key: 'import-export',   label: __( 'Import / Export', 'quick-qa-for-woocommerce' ) },
 ];

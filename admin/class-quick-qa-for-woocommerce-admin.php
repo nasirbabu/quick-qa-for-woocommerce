@@ -85,10 +85,15 @@ class Quick_Qa_For_Woocommerce_Admin {
 			wp_enqueue_script(
 				'quick-qa-react-app',
 				$this->plugin_root_url() . 'build/quick-qa-app.js',
-				array(),
+				array( 'wp-i18n' ),
 				$this->version,
 				true
 			);
+
+			// Loads the translated strings onto window.wp.i18n before the app
+			// boots — see src/i18n.js for why this app reads that global
+			// directly instead of bundling its own @wordpress/i18n (KAN-29).
+			wp_set_script_translations( 'quick-qa-react-app', 'quick-qa-for-woocommerce', $this->plugin_root_path() . 'languages' );
 
 			add_filter( 'script_loader_tag', array( $this, 'set_module_type' ), 10, 2 );
 

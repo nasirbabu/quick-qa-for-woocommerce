@@ -1,0 +1,3519 @@
+# Copyright (C) 2026 WP Easy Soft
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Askora – Product Questions & Answers for WooCommerce 1.4.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/quick-qa-for-woocommerce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-17 17:04+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: quick-qa-for-woocommerce make-pot.php\n"
+"X-Domain: quick-qa-for-woocommerce\n"
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:194
+msgid "\"Best answer\" gold highlight"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:192
+msgid "\"Was this helpful?\" on answers"
+msgstr ""
+
+#. translators: 1: number of email templates currently enabled, 2: total number of email templates
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:103
+msgid "%1$d of %2$d are currently enabled."
+msgstr ""
+
+#. translators: %1$d is the number of items that succeeded, %2$d is the number that failed
+#: src/components/AllQA/AllQA.jsx:631
+#, c-format
+msgid "%1$d succeeded, %2$d failed — failed item still selected, try again."
+msgid_plural "%1$d succeeded, %2$d failed — failed items still selected, try again."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: import summary text, 2: number of rows skipped
+#: src/components/Settings/tabs/ImportExportTab.jsx:118
+msgid "%1$s (%2$d skipped)"
+msgstr ""
+
+#. translators: %d is the current character count out of the 5000 character limit.
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:461
+msgid "%d / 5000 characters"
+msgstr ""
+
+#. translators: %d: number of answers
+#. translators: %d: number of answers to this question
+#: public/partials/quick-qa-question-items.php:151
+#: public/partials/quick-qa-question-items.php:203
+#: src/components/AllQA/QuestionDetail.jsx:418
+#, c-format
+msgid "%d answer"
+msgid_plural "%d answers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/QuestionDetail.jsx:626
+#, c-format
+msgid "%d answer auto-hidden · awaiting your review"
+msgid_plural "%d answers auto-hidden · awaiting your review"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/QuestionDetail.jsx:262
+#: src/components/AllQA/QuestionDetail.jsx:657
+#, c-format
+msgid "%d approved answer"
+msgid_plural "%d approved answers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/QuestionList.jsx:80
+#, c-format
+msgid "%d flag"
+msgid_plural "%d flags"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/AllQA.jsx:661
+#: src/components/AllQA/AllQA.jsx:757
+#, c-format
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of approved questions on this product
+#: public/class-quick-qa-for-woocommerce-public.php:902
+#: public/partials/quick-qa-tab.php:63
+#, c-format
+msgid "%d question about this product"
+msgid_plural "%d questions about this product"
+msgstr[0] ""
+msgstr[1] ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:904
+msgid "%d questions about this product"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:228
+msgid "%d selected"
+msgstr ""
+
+#. translators: %d is the number of days since the template was last updated.
+#: src/components/AllQA/AllQA.jsx:49
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:42
+msgid "%dd ago"
+msgstr ""
+
+#. translators: %d is the number of hours since the template was last updated.
+#: src/components/AllQA/AllQA.jsx:48
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:38
+msgid "%dh ago"
+msgstr ""
+
+#. translators: %d is the number of minutes since the template was last updated.
+#: src/components/AllQA/AllQA.jsx:47
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:34
+msgid "%dm ago"
+msgstr ""
+
+#. translators: %d is the number of weeks since the template was last updated.
+#: src/components/AllQA/AllQA.jsx:50
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:46
+msgid "%dw ago"
+msgstr ""
+
+#. translators: %s: human-readable time difference, e.g. "2 days"
+#. translators: %s: human-readable time difference
+#: public/partials/quick-qa-question-items.php:66
+#: public/partials/quick-qa-question-items.php:227
+#: public/partials/quick-qa-question-items.php:311
+#: public/partials/quick-qa-question-items.php:329
+msgid "%s ago"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:232
+msgid "%s sample"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-vars.php:192
+msgid "(no additional details provided)"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:185
+msgid "(we'll notify you when answered)"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:292
+msgid "+ Ask a follow-up"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:315
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:432
+msgid "+ New category"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:95
+msgid "+ New template"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:206
+msgid ", based on your last-saved settings. Save changes above, then refresh to see them reflected here. Verify it in Google's Rich Results Test before publishing."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:906
+msgid "1 answer"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:98
+msgid "1 day ago"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:115
+msgid "18 hours ago"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:87
+msgid "2 answers"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:73
+msgid "2 days ago"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:45
+msgid "3 questions"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:286
+msgid "30 days"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:287
+msgid "60 days"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:115
+#: src/components/Settings/tabs/SubmissionTab.jsx:129
+msgid "6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:288
+msgid "90 days"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:260
+msgid "A category with that name already exists."
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-community-answer-approved.php:55
+msgid "A community member"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:286
+msgid "A community member submitted an answer that needs your review."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1731
+#: src/components/AllQA/AllQA.jsx:115
+#: src/components/AllQA/AllQA.jsx:136
+#: src/components/AllQA/AllQA.jsx:150
+msgid "A customer"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:241
+msgid "A customer asked a question on: %s"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1644
+msgid "A follow-up has already been posted on this thread."
+msgstr ""
+
+#. translators: %d: number of upvotes
+#: includes/class-quick-qa-notifier.php:363
+msgid "A question has reached %d upvotes and is a customer priority."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:272
+msgid "Across products"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:483
+msgid "Add a follow-up reply…"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:419
+msgid "Add your answer"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:86
+msgid "Adds an “I'm not a robot” check. Stronger than honeypot but adds friction. Use only if you see persistent spam."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-email-templates.php:242
+msgid "Admin + prior answerers on the thread"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:118
+msgid "Admin emails (%d)"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:138
+msgid "After a customer's answers have been marked helpful several times, automatically trust their future answers without review."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:266
+msgid "After your team answers, verified buyers and community members can still add their experience. Recommended for richer Q&A."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:293
+#: src/components/AllQA/AllQA.jsx:8
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:63
+#: src/components/Settings/tabs/ImportExportTab.jsx:182
+msgid "All"
+msgstr ""
+
+#: src/App.jsx:8
+#: src/components/AllQA/AllQA.jsx:597
+msgid "All Q&A"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:22
+msgid "All answered questions (maximum reach)"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:296
+msgid "All categories"
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:160
+msgid "All changes saved"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:685
+#: src/components/Settings/tabs/GeneralTab.jsx:14
+msgid "All products"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:29
+msgid "All products except…"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:285
+msgid "All statuses"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:264
+msgid "Allow more answers from the community"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:43
+msgid "Allow other logged-in customers to answer"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:28
+msgid "Allow verified buyers to answer"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:124
+#: src/components/Settings/components/AppearancePreview.jsx:61
+msgid "Already a customer? Your purchase history makes your answers more useful to other buyers."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:96
+msgid "Always require approval"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:145
+msgid "Always-trusted email addresses or domains"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:10
+msgid "Amber"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:494
+#: includes/class-quick-qa-for-woocommerce-export.php:241
+#: includes/class-quick-qa-for-woocommerce-schema.php:332
+#: includes/class-quick-qa-for-woocommerce-schema.php:347
+#: src/components/AllQA/AllQA.jsx:54
+msgid "Anonymous"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:185
+msgid "Answer"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:292
+msgid "Answer by %s:"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:445
+msgid "Answer content"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:189
+msgid "Answer date"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:373
+msgid "Answer in your dashboard: %s"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1599
+msgid "Answer not found."
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:249
+msgid "Answer now: %s"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:187
+msgid "Answer status"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:373
+msgid "Answer text is required"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:188
+msgid "Answer upvotes"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:415
+msgid "Answer:"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:296
+#: src/components/AllQA/AllQA.jsx:12
+#: src/components/AllQA/QuestionList.jsx:25
+msgid "Answered"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:286
+msgid "Answered / approved only"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:186
+msgid "Answered by"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:385
+#, c-format
+msgid "Answered · %d answer"
+msgid_plural "Answered · %d answers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:45
+msgid "Any customer with an account, even if they haven't purchased this specific product. Useful when buyers know related products."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:24
+msgid "Anyone visiting your store can ask. Highest volume of Q&A content."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:239
+msgid "Anything shorter is auto-rejected as low quality."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:23
+msgid "Anything with at least one approved answer becomes searchable."
+msgstr ""
+
+#: src/components/Settings/constants.js:102
+#: src/components/Settings/tabs/AppearanceTab.jsx:50
+msgid "Appearance"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:189
+msgid "Appended automatically to customer-facing emails."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:59
+msgid "Approval rules"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:400
+#: src/components/AllQA/AllQA.jsx:404
+#: src/components/AllQA/QuestionDetail.jsx:205
+msgid "Approve"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:212
+msgid "Approve & answer"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:313
+msgid "Approve & publish"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:259
+msgid "Approve to publish them, or reject if they are spam or off-topic."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:260
+msgid "Approve to publish these community answers with their trust badges."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:386
+msgid "Approved · no answers yet"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:528
+msgid "Are you sure you want to delete"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:359
+msgid "Ask a follow-up…"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:886
+#: public/partials/quick-qa-tab.php:83
+#: public/partials/quick-qa-tab.php:139
+#: src/components/Settings/components/AppearancePreview.jsx:47
+msgid "Ask a question"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:243
+msgid "Asked by: %s"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:181
+msgid "Asker"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:154
+msgid "Asking as"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-blocks.php:161
+msgid "Askora"
+msgstr ""
+
+#: includes/blocks/qa-widget/edit.js:40
+msgid "Askora Q&A settings"
+msgstr ""
+
+#: admin/class-quick-qa-for-woocommerce-admin.php:29
+#: admin/class-quick-qa-for-woocommerce-admin.php:30
+msgid "Askora QA"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-base.php:218
+msgid "Askora → Settings → Email templates"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-blocks.php:115
+msgid "Askora: No product found to show Q&A for. Place this block on a product page/template, or set a Product ID in the block settings (sidebar)."
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-blocks.php:128
+#: includes/class-quick-qa-for-woocommerce-shortcode.php:81
+msgid "Askora: Q&A is not shown here because this product is excluded by your scope settings. (Only visible to editors.)"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:526
+#, c-format
+msgid "Auto-hidden after %d flag · awaiting your review"
+msgid_plural "Auto-hidden after %d flags · awaiting your review"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:120
+msgid "Auto-hide after"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:276
+msgid "Auto-lock threads after"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:78
+#: src/components/Settings/tabs/ModerationTab.jsx:18
+msgid "Auto-publish"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:117
+msgid "Auto-publish (recommended)"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:97
+msgid "Auto-publish if trusted"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:58
+msgid "Auto-reject questions containing words on your blocklist."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:86
+msgid "Auto-reject very short questions"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:349
+msgid "Available variables"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:109
+msgid "Avatar shape"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:195
+msgid "Avatars"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:394
+msgid "Back to templates"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:374
+msgid "Be the first to ask about this product. Our team typically responds within 24 hours."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:126
+msgid "Below the reviews section"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:244
+msgid "Best answer"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:23
+msgid "Beyond your team, you can let real customers answer questions on product pages."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:17
+msgid "Black"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:101
+msgid "Blocked email addresses or domains"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:72
+msgid "Blocklist words"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:123
+msgid "Bordered"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:23
+msgid "Both logged-in customers and guests"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:60
+msgid "Brand color"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:310
+msgid "Bring in existing Q&A from another store, a previous export, or a content team's spreadsheet. You'll preview every row before anything is imported."
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:117
+msgid "Can confirm — my 15-inch MacBook Pro fits easily with the charger."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:887
+#: public/partials/quick-qa-question-items.php:371
+#: public/partials/quick-qa-question-items.php:449
+#: public/partials/quick-qa-tab.php:237
+#: src/components/AllQA/QuestionDetail.jsx:122
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:302
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:532
+#: src/components/Settings/tabs/ImportExportTab.jsx:223
+msgid "Cancel"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:430
+msgid "Category"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:580
+msgid "Category created"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:612
+msgid "Category deleted."
+msgstr ""
+
+#. translators: %d is the number of templates that were moved to the "Other" category.
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:604
+#, c-format
+msgid "Category deleted. %d template moved to Other."
+msgid_plural "Category deleted. %d templates moved to Other."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:285
+msgid "Category name"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:219
+msgid "Characters allowed per question. Live counter shown to customer."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:263
+msgid "Choose a bulk action above."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:801
+msgid "Choose a question from the list to view the conversation and take action."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:146
+msgid "Choose the rule that matches your moderation philosophy."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:52
+msgid "Choose which products show the Q&A section. Useful when some products don't need it (gift cards, digital downloads)."
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:283
+msgid "Choose which question states are included."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:111
+msgid "Circle"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:234
+msgid "Clear"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:432
+msgid "Click a category to select it. Use"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:278
+msgid "Click any variable on the right to insert it at your cursor."
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:321
+msgid "Click to browse for a CSV"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:350
+msgid "Click to insert at your cursor position in the body."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:905
+msgid "Collapse"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:136
+msgid "Comfortable"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:135
+msgid "Coming soon"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:73
+msgid "Comma-separated. Case-insensitive. Anything containing these words is auto-rejected."
+msgstr ""
+
+#: src/components/Settings/constants.js:101
+#: src/components/AllQA/QuestionDetail.jsx:35
+#: src/components/Settings/tabs/CommunityTab.jsx:14
+msgid "Community"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:131
+msgid "Community answer"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:104
+msgid "Community answer approved"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:59
+msgid "Community answer pending"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:239
+#: src/components/Settings/tabs/NotificationsTab.jsx:104
+msgid "Community answer pending review"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1414
+#: includes/api/class-quick-qa-rest-questions.php:1662
+msgid "Community answers are currently closed for this product."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:654
+#: includes/api/class-quick-qa-rest-questions.php:1516
+#: includes/class-quick-qa-notifier.php:280
+#: includes/emails/templates/admin/class-quick-qa-email-community-pending.php:51
+#: includes/emails/templates/customer/class-quick-qa-email-community-answer-approved.php:56
+#: public/partials/quick-qa-question-items.php:261
+msgid "Community member"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:135
+msgid "Compact"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:156
+msgid "Content auto-hidden by flags"
+msgstr ""
+
+#. translators: %d: number of flags
+#: includes/class-quick-qa-notifier.php:443
+msgid "Content was automatically hidden after receiving %d flags and needs your review."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:16
+msgid "Control who can answer questions and what gets your approval before going public."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:8
+msgid "Coral"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:97
+msgid "Corner radius"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:263
+msgid "Could not read the uploaded file."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:220
+msgid "Couldn't load preview: %s"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:163
+msgid "Create a template"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:120
+#: src/components/Settings/components/AppearancePreview.jsx:58
+msgid "Create account"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:507
+msgid "Create template"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:9
+msgid "Crimson"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:209
+msgid "Custom CSS"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1343
+#: includes/api/class-quick-qa-rest-questions.php:1515
+#: includes/class-quick-qa-notifier.php:787
+#: public/partials/quick-qa-question-items.php:47
+#: public/partials/quick-qa-question-items.php:104
+#: public/partials/quick-qa-question-items.php:308
+#: src/components/AllQA/QuestionDetail.jsx:38
+#: src/components/Settings/components/AppearancePreview.jsx:72
+msgid "Customer"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:126
+msgid "Customer emails (%d)"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:444
+msgid "Customer follow-up"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:105
+msgid "Customer follow-ups"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:472
+msgid "Customer will see"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:43
+msgid "Customers cannot ask new questions until you resume below. Existing questions still display."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:30
+msgid "Customers who have purchased the specific product. Their answers earn the strongest trust badge."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:166
+msgid "Custom…"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:86
+msgid "Daily digest"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:67
+msgid "Daily digest — one email per day"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:272
+msgid "Date range"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:186
+msgid "Days a question can sit unanswered before you get a reminder."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:31
+msgid "Decide what gets your manual review before going live, and who is blocked entirely."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:61
+msgid "Decide which answers and replies need your manual review before going live."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:188
+msgid "Default email footer"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:110
+msgid "Default sender"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:174
+msgid "Default sort order"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:409
+#: src/components/AllQA/AllQA.jsx:411
+#: src/components/AllQA/QuestionDetail.jsx:607
+#: src/components/AllQA/QuestionDetail.jsx:737
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:155
+msgid "Delete"
+msgstr ""
+
+#. translators: %s is the category name.
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:262
+msgid "Delete \"%s\" category"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:523
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:538
+msgid "Delete template"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:54
+msgid "Delivery"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:133
+msgid "Density"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:500
+#: src/components/Settings/Settings.jsx:163
+msgid "Discard"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:408
+#: src/components/AllQA/QuestionDetail.jsx:600
+#: src/components/AllQA/QuestionDetail.jsx:730
+msgid "Dismiss flags"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:261
+msgid "Dismiss flags to restore content, or delete if the flags are valid."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:111
+msgid "Display"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1839
+msgid "Display name for guest (non-logged-in) submitters."
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:75
+msgid "Does this bag fit a 15-inch laptop with room for accessories?"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:316
+msgid "Download CSV template"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:154
+msgid "Duplicate"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:918
+msgid "Duplicate question"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:153
+msgid "Edit"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:398
+msgid "Edit template"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-base.php:217
+msgid "Edit this email's subject, body, variables, and enabled state under %s."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:147
+msgid "Edit →"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:180
+msgid "Email"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:141
+msgid "Email allowlist"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:311
+msgid "Email behavior"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:97
+msgid "Email blocklist"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:290
+msgid "Email body"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:277
+msgid "Email content"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1847
+msgid "Email for guest submitters (optional; used for answer notifications)."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:23
+msgid "Email me on new questions"
+msgstr ""
+
+#: src/components/Settings/constants.js:103
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:99
+msgid "Email templates"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:62
+msgid "Enable profanity filter"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:315
+msgid "Enable this email"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:134
+msgid "Enable trust tier"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:71
+msgid "Enabled categories"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:83
+msgid "Enabled products"
+msgstr ""
+
+#. translators: %s is the error message returned by the failed request.
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:650
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:666
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:716
+#: src/components/Settings/tabs/ImportExportTab.jsx:128
+msgid "Error: %s"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:702
+msgid "Error: not a valid JSON file"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:188
+msgid "Errors"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:14
+msgid "Every question lands in your Pending queue. You decide what goes public. Best protection against spam."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:95
+msgid "Excluded products"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:86
+msgid "Export"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:268
+msgid "Export Q&A"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:14
+msgid "FAQPage (higher visibility, stricter rules)"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:70
+msgid "Failed to load email templates: %s"
+msgstr ""
+
+#. translators: %s is the error message returned by the settings API request.
+#: src/components/Settings/Settings.jsx:91
+msgid "Failed to load settings: %s"
+msgstr ""
+
+#. translators: %s is the error message returned by the failed request.
+#: src/components/AllQA/AllQA.jsx:588
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:738
+msgid "Failed to load: %s"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:305
+msgid "Failed to send."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:124
+msgid "Filled background"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:290
+msgid "Filter questions"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:678
+msgid "Filter ▾"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:555
+#: src/components/AllQA/QuestionDetail.jsx:695
+msgid "First flag: %s"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:172
+#: public/partials/quick-qa-question-items.php:299
+msgid "Flag"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:11
+#: src/components/AllQA/QuestionList.jsx:23
+#: src/components/AllQA/QuestionList.jsx:24
+msgid "Flagged"
+msgstr ""
+
+#. translators: %1$d is the total number of flags, %2$d is the number of distinct customers who flagged
+#: src/components/AllQA/QuestionDetail.jsx:545
+#: src/components/AllQA/QuestionDetail.jsx:685
+msgid "Flagged %1$d times by %2$d different customers"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:550
+#: src/components/AllQA/QuestionDetail.jsx:690
+#, c-format
+msgid "Flagged %d time"
+msgid_plural "Flagged %d times"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/QuestionDetail.jsx:675
+msgid "Flagged answers"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:115
+msgid "Flagging"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:130
+msgid "Follow-up"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:712
+msgid "Follow-up not found."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:113
+msgid "Follow-up submitted"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:157
+msgid "Font family"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:145
+msgid "Font size"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:171
+msgid "Font stack"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:210
+msgid "For power users"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:366
+msgid "From:"
+msgstr ""
+
+#: src/components/Settings/constants.js:97
+#: src/components/Settings/tabs/GeneralTab.jsx:36
+msgid "General"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:269
+msgid "Generate a CSV download of your Q&A. Pick a date range, status, and product category to filter what gets included."
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:304
+msgid "Generate download"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:103
+msgid "Get your keys at Google's reCAPTCHA admin console ↗"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:185
+msgid "Google ignores schema beyond ~10 questions per page anyway, and large schema blocks slow page load. The most upvoted answered questions are picked."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:85
+msgid "Google reCAPTCHA"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1344
+#: includes/class-quick-qa-notifier.php:793
+#: public/partials/quick-qa-question-items.php:51
+#: src/components/AllQA/QuestionDetail.jsx:36
+msgid "Guest"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:56
+msgid "Guest must provide an email so they can be notified when their question is answered. Email is never shown publicly."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:25
+msgid "Hand-pick the products that show Q&A. Best for stores testing the feature on a few products first."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:108
+msgid "Have a question about this product?"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:54
+msgid "Have a question?"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:914
+msgid "Help us keep Q&A useful. Reports are reviewed by our team."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:283
+msgid "Helpful"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:153
+msgid "Helpful answers required"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:113
+msgid "Hidden"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:303
+msgid "Hide the “Ask a question” form on all product pages. Useful when you have a backlog or are away. Existing Q&A still displays."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:75
+msgid "Honeypot field"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:170
+msgid "How customers can browse questions on your product pages."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:155
+msgid "How many of a customer's answers must be approved and marked helpful before they earn trusted status."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:149
+msgid "How many questions show before pagination kicks in."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:37
+msgid "How questions and answers appear on your product pages."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:51
+msgid "How the Q&A widget looks on your product pages. Preview updates as you change."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:244
+msgid "ID of the question being answered."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-moderation.php:119
+msgid "ID of the question or answer."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:87
+msgid "Import"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:252
+msgid "Import %d"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:251
+msgid "Import %d (fix errors first)"
+msgstr ""
+
+#: src/components/Settings/constants.js:105
+#: src/components/Settings/tabs/ImportExportTab.jsx:264
+msgid "Import / Export"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:309
+msgid "Import Q&A"
+msgstr ""
+
+#. translators: %d is the number of Q&A pairs successfully imported
+#: src/components/Settings/tabs/ImportExportTab.jsx:112
+#, c-format
+msgid "Imported %d Q&A pair"
+msgid_plural "Imported %d Q&A pairs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:710
+#, c-format
+msgid "Imported %d template"
+msgid_plural "Imported %d templates"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:230
+#: src/components/Settings/tabs/ImportExportTab.jsx:249
+msgid "Importing…"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:916
+msgid "Incorrect information"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:14
+msgid "Indigo"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:164
+msgid "Inherit from theme"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:216
+msgid "Injected into the Q&A widget on every product page. Scope selectors with"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:78
+msgid "Insert a template"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:125
+msgid "Inside a product tab"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:57
+msgid "Instant alerts feel responsive but interrupt focus. Daily digest groups everything into one morning email."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:66
+msgid "Instant — every question"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:385
+msgid "Invalid answer_date: %s (expected YYYY-MM-DD)"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:665
+msgid "Invalid file: item %d has a missing or invalid name."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:675
+msgid "Invalid file: item %d has content over 5000 characters."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:655
+msgid "Invalid file: item %d is not a valid template object."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:642
+msgid "Invalid file: missing a 'templates' array."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:634
+msgid "Invalid file: not a valid JSON object."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1883
+msgid "Invalid product."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:379
+msgid "Invalid question_date: %s (expected YYYY-MM-DD)"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:76
+msgid "Invisible field that bots fill but humans don't. Catches most automated spam silently. Recommended."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:261
+msgid "It will appear here once approved. We'll notify you when it's answered."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:407
+msgid "It will appear here once our team approves it."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:213
+msgid "JSON-LD output is turned off above."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:214
+msgid "Keep questions readable and prevent abuse."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:149
+msgid "L"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:149
+msgid "Large"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:449
+msgid "Latest flag reason: %s"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:94
+msgid "Layout"
+msgstr ""
+
+#: includes/blocks/qa-widget/edit.js:43
+msgid "Leave blank to use the product this page is for. Set a product ID to show Q&A for a different product (e.g. on a custom template)."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:222
+msgid "Leave this field empty"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:85
+msgid "Let %s handle schema instead →"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:203
+msgid "Let customers filter to only see answered questions."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:131
+msgid "Let my SEO plugin handle schema instead"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:294
+msgid "Limit the export to one category, or include all products."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:362
+msgid "Live preview"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:193
+msgid "Live search above the question list. Helps customers self-serve."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:580
+msgid "Loading Q&A data…"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:61
+msgid "Loading email templates…"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:373
+#: src/components/Settings/tabs/SEOTab.jsx:216
+msgid "Loading preview…"
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:102
+msgid "Loading settings…"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:99
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:727
+msgid "Loading templates…"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:912
+msgid "Loading…"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:79
+msgid "Local store time. Choose when your team usually starts answering."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:397
+msgid "Lock thread"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:116
+#: src/components/Settings/components/AppearancePreview.jsx:57
+msgid "Log in"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:111
+#: src/components/Settings/components/AppearancePreview.jsx:55
+msgid "Log in or create a free account to ask. It only takes a minute."
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:47
+msgid "Log in to ask"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:243
+msgid "Logged in"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:244
+msgid "Logged out"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:264
+msgid "Logged-in only"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:148
+msgid "M"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:15
+msgid "Magenta"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:75
+msgid "Make your Q&A discoverable on Google. Q&A pages are some of the highest-converting SEO content you can publish — real customer questions match real search queries."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-base.php:213
+msgid "Manage this email"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:280
+msgid "Mark answer as helpful"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:218
+msgid "Maximum question length"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:141
+msgid "Maximum questions a single visitor can submit per hour. Stops flood attacks."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:184
+msgid "Maximum questions per product"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:148
+msgid "Medium"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:125
+msgid "Minimal"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:238
+msgid "Minimum question length"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:163
+msgid "Minimum upvotes"
+msgstr ""
+
+#. translators: %s: comma-separated list of missing column names.
+#: includes/api/class-quick-qa-rest-import-export.php:300
+msgid "Missing required column(s): %s"
+msgstr ""
+
+#: src/components/Settings/constants.js:99
+#: src/components/Settings/tabs/ModerationTab.jsx:30
+msgid "Moderation"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:17
+msgid "More people asking means more Q&A content for SEO. Fewer means tighter spam control."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:310
+#: src/components/AllQA/AllQA.jsx:194
+#: src/components/Settings/tabs/GeneralTab.jsx:183
+msgid "Most recent"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:313
+#: src/components/AllQA/AllQA.jsx:195
+#: src/components/Settings/tabs/GeneralTab.jsx:184
+msgid "Most upvoted"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:265
+msgid "Move Q&A data in or out of your store. Useful for migrations, backups, and reports."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:591
+msgid "Multiple customers reported this as"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:203
+msgid "Name cannot be empty."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:13
+msgid "Navy"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:315
+msgid "Need a starter file?"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:175
+msgid "Needs attention"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:285
+msgid "Never (recommended)"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:50
+msgid "New question"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:17
+msgid "New question alerts"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1125
+msgid "New question submissions are temporarily paused. Please check back later."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:398
+msgid "New template"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:753
+msgid "Next"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:908
+#: public/partials/quick-qa-question-items.php:162
+msgid "No answers yet"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:439
+msgid "No answers yet — be the first to reply"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:352
+msgid "No matching questions"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:225
+msgid "No qualifying Q&A yet"
+msgstr ""
+
+#: src/components/AllQA/QuestionList.jsx:38
+msgid "No questions match this filter."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:371
+msgid "No questions yet"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:179
+msgid "No rows to import."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:212
+msgid "No schema is being output"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:104
+msgid "No templates match your search."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:105
+msgid "No templates yet. Create some in Reply Templates."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:495
+msgid "No unsaved changes"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:142
+msgid "Not every Q&A should go into schema. Quality matters — Google ranks rich snippets based on content depth and authority."
+msgstr ""
+
+#: src/components/AllQA/QuestionList.jsx:37
+msgid "Nothing here"
+msgstr ""
+
+#: src/components/Settings/constants.js:100
+#: src/components/Settings/tabs/NotificationsTab.jsx:12
+msgid "Notifications"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:172
+msgid "Nudge yourself when a question has been waiting too long."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:121
+msgid "Number of flags a question or answer needs before it's automatically hidden and queued for your review."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:917
+msgid "Offensive language"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:316
+#: src/components/AllQA/AllQA.jsx:196
+#: src/components/Settings/tabs/GeneralTab.jsx:185
+msgid "Oldest first"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:11
+msgid "Olive"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:226
+msgid "Once a question in scope has an approved answer matching your rules above, its schema will preview here."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:40
+msgid "One email per line. Send to multiple team members for shared moderation duty."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:102
+msgid "One per line. You can use full addresses (sam@example.com) or whole domains (@spamdomain.net)."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:32
+msgid "Only Q&A above an upvote threshold"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:273
+msgid "Only Q&A created within this range will be exported. Leave blank for all time."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:27
+msgid "Only Q&A with staff answers (highest authority)"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1153
+msgid "Only guest visitors can submit questions."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:33
+msgid "Only guests"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:28
+msgid "Only logged-in customers"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:19
+msgid "Only specific categories"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:24
+msgid "Only specific products"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1608
+msgid "Only the original asker can post a follow-up here."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:417
+msgid "Only you and your team see this. Customers see the answer text only."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:296
+msgid "Operations"
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-question-rejected.php:28
+msgid "Optional polite notice sent when a question is rejected by a moderator. Off by default."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:123
+msgid "Optional polite notice sent when a question is rejected. Off by default."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:329
+msgid "Optional. Falls back to your default sender name (%s)."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:175
+msgid "Optional: write a reply"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:37
+msgid "Original asker"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:919
+msgid "Other"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:98
+msgid "Other alerts"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:85
+msgid "Other community member answers"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:99
+msgid "Other moments when your attention is genuinely useful."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:142
+msgid "Our team and other customers will be notified. Most questions are answered within 24 hours."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:99
+msgid "Output JSON-LD schema"
+msgstr ""
+
+#. translators: %1$d is the current page number, %2$d is the total number of pages
+#: src/components/AllQA/AllQA.jsx:739
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:216
+msgid "Paste your Slack incoming webhook URL. Notifications will post to that channel using your alert preferences above."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:301
+msgid "Pause new submissions"
+msgstr ""
+
+#: src/components/AllQA/QuestionList.jsx:21
+msgid "Pending"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:280
+msgid "Pending answer"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:10
+msgid "Pending answers"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:287
+msgid "Pending only"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:9
+msgid "Pending questions"
+msgstr ""
+
+#. translators: %d is the number of upvotes on the question
+#: src/components/AllQA/QuestionDetail.jsx:149
+#, c-format
+msgid "Pending review · %d upvote"
+msgid_plural "Pending review · %d upvotes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:76
+msgid "Pick a category"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:88
+#: src/components/Settings/tabs/GeneralTab.jsx:100
+msgid "Pick a product"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:80
+msgid "Pick a template to pre-fill the answer field. You can edit it before publishing."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:110
+msgid "Pick the type that best matches your content. This affects how Google interprets and displays your Q&A."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:101
+msgid "Pill"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:209
+msgid "Pipe notifications into a Slack channel instead of (or alongside) email."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:457
+msgid "Plain text"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:96
+msgid "Please check back later. You can still browse existing Q&amp;A below."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:106
+msgid "Please choose a CSV file to upload."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1164
+#: public/class-quick-qa-for-woocommerce-public.php:899
+msgid "Please complete the reCAPTCHA check."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1237
+#: public/class-quick-qa-for-woocommerce-public.php:898
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1229
+#: public/class-quick-qa-for-woocommerce-public.php:897
+msgid "Please enter your email address."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1221
+#: public/class-quick-qa-for-woocommerce-public.php:896
+msgid "Please enter your name."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:116
+msgid "Please upload a .csv file."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:116
+msgid "Position on product page"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:748
+msgid "Prev"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:240
+msgid "Preview"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:24
+#: src/components/Settings/tabs/NotificationsTab.jsx:38
+#: src/components/Settings/tabs/NotificationsTab.jsx:55
+#: src/components/Settings/tabs/NotificationsTab.jsx:77
+#: src/components/Settings/tabs/NotificationsTab.jsx:105
+#: src/components/Settings/tabs/NotificationsTab.jsx:118
+#: src/components/Settings/tabs/NotificationsTab.jsx:132
+#: src/components/Settings/tabs/NotificationsTab.jsx:157
+#: src/components/Settings/tabs/NotificationsTab.jsx:170
+#: src/components/Settings/tabs/NotificationsTab.jsx:184
+#: src/components/Settings/tabs/NotificationsTab.jsx:214
+#: src/components/Settings/tabs/SubmissionTab.jsx:69
+msgid "Pro"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:178
+msgid "Product"
+msgstr ""
+
+#. translators: %d: product ID
+#: includes/class-quick-qa-notifier.php:812
+#: src/components/AllQA/AllQA.jsx:95
+msgid "Product #%d"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:179
+#: includes/blocks/qa-widget/edit.js:42
+msgid "Product ID"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:293
+msgid "Product category"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:424
+#: includes/api/class-quick-qa-rest-import-export.php:432
+msgid "Product not found: %s"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:367
+#: includes/class-quick-qa-notifier.php:447
+msgid "Product: %s"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:57
+msgid "Profanity filter"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:499
+msgid "Publish reply"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:499
+msgid "Publishing…"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:15
+msgid "Q&A section appears on every product in your store. Recommended."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:9
+msgid "QAPage (recommended for community Q&A)"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:180
+#: src/components/Settings/tabs/ImportExportTab.jsx:196
+msgid "Question"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:145
+#: src/components/AllQA/QuestionDetail.jsx:238
+#: src/components/AllQA/QuestionDetail.jsx:382
+#: src/components/AllQA/QuestionDetail.jsx:523
+#: src/components/AllQA/QuestionDetail.jsx:623
+#: src/components/AllQA/QuestionDetail.jsx:754
+msgid "Question about"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:95
+msgid "Question answered"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:35
+msgid "Question approval"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:184
+msgid "Question date"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:117
+msgid "Question hits upvote threshold"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:213
+msgid "Question limits"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1394
+msgid "Question not found."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:122
+msgid "Question rejected"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:182
+msgid "Question status"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:368
+msgid "Question text is required"
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:183
+msgid "Question upvotes"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:245
+#: includes/class-quick-qa-notifier.php:288
+#: includes/class-quick-qa-notifier.php:369
+#: includes/class-quick-qa-notifier.php:427
+msgid "Question:"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:89
+#: public/class-quick-qa-for-woocommerce-public.php:248
+#: public/class-quick-qa-for-woocommerce-public.php:310
+#: src/components/Settings/constants.js:12
+msgid "Questions & Answers"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:56
+msgid "Questions &amp; answers"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:19
+msgid "Questions appear publicly the moment they're submitted. Faster for customers, but spam can slip through. Use only if you have other anti-spam tools running."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:63
+msgid "Questions containing any blocklist word are auto-rejected without entering the queue."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:148
+msgid "Questions per page"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:87
+msgid "Questions under your minimum length (set in General) are rejected silently."
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-community-answer-approved.php:25
+msgid "Quick Q&A: Community answer approved"
+msgstr ""
+
+#: includes/emails/templates/admin/class-quick-qa-email-community-pending.php:25
+msgid "Quick Q&A: Community answer pending"
+msgstr ""
+
+#: includes/emails/templates/admin/class-quick-qa-email-daily-digest.php:25
+msgid "Quick Q&A: Daily digest"
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-followup-submitted.php:26
+msgid "Quick Q&A: Follow-up submitted"
+msgstr ""
+
+#: includes/emails/templates/admin/class-quick-qa-email-new-question.php:25
+msgid "Quick Q&A: New question"
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-question-answered.php:25
+msgid "Quick Q&A: Question answered"
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-question-rejected.php:27
+msgid "Quick Q&A: Question rejected"
+msgstr ""
+
+#: includes/emails/templates/customer/class-quick-qa-email-review-invitation.php:26
+msgid "Quick Q&A: Review invitation"
+msgstr ""
+
+#: includes/emails/templates/admin/class-quick-qa-email-unanswered-reminder.php:25
+msgid "Quick Q&A: Unanswered reminder"
+msgstr ""
+
+#: includes/emails/templates/admin/class-quick-qa-email-upvote-threshold.php:25
+msgid "Quick Q&A: Upvote threshold"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:185
+msgid "Ready"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:171
+msgid "Ready to import"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:235
+msgid "Refresh"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:401
+#: src/components/AllQA/AllQA.jsx:405
+#: src/components/AllQA/QuestionDetail.jsx:198
+#: src/components/AllQA/QuestionDetail.jsx:306
+msgid "Reject"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:13
+#: src/components/AllQA/QuestionDetail.jsx:755
+#: src/components/AllQA/QuestionList.jsx:26
+msgid "Rejected"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:288
+msgid "Rejected only"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:183
+msgid "Remind me after"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:24
+msgid "Repeat customers and verified buyers auto-publish. Everyone else needs approval. Balances speed and safety."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:350
+msgid "Reply & resolve thread"
+msgstr ""
+
+#: src/App.jsx:9
+msgid "Reply Templates"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:83
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:100
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:388
+msgid "Reply templates"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:338
+msgid "Reply to this follow-up…"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:179
+msgid "Reply-to address"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:350
+msgid "Replying…"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:913
+msgid "Report this content"
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:27
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:19
+#: src/components/Settings/tabs/SEOTab.jsx:43
+msgid "Request failed"
+msgstr ""
+
+#. translators: %d is the HTTP status code returned by the failed request.
+#: src/components/AllQA/AllQA.jsx:32
+#: src/components/AllQA/QuestionDetail.jsx:18
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:21
+#: src/components/Settings/tabs/ImportExportTab.jsx:16
+msgid "Request failed (%d)"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:54
+msgid "Require email from guests"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:77
+#: src/components/Settings/tabs/CommunityTab.jsx:118
+#: src/components/Settings/tabs/ModerationTab.jsx:13
+msgid "Require my approval"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:100
+msgid "Required for Q&A to appear as rich snippets in Google. Recommended on."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:117
+#: src/components/AllQA/QuestionDetail.jsx:387
+msgid "Resolved"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:782
+msgid "Restore"
+msgstr ""
+
+#: src/components/AllQA/QuestionList.jsx:22
+msgid "Review answer"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:151
+msgid "Review before importing"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:296
+#: includes/class-quick-qa-notifier.php:455
+msgid "Review in your dashboard: %s"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:131
+msgid "Review invitation"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:298
+msgid "Review this community answer before it goes public."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:128
+msgid "Reward consistently helpful customers by auto-publishing their future answers."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:193
+msgid "Role badges (Verified buyer, Staff)"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:100
+msgid "Rounded"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:195
+msgid "Row · Product"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:147
+msgid "S"
+msgstr ""
+
+#: src/components/Settings/constants.js:104
+#: src/components/Settings/tabs/SEOTab.jsx:73
+msgid "SEO"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:415
+msgid "SKU required"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:294
+msgid "Save category"
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:165
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:342
+msgid "Save changes"
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:157
+msgid "Save failed. Please try again."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:199
+msgid "Save sender settings"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:507
+msgid "Save template"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:164
+msgid "Save time on repeat questions"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:102
+msgid "Save time on repeat questions. Templates pre-fill the answer field with one click — you can always edit before publishing."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:507
+#: src/components/Settings/Settings.jsx:165
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:199
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:342
+msgid "Saving…"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:94
+msgid "Schema is structured data that helps search engines display your Q&A as rich snippets — those expanded results that show questions and answers directly in Google."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:92
+msgid "Schema output"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:204
+msgid "Schema preview"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:109
+msgid "Schema type"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:280
+#: public/partials/quick-qa-tab.php:281
+msgid "Search questions"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:602
+msgid "Search questions…"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:91
+msgid "Search templates…"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:122
+msgid "Secret key"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:799
+msgid "Select a question"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:231
+msgid "Select all %d"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:76
+msgid "Send digest at"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:302
+msgid "Send test email to me"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:37
+msgid "Send to"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:170
+msgid "Sender email address"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:162
+msgid "Sender name"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:326
+msgid "Sender name override"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:302
+msgid "Sending…"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:306
+msgid "Sends a copy with sample data to your admin email."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:26
+msgid "Sends an email containing the question, customer info, and a direct link to answer."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:132
+#: includes/emails/templates/customer/class-quick-qa-email-review-invitation.php:27
+msgid "Sent a few days after a question is answered, inviting the customer to leave a product review."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:78
+#: includes/emails/templates/admin/class-quick-qa-email-unanswered-reminder.php:26
+msgid "Sent as a reminder when a question has been pending too long."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:87
+#: includes/emails/templates/admin/class-quick-qa-email-daily-digest.php:26
+msgid "Sent each morning with a summary of overnight activity, instead of individual question alerts."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:60
+#: includes/emails/templates/admin/class-quick-qa-email-community-pending.php:26
+msgid "Sent to moderators when a verified buyer or community member submits an answer that needs review."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:114
+#: includes/emails/templates/customer/class-quick-qa-email-followup-submitted.php:27
+msgid "Sent to participants when the customer adds a follow-up after the initial answer."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:105
+#: includes/emails/templates/customer/class-quick-qa-email-community-answer-approved.php:26
+msgid "Sent to the original asker when a community member answers their question (after approval)."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:96
+#: includes/emails/templates/customer/class-quick-qa-email-question-answered.php:26
+msgid "Sent to the original asker when their question is answered by your team."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:51
+#: includes/emails/templates/admin/class-quick-qa-email-new-question.php:26
+msgid "Sent to your team whenever a customer asks a new question on a product page."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:69
+#: includes/emails/templates/admin/class-quick-qa-email-upvote-threshold.php:26
+msgid "Sent when many customers upvote the same unanswered question — signals high priority."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:304
+msgid "Sent!"
+msgstr ""
+
+#: src/App.jsx:10
+#: src/components/Settings/Settings.jsx:137
+msgid "Settings"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:95
+msgid "Shape, spacing, and density."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:434
+msgid "Share your experience with this product…"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:99
+msgid "Sharp"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:116
+msgid "Shoppers can flag a question or answer as spam, incorrect, offensive, a duplicate, or other. Once a single item collects enough flags, it's automatically hidden from public view and moved to your Flagged queue for review."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:20
+msgid "Show Q&A only on products in the categories you pick."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:202
+msgid "Show answered/unanswered filter"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:117
+msgid "Show inside a tab next to Description and Reviews, or as a section below the reviews."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:911
+#: public/partials/quick-qa-tab.php:338
+msgid "Show more questions"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:30
+msgid "Show on everything by default, but exclude specific products (gift cards, digital files, services)."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:192
+msgid "Show search box"
+msgstr ""
+
+#. translators: 1: number of rows currently shown, 2: total number of rows
+#: src/components/Settings/tabs/ImportExportTab.jsx:217
+msgid "Showing %1$d of %2$d rows"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:108
+msgid "Site key"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:28
+msgid "Skip community-only answers. Slower to build a Q&A footprint but every entry has your team's stamp."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:208
+msgid "Slack integration"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:213
+msgid "Slack webhook URL"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:16
+msgid "Slate"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:147
+msgid "Small"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:900
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:307
+msgid "Sort questions"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:707
+msgid "Sort ▾"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:169
+msgid "Sorting & filters"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:137
+msgid "Spacious"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:915
+msgid "Spam or promotional"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:68
+msgid "Spam protection"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:112
+msgid "Square"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:616
+#: includes/api/class-quick-qa-rest-questions.php:774
+#: includes/emails/templates/customer/class-quick-qa-email-question-answered.php:56
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:479
+msgid "Staff"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:128
+msgid "Staff answer"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:197
+#: src/components/Settings/tabs/ImportExportTab.jsx:282
+msgid "Status"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:13
+msgid "Stay informed about new questions and answers without checking the dashboard constantly."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:277
+msgid "Stop accepting new answers after a period of inactivity. Set to “Never” to keep threads always open."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:71
+msgid "Stop bots and abuse before they reach your queue."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:98
+msgid "Stop specific people from submitting. They get a generic submission error and never reach your queue."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:253
+#: public/partials/quick-qa-question-items.php:337
+#: src/components/Settings/components/AppearancePreview.jsx:94
+msgid "Store staff"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:33
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:478
+msgid "Store team"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:281
+msgid "Subject line"
+msgstr ""
+
+#: src/components/Settings/constants.js:98
+#: src/components/Settings/tabs/SubmissionTab.jsx:12
+msgid "Submission"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:140
+msgid "Submission rate limit"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:43
+msgid "Submissions are paused."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:910
+#: public/partials/quick-qa-question-items.php:456
+msgid "Submit answer"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:888
+#: public/partials/quick-qa-tab.php:240
+msgid "Submit question"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:378
+msgid "Submit reply"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:889
+msgid "Submitting…"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:165
+msgid "System font"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:133
+msgid "Tab name"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:12
+msgid "Teal"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:606
+#: public/partials/quick-qa-question-items.php:218
+#: public/partials/quick-qa-question-items.php:220
+#: public/partials/quick-qa-question-items.php:326
+#: src/components/AllQA/AllQA.jsx:105
+#: src/components/AllQA/AllQA.jsx:106
+#: src/components/AllQA/AllQA.jsx:142
+#: src/components/AllQA/AllQA.jsx:143
+#: src/components/AllQA/AllQA.jsx:167
+#: src/components/AllQA/AllQA.jsx:168
+msgid "Team"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-vars.php:201
+msgid "Team member"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:638
+msgid "Template created"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:662
+msgid "Template deleted"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:646
+msgid "Template duplicated"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:416
+msgid "Template name"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:351
+msgid "Template name is required."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:442
+#: includes/api/class-quick-qa-rest-templates.php:542
+msgid "Template not found."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:639
+msgid "Template saved"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:189
+#: src/components/AllQA/QuestionDetail.jsx:490
+msgid "Templates"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:297
+msgid "Temporarily control whether customers can submit new questions."
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:920
+msgid "Thanks for letting us know."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:298
+msgid "The \"Other\" category cannot be deleted."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1823
+msgid "The WooCommerce product ID the question belongs to."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:206
+msgid "The actual JSON-LD currently being injected into a product page's"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:255
+msgid "The answer text (10–2000 characters)."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:280
+msgid "The follow-up text (10–2000 characters)."
+msgstr ""
+
+#. translators: %d: number of days since the question was submitted
+#: includes/class-quick-qa-notifier.php:624
+#, c-format
+msgid "The following question has been unanswered for more than %d day:"
+msgid_plural "The following questions have been unanswered for more than %d days:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/api/class-quick-qa-rest-moderation.php:258
+msgid "The item you are trying to flag does not exist."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-moderation.php:355
+msgid "The item you are trying to vote on does not exist."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:134
+msgid "The label shown on the Q&A tab."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-email-templates.php:245
+msgid "The original asker"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1831
+msgid "The question body (10–500 characters)."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:273
+msgid "The uploaded file is empty."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:494
+#: src/components/Settings/Settings.jsx:159
+msgid "They will not apply until you save."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:528
+msgid "This cannot be undone."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:592
+msgid "This content was flagged by customers."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:317
+msgid "This email is currently off and will not be sent."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:317
+msgid "This email will be sent automatically."
+msgstr ""
+
+#. translators: %d: maximum row count allowed in a single import.
+#: includes/api/class-quick-qa-rest-import-export.php:131
+msgid "This file has more than %d rows. Please split it into smaller files."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:446
+msgid "This is what gets pre-filled into the answer field. You can always edit before publishing."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1291
+#: public/class-quick-qa-for-woocommerce-public.php:895
+msgid "This question contains words that aren't allowed."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:775
+msgid "This question was rejected."
+msgstr ""
+
+#: src/components/Settings/Settings.jsx:35
+msgid "This section is coming soon."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1626
+msgid "This thread has already reached its follow-up limit."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1616
+msgid "This thread is closed for further follow-ups."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:390
+msgid "This thread is closed for new answers."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:121
+msgid "Thread container"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:131
+msgid "Threshold"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:367
+msgid "To:"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:187
+msgid "Toggle elements on or off in the customer-facing widget."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:187
+msgid "Too many rows in a single import."
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:167
+msgid "Total rows"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:275
+msgid "Total upvotes"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:126
+msgid "Trust tier"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:23
+msgid "Trust-tiered"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:142
+msgid "Trusted senders bypass approval entirely, regardless of your global rules above."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:355
+msgid "Try a different keyword or filter, or"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:132
+msgid "Turn this on if your SEO plugin (Yoast, RankMath, AIOSEO) already outputs Q&A schema. Two plugins outputting schema for the same content can hurt SEO."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:454
+msgid "Type your template answer here…"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:322
+msgid "UTF-8 encoding · CSV format"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:394
+msgid "Unable to create template. Please try again."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-templates.php:508
+msgid "Unable to delete template."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-import-export.php:507
+msgid "Unable to insert question."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1270
+msgid "Unable to process your submission."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1498
+msgid "Unable to save your answer. Please try again."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1700
+msgid "Unable to save your follow-up. Please try again."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1800
+msgid "Unable to save your question. Please try again."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:548
+msgid "Unable to update the thread."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:299
+msgid "Unanswered"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:77
+#: src/components/Settings/tabs/NotificationsTab.jsx:169
+msgid "Unanswered reminder"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-email-templates.php:162
+#: includes/api/class-quick-qa-rest-email-templates.php:203
+msgid "Unknown email template."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:397
+msgid "Unlock thread"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:494
+#: src/components/Settings/Settings.jsx:159
+msgid "Unsaved changes."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:34
+msgid "Unusual setup. Only choose this if your store has anonymous-only browsing."
+msgstr ""
+
+#. translators: %s is a relative time such as "2 days ago", or "—" when no date is set.
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:148
+msgid "Updated %s"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:313
+msgid "Upload a CSV"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:91
+msgid "Upload failed"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:321
+msgid "Uploading…"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:191
+msgid "Upvote button on questions"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:134
+msgid "Upvote count that triggers the priority alert."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:133
+msgid "Upvote this question"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-store.php:68
+msgid "Upvote threshold"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:33
+msgid "Use community signal to filter quality. Below the threshold, schema isn't generated."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:15
+msgid "Use only if your Q&A reads like genuine FAQs — store-authored questions with definitive answers. Google may show these as expanded rich results, but penalizes pages that misuse the type."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:10
+msgid "Use when your Q&A is community-driven — customers ask questions, your team and other buyers answer. This is the honest choice for most product Q&A."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:402
+msgid "Used"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:61
+msgid "Used for buttons, links, and accents."
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:111
+msgid "Used for every email below, unless a template overrides it."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:146
+msgid "Useful for staff testing, agency partners, or known repeat customers. Their questions auto-publish."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:122
+#: src/components/AllQA/AllQA.jsx:123
+msgid "User"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:654
+#: includes/api/class-quick-qa-rest-questions.php:1516
+#: public/partials/quick-qa-question-items.php:100
+#: public/partials/quick-qa-question-items.php:257
+#: public/partials/quick-qa-tab.php:149
+#: src/components/AllQA/QuestionDetail.jsx:34
+#: src/components/Settings/components/AppearancePreview.jsx:114
+msgid "Verified buyer"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:66
+msgid "Verified buyer answers"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:391
+msgid "View on product page"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:155
+#: src/components/AllQA/QuestionDetail.jsx:242
+#: src/components/AllQA/QuestionDetail.jsx:637
+msgid "View product"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:29
+msgid "Visitors must create an account before asking. Reduces spam at the cost of fewer questions."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:82
+msgid "We detected"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:95
+msgid "We're not accepting new questions right now."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:141
+msgid "What gets included"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:260
+msgid "What happens after the first answer is published."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-moderation.php:111
+msgid "What is being voted on."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:186
+msgid "What to show"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:208
+msgid "What would you like to know?"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:18
+msgid "When a customer asks a new question on any product page."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:36
+msgid "When a customer submits a new question, what should happen next?"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:87
+msgid "When a logged-in customer answers, but hasn't purchased the product."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:259
+msgid "When a question is answered"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:159
+msgid "When a question or answer is automatically hidden after crossing your flag threshold."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:107
+msgid "When a verified buyer or community member submits an answer that needs your approval."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:120
+msgid "When many customers upvote the same unanswered question, it's a priority."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:95
+msgid "When replying to a customer follow-up, the id of that follow-up answer."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:68
+msgid "When someone who purchased the product writes an answer."
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:108
+msgid "When the original asker replies again after your answer — same person continuing the conversation."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:50
+msgid "Where Q&A appears"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:112
+msgid "Where the Q&A section appears on a product page and how it is laid out."
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:175
+msgid "Which order new visitors see first. They can change it themselves."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:145
+msgid "Which questions appear in schema"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:21
+msgid "Who can answer"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:264
+msgid "Who can ask"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:16
+msgid "Who can ask questions"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:13
+msgid "Who can ask questions and how submissions are protected from spam."
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:182
+msgid "Write an answer to publish alongside approval…"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:483
+msgid "Write your answer…"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:100
+msgid "Yes, the main compartment fits up to a 16-inch laptop. You'll still have room for the charger and a small notebook."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1669
+msgid "You are not permitted to reply to this answer."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1455
+msgid "You are not permitted to submit an answer for this product."
+msgstr ""
+
+#: includes/class-quick-qa-for-woocommerce-export.php:69
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-controller.php:84
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#. translators: %d: number of new questions pending a response
+#: includes/class-quick-qa-notifier.php:528
+#, c-format
+msgid "You have %d new question awaiting your response:"
+msgid_plural "You have %d new questions awaiting your response:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1146
+msgid "You must be logged in to ask a question."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-controller.php:66
+msgid "You must be logged in to perform this action."
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:331
+msgid "You'll review every row in a preview screen and can skip rows with errors before anything is committed. Nothing imports until you confirm."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-controller.php:121
+msgid "You've reached the hourly question limit. Please try again later."
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:213
+msgid "Your SEO plugin is handling schema instead."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-email-templates.php:208
+msgid "Your account has no email address to send a test to."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1544
+msgid "Your answer has been posted."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1545
+msgid "Your answer has been submitted for review."
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:404
+msgid "Your answer is being reviewed"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:909
+msgid "Your answer must be at least 10 characters."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:483
+msgid "Your answer will appear here…"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1739
+msgid "Your follow-up has been posted."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1740
+msgid "Your follow-up has been submitted for review."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:168
+msgid "Your name"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:202
+msgid "Your question"
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1349
+msgid "Your question has been published."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1306
+#: includes/api/class-quick-qa-rest-questions.php:1350
+msgid "Your question has been submitted and is pending review."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:258
+msgid "Your question is being reviewed"
+msgstr ""
+
+#. translators: %d: maximum character count
+#: includes/api/class-quick-qa-rest-questions.php:1931
+msgid "Your question must be %d characters or fewer."
+msgstr ""
+
+#. translators: %d: minimum character count
+#. translators: %d: minimum character count for a question
+#: includes/api/class-quick-qa-rest-questions.php:1919
+#: public/class-quick-qa-for-woocommerce-public.php:892
+msgid "Your question must be at least %d characters."
+msgstr ""
+
+#. translators: %d: flag count that triggered auto-hide
+#: includes/class-quick-qa-notifier.php:437
+msgid "[Auto-hidden] Content hidden after %d flags"
+msgstr ""
+
+#: includes/class-quick-qa-notifier.php:284
+msgid "[Community Answer] Review required"
+msgstr ""
+
+#. translators: %d: total new questions in this digest
+#: includes/class-quick-qa-notifier.php:516
+#, c-format
+msgid "[Daily Digest] %d new question awaiting your response"
+msgid_plural "[Daily Digest] %d new questions awaiting your response"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: first few words of the question
+#: includes/class-quick-qa-notifier.php:236
+msgid "[New Question] %s"
+msgstr ""
+
+#. translators: %d: upvote count that triggered the alert
+#: includes/class-quick-qa-notifier.php:357
+msgid "[Priority Question] %d upvotes — needs your answer"
+msgstr ""
+
+#. translators: 1: question count, 2: days threshold
+#: includes/class-quick-qa-notifier.php:611
+#, c-format
+msgid "[Reminder] %1$d question unanswered for %2$d+ days"
+msgid_plural "[Reminder] %1$d questions unanswered for %2$d+ days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/api/class-quick-qa-rest-email-templates.php:217
+msgid "[Test] %s"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-vars.php:197
+msgid "a customer"
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-vars.php:199
+msgid "a team member"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:23
+msgid "advanced"
+msgstr ""
+
+#: public/class-quick-qa-for-woocommerce-public.php:907
+msgid "answers"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:357
+msgid "clear filters"
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:199
+msgid "days"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:161
+#: src/components/Settings/tabs/GeneralTab.jsx:251
+#: src/components/Settings/tabs/SEOTab.jsx:197
+msgid "default 10"
+msgstr ""
+
+#: src/components/Settings/tabs/CommunityTab.jsx:169
+msgid "default 3"
+msgstr ""
+
+#: src/components/Settings/tabs/GeneralTab.jsx:231
+msgid "default 500"
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:174
+msgid "e.g. Sarah K."
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:133
+msgid "flags"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:265
+msgid "in Submission settings to force the login prompt above."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:269
+#, c-format
+msgid "item selected"
+msgid_plural "items selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/AllQA/AllQA.jsx:46
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:31
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:480
+msgid "just now"
+msgstr ""
+
+#. translators: %s is a relative time such as "2 days ago".
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:405
+msgid "last updated %s"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:82
+msgid "on your site. If both plugins output schema for the same Q&A, Google may penalize your site for duplicate structured data."
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:88
+msgid "or paste a custom hex"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:154
+msgid "per hour"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:108
+msgid "public — embedded in the widget"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:33
+msgid "rarely used"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:96
+msgid "reCAPTCHA v2 (“I'm not a robot”) requires a site key and secret key."
+msgstr ""
+
+#: includes/api/class-quick-qa-rest-questions.php:1184
+#: includes/api/class-quick-qa-rest-questions.php:1193
+msgid "reCAPTCHA verification failed. Please try again."
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:23
+msgid "recommended"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:13
+msgid "recommended for new stores"
+msgstr ""
+
+#: src/components/Settings/tabs/SubmissionTab.jsx:122
+msgid "server only — never exposed to customers"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:78
+msgid "spam, scam, fake"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:107
+msgid "spammer@example.com\n"
+"@known-spam-domain.net"
+msgstr ""
+
+#: src/components/Settings/tabs/ModerationTab.jsx:151
+msgid "staff@yourstore.com\n"
+"@agency-partner.com"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:103
+#, c-format
+msgid "template"
+msgid_plural "templates"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/api/class-quick-qa-rest-questions.php:773
+#: includes/emails/templates/customer/class-quick-qa-email-question-answered.php:55
+msgid "the team"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:140
+msgid "this month"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:103
+msgid "this month."
+msgstr ""
+
+#: includes/emails/class-quick-qa-email-vars.php:204
+msgid "this product"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:103
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:402
+#, c-format
+msgid "time"
+msgid_plural "times"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:264
+#: src/components/Settings/tabs/ImportExportTab.jsx:276
+msgid "to"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:24
+msgid "to Admin / staff"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:25
+msgid "to Customer"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:26
+msgid "to Participants"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:432
+msgid "to add one, or the"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:218
+msgid "to avoid affecting other parts of your site."
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:432
+msgid "to remove it — templates in that category move to Other automatically."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:359
+msgid "to see all."
+msgstr ""
+
+#: src/components/Settings/tabs/NotificationsTab.jsx:147
+msgid "upvotes"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:173
+msgid "upvotes required"
+msgstr ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:139
+#, c-format
+msgid "use"
+msgid_plural "uses"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/ReplyTemplates/ReplyTemplates.jsx:103
+msgid "used"
+msgstr ""
+
+#: src/components/Settings/tabs/ImportExportTab.jsx:317
+msgid "with the correct column headers."
+msgstr ""
+
+#: public/partials/quick-qa-tab.php:193
+msgid "you@example.com"
+msgstr ""
+
+#: public/partials/quick-qa-question-items.php:113
+msgid "· Awaiting answer"
+msgstr ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:263
+msgid "ℹ Your Submission settings allow guests to ask. Logged-out users can still ask questions — they just provide an email. Switch"
+msgstr ""
+
+#: src/components/Settings/tabs/EmailTemplatesTab.jsx:270
+msgid "← Back to email templates"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:170
+msgid "↑ %d upvotes"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:103
+msgid "↑ 12 found this helpful"
+msgstr ""
+
+#: src/components/Settings/components/AppearancePreview.jsx:120
+msgid "↑ 4 found this helpful"
+msgstr ""
+
+#: src/components/Settings/tabs/SEOTab.jsx:234
+msgid "↗ Test in Google Rich Results"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:428
+#: src/components/Settings/components/AppearancePreview.jsx:96
+msgid "★ Best answer"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:834
+#, c-format
+msgid "⚑ %d flag recorded on this question so far — it will auto-hide once flags reach your configured threshold."
+msgid_plural "⚑ %d flags recorded on this question so far — it will auto-hide once flags reach your configured threshold."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/components/Settings/tabs/AppearanceTab.jsx:229
+msgid "⚠ Invalid CSS may break the widget layout. Test before saving."
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:678
+msgid "✓ Filtered"
+msgstr ""
+
+#: src/components/AllQA/AllQA.jsx:707
+msgid "✓ Sorted"
+msgstr ""
+
+#: src/components/AllQA/QuestionDetail.jsx:432
+msgid "👍 %d helpful"
+msgstr ""
+

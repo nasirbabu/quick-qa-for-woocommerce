@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Settings.css';
+import { __, sprintf } from '../../i18n';
 import { DEFAULT_SETTINGS, TABS } from './constants';
 import GeneralTab    from './tabs/GeneralTab';
 import SubmissionTab from './tabs/SubmissionTab';
@@ -23,7 +24,7 @@ async function apiFetch(path, options = {}) {
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.message || 'Request failed');
+  if (!res.ok) throw new Error(data?.message || __( 'Request failed', 'quick-qa-for-woocommerce' ));
   return data;
 }
 
@@ -31,7 +32,7 @@ function ComingSoonTab({ label }) {
   return (
     <div className="qq-settings-coming-soon">
       <div className="qq-settings-coming-soon-title">{label}</div>
-      <p>This section is coming soon.</p>
+      <p>{ __( 'This section is coming soon.', 'quick-qa-for-woocommerce' ) }</p>
     </div>
   );
 }
@@ -84,7 +85,13 @@ export default function Settings() {
   if (loadError) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg qq-state-msg--error">Failed to load settings: {loadError}</div>
+        <div className="qq-state-msg qq-state-msg--error">
+          { sprintf(
+            // translators: %s is the error message returned by the settings API request.
+            __( 'Failed to load settings: %s', 'quick-qa-for-woocommerce' ),
+            loadError
+          ) }
+        </div>
       </div>
     );
   }
@@ -92,7 +99,7 @@ export default function Settings() {
   if (!draft) {
     return (
       <div className="qq-page">
-        <div className="qq-state-msg">Loading settings…</div>
+        <div className="qq-state-msg">{ __( 'Loading settings…', 'quick-qa-for-woocommerce' ) }</div>
       </div>
     );
   }
@@ -127,7 +134,7 @@ export default function Settings() {
   return (
     <div className="qq-settings-body">
       <div className="qq-settings-sidebar">
-        <div className="qq-settings-sidebar-label">Settings</div>
+        <div className="qq-settings-sidebar-label">{ __( 'Settings', 'quick-qa-for-woocommerce' ) }</div>
         {TABS.map(tab => (
           <div
             key={tab.key}
@@ -147,15 +154,15 @@ export default function Settings() {
             <div className="qq-savebar">
               <div className="qq-savebar-msg">
                 {saveStatus === 'error'
-                  ? <b className="qq-savebar-error">Save failed. Please try again.</b>
+                  ? <b className="qq-savebar-error">{ __( 'Save failed. Please try again.', 'quick-qa-for-woocommerce' ) }</b>
                   : isDirty
-                    ? <><b>Unsaved changes.</b> They will not apply until you save.</>
-                    : 'All changes saved'}
+                    ? <><b>{ __( 'Unsaved changes.', 'quick-qa-for-woocommerce' ) }</b> { __( 'They will not apply until you save.', 'quick-qa-for-woocommerce' ) }</>
+                    : __( 'All changes saved', 'quick-qa-for-woocommerce' )}
               </div>
               <div className="qq-savebar-actions">
-                <button className="btn btn-ghost"    onClick={handleDiscard} disabled={!isDirty || saving}>Discard</button>
+                <button className="btn btn-ghost"    onClick={handleDiscard} disabled={!isDirty || saving}>{ __( 'Discard', 'quick-qa-for-woocommerce' ) }</button>
                 <button className="btn btn-primary"  onClick={handleSave}    disabled={!isDirty || saving}>
-                  {saving ? 'Saving…' : 'Save changes'}
+                  {saving ? __( 'Saving…', 'quick-qa-for-woocommerce' ) : __( 'Save changes', 'quick-qa-for-woocommerce' )}
                 </button>
               </div>
             </div>

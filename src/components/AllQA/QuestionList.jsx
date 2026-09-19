@@ -1,4 +1,5 @@
 import React from 'react';
+import { __, _n, sprintf } from '../../i18n';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -17,12 +18,12 @@ function highlightMatch(text, query) {
 
 function StatusPill({ status }) {
   const map = {
-    pending:          ['pending',        'Pending'],
-    'pending-answer': ['pending-answer', 'Review answer'],
-    flagged:          ['flagged',        'Flagged'],
-    'answer-flagged': ['flagged',        'Flagged'],
-    answered:         ['answered',       'Answered'],
-    rejected:         ['rejected',       'Rejected'],
+    pending:          ['pending',        __( 'Pending', 'quick-qa-for-woocommerce' )],
+    'pending-answer': ['pending-answer', __( 'Review answer', 'quick-qa-for-woocommerce' )],
+    flagged:          ['flagged',        __( 'Flagged', 'quick-qa-for-woocommerce' )],
+    'answer-flagged': ['flagged',        __( 'Flagged', 'quick-qa-for-woocommerce' )],
+    answered:         ['answered',       __( 'Answered', 'quick-qa-for-woocommerce' )],
+    rejected:         ['rejected',       __( 'Rejected', 'quick-qa-for-woocommerce' )],
   };
   const [cls, label] = map[status] || ['pending', status];
   return <span className={`qq-status-pill ${cls}`}>{label}</span>;
@@ -33,8 +34,8 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
     return (
       <div className="qq-queue-list">
         <div className="qq-empty-queue">
-          <div className="qq-empty-title">Nothing here</div>
-          <div className="qq-empty-desc">No questions match this filter.</div>
+          <div className="qq-empty-title">{__( 'Nothing here', 'quick-qa-for-woocommerce' )}</div>
+          <div className="qq-empty-desc">{__( 'No questions match this filter.', 'quick-qa-for-woocommerce' )}</div>
         </div>
       </div>
     );
@@ -76,7 +77,7 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
             <div className="qq-row-foot">
               <span>↑ {item.upvotes}</span>
               {flagBadgeCount > 0 && (
-                <span className="qq-flag-tag">{flagBadgeCount} flag{flagBadgeCount !== 1 ? 's' : ''}</span>
+                <span className="qq-flag-tag">{sprintf( _n( '%d flag', '%d flags', flagBadgeCount, 'quick-qa-for-woocommerce' ), flagBadgeCount )}</span>
               )}
               {showAllBadge && <StatusPill status={item.status} />}
             </div>

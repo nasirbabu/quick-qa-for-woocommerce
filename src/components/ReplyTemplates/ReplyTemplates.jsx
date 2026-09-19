@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ReplyTemplates.css';
+import { __, _n, sprintf } from '../../i18n';
 
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 
@@ -15,7 +16,11 @@ async function apiFetch( path, options = {} ) {
 	} );
 	if ( ! res.ok ) {
 		const err = await res.json().catch( () => ( {} ) );
-		throw new Error( err.message || `Request failed (${ res.status })` );
+		throw new Error( err.message || sprintf(
+			// translators: %d is the HTTP status code returned by the failed request.
+			__( 'Request failed (%d)', 'quick-qa-for-woocommerce' ),
+			res.status
+		) );
 	}
 	return res.json();
 }
@@ -23,11 +28,23 @@ async function apiFetch( path, options = {} ) {
 function timeLabel( dateStr ) {
 	if ( ! dateStr ) return '—';
 	const diff = ( Date.now() - new Date( dateStr + 'Z' ).getTime() ) / 1000;
-	if ( diff < 60 )     return 'just now';
-	if ( diff < 3600 )   return `${ Math.floor( diff / 60 ) }m ago`;
-	if ( diff < 86400 )  return `${ Math.floor( diff / 3600 ) }h ago`;
-	if ( diff < 604800 ) return `${ Math.floor( diff / 86400 ) }d ago`;
-	return `${ Math.floor( diff / 604800 ) }w ago`;
+	if ( diff < 60 )     return __( 'just now', 'quick-qa-for-woocommerce' );
+	if ( diff < 3600 )   return sprintf(
+		// translators: %d is the number of minutes since the template was last updated.
+		__( '%dm ago', 'quick-qa-for-woocommerce' ), Math.floor( diff / 60 )
+	);
+	if ( diff < 86400 )  return sprintf(
+		// translators: %d is the number of hours since the template was last updated.
+		__( '%dh ago', 'quick-qa-for-woocommerce' ), Math.floor( diff / 3600 )
+	);
+	if ( diff < 604800 ) return sprintf(
+		// translators: %d is the number of days since the template was last updated.
+		__( '%dd ago', 'quick-qa-for-woocommerce' ), Math.floor( diff / 86400 )
+	);
+	return sprintf(
+		// translators: %d is the number of weeks since the template was last updated.
+		__( '%dw ago', 'quick-qa-for-woocommerce' ), Math.floor( diff / 604800 )
+	);
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -43,7 +60,8 @@ function Toast( { message, onDone } ) {
 // ── Template list ─────────────────────────────────────────────────────────────
 
 function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit, onDuplicate, onDelete, onExport, onImport } ) {
-	const catTabs  = [ 'All', ...categories ];
+	const allLabel = __( 'All', 'quick-qa-for-woocommerce' );
+	const catTabs  = [ allLabel, ...categories ];
 	const filtered = cat === 'all'
 		? templates
 		: templates.filter( t => t.category === cat );
@@ -62,11 +80,11 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 		<div className="qq-tpl-page">
 			<div className="qq-top">
 				<div className="qq-top-left">
-					<span className="qq-page-label">Reply templates</span>
+					<span className="qq-page-label">{ __( 'Reply templates', 'quick-qa-for-woocommerce' ) }</span>
 				</div>
 				<div className="qq-tpl-top-right">
-					<button className="btn btn-ghost" onClick={ onExport } disabled={ templates.length === 0 }>Export</button>
-					<button className="btn btn-ghost" onClick={ () => importRef.current && importRef.current.click() }>Import</button>
+					<button className="btn btn-ghost" onClick={ onExport } disabled={ templates.length === 0 }>{ __( 'Export', 'quick-qa-for-woocommerce' ) }</button>
+					<button className="btn btn-ghost" onClick={ () => importRef.current && importRef.current.click() }>{ __( 'Import', 'quick-qa-for-woocommerce' ) }</button>
 					<input
 						ref={ importRef }
 						type="file"
@@ -74,22 +92,22 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 						style={ { display: 'none' } }
 						onChange={ handleImportFileChange }
 					/>
-					<button className="qq-tpl-btn-add" onClick={ onNew }>+ New template</button>
+					<button className="qq-tpl-btn-add" onClick={ onNew }>{ __( '+ New template', 'quick-qa-for-woocommerce' ) }</button>
 				</div>
 			</div>
 
 			<div className="qq-tpl-content">
-				<h1 className="qq-tpl-page-title">Reply templates</h1>
+				<h1 className="qq-tpl-page-title">{ __( 'Reply templates', 'quick-qa-for-woocommerce' ) }</h1>
 				<p className="qq-tpl-page-sub">
-					Save time on repeat questions. Templates pre-fill the answer field with one click — you can always edit before publishing.{' '}
-					<b>{ templates.length } templates</b> · used <b>{ totalUses } times</b> this month.
+					{ __( 'Save time on repeat questions. Templates pre-fill the answer field with one click — you can always edit before publishing.', 'quick-qa-for-woocommerce' ) }{' '}
+					<b>{ templates.length } { _n( 'template', 'templates', templates.length, 'quick-qa-for-woocommerce' ) }</b> · { __( 'used', 'quick-qa-for-woocommerce' ) } <b>{ totalUses } { _n( 'time', 'times', totalUses, 'quick-qa-for-woocommerce' ) }</b> { __( 'this month.', 'quick-qa-for-woocommerce' ) }
 				</p>
 
 				{/* Category filter tabs */}
 				<div className="qq-tpl-cat-tabs">
 					{ catTabs.map( c => {
-						const tabVal = c === 'All' ? 'all' : c;
-						const count  = c === 'All'
+						const tabVal = c === allLabel ? 'all' : c;
+						const count  = c === allLabel
 							? templates.length
 							: templates.filter( t => t.category === c ).length;
 						return (
@@ -118,17 +136,23 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 									<div className="qq-tcard-cat">{ t.category }</div>
 								</div>
 								<div className="qq-tcard-uses">
-									<b>{ t.uses }</b> uses<br />
-									<span className="qq-tcard-uses-sub">this month</span>
+									<b>{ t.uses }</b> { _n( 'use', 'uses', t.uses, 'quick-qa-for-woocommerce' ) }<br />
+									<span className="qq-tcard-uses-sub">{ __( 'this month', 'quick-qa-for-woocommerce' ) }</span>
 								</div>
 							</div>
 							<div className="qq-tcard-preview">{ t.content }</div>
 							<div className="qq-tcard-foot">
-								<div className="qq-tcard-meta">Updated { timeLabel( t.updated_at ) }</div>
+								<div className="qq-tcard-meta">
+									{ sprintf(
+										// translators: %s is a relative time such as "2 days ago", or "—" when no date is set.
+										__( 'Updated %s', 'quick-qa-for-woocommerce' ),
+										timeLabel( t.updated_at )
+									) }
+								</div>
 								<div className="qq-tcard-actions">
-									<span onClick={ e => { e.stopPropagation(); onEdit( t ); } }>Edit</span>
-									<span onClick={ e => { e.stopPropagation(); onDuplicate( t ); } }>Duplicate</span>
-									<span className="danger" onClick={ e => { e.stopPropagation(); onDelete( t ); } }>Delete</span>
+									<span onClick={ e => { e.stopPropagation(); onEdit( t ); } }>{ __( 'Edit', 'quick-qa-for-woocommerce' ) }</span>
+									<span onClick={ e => { e.stopPropagation(); onDuplicate( t ); } }>{ __( 'Duplicate', 'quick-qa-for-woocommerce' ) }</span>
+									<span className="danger" onClick={ e => { e.stopPropagation(); onDelete( t ); } }>{ __( 'Delete', 'quick-qa-for-woocommerce' ) }</span>
 								</div>
 							</div>
 						</div>
@@ -136,8 +160,8 @@ function TemplateList( { templates, categories, cat, onCatChange, onNew, onEdit,
 
 					<div className="qq-tcard-add" onClick={ onNew }>
 						<div className="qq-tcard-add-plus">+</div>
-						<div className="qq-tcard-add-text">Create a template</div>
-						<div className="qq-tcard-add-sub">Save time on repeat questions</div>
+						<div className="qq-tcard-add-text">{ __( 'Create a template', 'quick-qa-for-woocommerce' ) }</div>
+						<div className="qq-tcard-add-sub">{ __( 'Save time on repeat questions', 'quick-qa-for-woocommerce' ) }</div>
 					</div>
 				</div>
 			</div>
@@ -176,7 +200,7 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 	async function commitAdd() {
 		const trimmed = newName.trim();
 		if ( ! trimmed ) {
-			setAddError( 'Name cannot be empty.' );
+			setAddError( __( 'Name cannot be empty.', 'quick-qa-for-woocommerce' ) );
 			return;
 		}
 		setSaving( true );
@@ -233,7 +257,11 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 					{ c !== 'Other' && (
 						<button
 							className="qq-tpl-cat-pill-x"
-							title={ `Delete "${ c }" category` }
+							title={ sprintf(
+								// translators: %s is the category name.
+								__( 'Delete "%s" category', 'quick-qa-for-woocommerce' ),
+								c
+							) }
 							disabled={ deletingCat === c }
 							onClick={ e => {
 								e.stopPropagation();
@@ -254,7 +282,7 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 						type="text"
 						value={ newName }
 						maxLength={ 50 }
-						placeholder="Category name"
+						placeholder={ __( 'Category name', 'quick-qa-for-woocommerce' ) }
 						onChange={ e => { setNewName( e.target.value ); setAddError( '' ); } }
 						onKeyDown={ handleKeyDown }
 						disabled={ saving }
@@ -263,7 +291,7 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 						className="qq-tpl-cat-pill-confirm"
 						onClick={ commitAdd }
 						disabled={ saving || ! newName.trim() }
-						title="Save category"
+						title={ __( 'Save category', 'quick-qa-for-woocommerce' ) }
 					>
 						{ saving ? '…' : '✓' }
 					</button>
@@ -271,7 +299,7 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 						className="qq-tpl-cat-pill-x"
 						onClick={ cancelAdd }
 						disabled={ saving }
-						title="Cancel"
+						title={ __( 'Cancel', 'quick-qa-for-woocommerce' ) }
 					>
 						×
 					</button>
@@ -284,7 +312,7 @@ function CategoryPills( { categories, selected, onSelect, onAdd, onDelete } ) {
 					className="qq-tpl-cat-pill qq-tpl-cat-pill--new"
 					onClick={ openAdd }
 				>
-					+ New category
+					{ __( '+ New category', 'quick-qa-for-woocommerce' ) }
 				</span>
 			) }
 		</div>
@@ -320,7 +348,7 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 
 	async function handleSave() {
 		if ( ! name.trim() ) {
-			setError( 'Template name is required.' );
+			setError( __( 'Template name is required.', 'quick-qa-for-woocommerce' ) );
 			return;
 		}
 		setSaving( true );
@@ -357,21 +385,26 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 		<div className="qq-tpl-editor-page">
 			<div className="qq-top">
 				<div className="qq-top-left">
-					<span className="qq-page-label">Reply templates</span>
+					<span className="qq-page-label">{ __( 'Reply templates', 'quick-qa-for-woocommerce' ) }</span>
 				</div>
 			</div>
 
 			<div className="qq-tpl-editor-content">
 				<div className="qq-tpl-editor-back" onClick={ onBack }>
-					&larr; Back to templates
+					&larr; { __( 'Back to templates', 'quick-qa-for-woocommerce' ) }
 				</div>
 
 				<h1 className="qq-tpl-page-title">
-					{ isNew ? 'New template' : 'Edit template' }
+					{ isNew ? __( 'New template', 'quick-qa-for-woocommerce' ) : __( 'Edit template', 'quick-qa-for-woocommerce' ) }
 				</h1>
 				{ ! isNew && (
 					<p className="qq-tpl-page-sub">
-						Used { template.uses || 0 } times · last updated { timeLabel( template.updated_at ) }
+						{ __( 'Used', 'quick-qa-for-woocommerce' ) } { template.uses || 0 } { _n( 'time', 'times', template.uses || 0, 'quick-qa-for-woocommerce' ) } ·{' '}
+						{ sprintf(
+							// translators: %s is a relative time such as "2 days ago".
+							__( 'last updated %s', 'quick-qa-for-woocommerce' ),
+							timeLabel( template.updated_at )
+						) }
 					</p>
 				) }
 
@@ -380,8 +413,8 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 				<div className="qq-settings-card">
 					{/* Name */}
 					<div className="qq-tpl-field">
-						<label className="qq-tpl-label" htmlFor="tpl-name">Template name</label>
-						<div className="qq-tpl-help">Only you and your team see this. Customers see the answer text only.</div>
+						<label className="qq-tpl-label" htmlFor="tpl-name">{ __( 'Template name', 'quick-qa-for-woocommerce' ) }</label>
+						<div className="qq-tpl-help">{ __( 'Only you and your team see this. Customers see the answer text only.', 'quick-qa-for-woocommerce' ) }</div>
 						<input
 							id="tpl-name"
 							className="qq-tpl-input"
@@ -394,9 +427,9 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 
 					{/* Category */}
 					<div className="qq-tpl-field">
-						<label className="qq-tpl-label">Category</label>
+						<label className="qq-tpl-label">{ __( 'Category', 'quick-qa-for-woocommerce' ) }</label>
 						<div className="qq-tpl-help">
-							Click a category to select it. Use <b>+ New category</b> to add one, or the <b>×</b> to remove it — templates in that category move to Other automatically.
+							{ __( 'Click a category to select it. Use', 'quick-qa-for-woocommerce' ) } <b>{ __( '+ New category', 'quick-qa-for-woocommerce' ) }</b> { __( 'to add one, or the', 'quick-qa-for-woocommerce' ) } <b>×</b> { __( 'to remove it — templates in that category move to Other automatically.', 'quick-qa-for-woocommerce' ) }
 						</div>
 						<CategoryPills
 							categories={ categories }
@@ -409,8 +442,8 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 
 					{/* Content */}
 					<div className="qq-tpl-field">
-						<label className="qq-tpl-label" htmlFor="tpl-content">Answer content</label>
-						<div className="qq-tpl-help">This is what gets pre-filled into the answer field. You can always edit before publishing.</div>
+						<label className="qq-tpl-label" htmlFor="tpl-content">{ __( 'Answer content', 'quick-qa-for-woocommerce' ) }</label>
+						<div className="qq-tpl-help">{ __( 'This is what gets pre-filled into the answer field. You can always edit before publishing.', 'quick-qa-for-woocommerce' ) }</div>
 						<div className="qq-tpl-editor-wrap">
 							<textarea
 								id="tpl-content"
@@ -418,11 +451,17 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 								value={ content }
 								maxLength={ 5000 }
 								onChange={ e => setContent( e.target.value ) }
-								placeholder="Type your template answer here…"
+								placeholder={ __( 'Type your template answer here…', 'quick-qa-for-woocommerce' ) }
 							/>
 							<div className="qq-tpl-editor-foot">
-								<span>Plain text</span>
-								<span>{ charCount } / 5000 characters</span>
+								<span>{ __( 'Plain text', 'quick-qa-for-woocommerce' ) }</span>
+								<span>
+									{ sprintf(
+										// translators: %d is the current character count out of the 5000 character limit.
+										__( '%d / 5000 characters', 'quick-qa-for-woocommerce' ),
+										charCount
+									) }
+								</span>
 							</div>
 						</div>
 					</div>
@@ -430,18 +469,18 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 
 				{/* Live preview */}
 				<div className="qq-settings-card">
-					<div className="qq-tpl-preview-label">Customer will see</div>
+					<div className="qq-tpl-preview-label">{ __( 'Customer will see', 'quick-qa-for-woocommerce' ) }</div>
 					<div className="qq-tpl-preview-card">
 						<div className="qq-tpl-preview-inner">
 							<div className="qq-av" style={ { width: 32, height: 32, fontSize: 12 } }>ST</div>
 							<div style={ { flex: 1 } }>
 								<div className="qq-tpl-preview-meta">
-									<b className="qq-tpl-preview-name">Store team</b>
-									<span className="qq-tpl-preview-badge">Staff</span>
-									&middot; just now
+									<b className="qq-tpl-preview-name">{ __( 'Store team', 'quick-qa-for-woocommerce' ) }</b>
+									<span className="qq-tpl-preview-badge">{ __( 'Staff', 'quick-qa-for-woocommerce' ) }</span>
+									&middot; { __( 'just now', 'quick-qa-for-woocommerce' ) }
 								</div>
 								<div className="qq-tpl-preview-text">
-									{ content || <span style={ { color: 'var(--text-4)' } }>Your answer will appear here…</span> }
+									{ content || <span style={ { color: 'var(--text-4)' } }>{ __( 'Your answer will appear here…', 'quick-qa-for-woocommerce' ) }</span> }
 								</div>
 							</div>
 						</div>
@@ -452,20 +491,20 @@ function TemplateEditor( { template, categories, onBack, onSaved, onCategoryAdde
 				<div className="qq-savebar">
 					<div className="qq-savebar-msg">
 						{ isDirty
-							? <><b>Unsaved changes.</b> They will not apply until you save.</>
-							: 'No unsaved changes'
+							? <><b>{ __( 'Unsaved changes.', 'quick-qa-for-woocommerce' ) }</b> { __( 'They will not apply until you save.', 'quick-qa-for-woocommerce' ) }</>
+							: __( 'No unsaved changes', 'quick-qa-for-woocommerce' )
 						}
 					</div>
 					<div className="qq-savebar-actions">
 						<button className="btn btn-ghost" onClick={ onBack } disabled={ saving }>
-							Discard
+							{ __( 'Discard', 'quick-qa-for-woocommerce' ) }
 						</button>
 						<button
 							className="btn btn-primary"
 							onClick={ handleSave }
 							disabled={ saving || ! isDirty }
 						>
-							{ saving ? 'Saving…' : isNew ? 'Create template' : 'Save template' }
+							{ saving ? __( 'Saving…', 'quick-qa-for-woocommerce' ) : isNew ? __( 'Create template', 'quick-qa-for-woocommerce' ) : __( 'Save template', 'quick-qa-for-woocommerce' ) }
 						</button>
 					</div>
 				</div>
@@ -481,22 +520,22 @@ function DeleteModal( { template, onConfirm, onCancel } ) {
 		<div className="qq-modal-overlay" onClick={ onCancel }>
 			<div className="qq-modal" onClick={ e => e.stopPropagation() }>
 				<div className="qq-modal-head">
-					<div className="qq-modal-title">Delete template</div>
+					<div className="qq-modal-title">{ __( 'Delete template', 'quick-qa-for-woocommerce' ) }</div>
 					<button className="qq-modal-close" onClick={ onCancel }>&#x2715;</button>
 				</div>
 				<div className="qq-modal-body">
 					<p style={ { fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 } }>
-						Are you sure you want to delete <b>"{ template.name }"</b>? This cannot be undone.
+						{ __( 'Are you sure you want to delete', 'quick-qa-for-woocommerce' ) } <b>"{ template.name }"</b>? { __( 'This cannot be undone.', 'quick-qa-for-woocommerce' ) }
 					</p>
 				</div>
 				<div className="qq-modal-foot">
-					<button className="btn btn-ghost" onClick={ onCancel }>Cancel</button>
+					<button className="btn btn-ghost" onClick={ onCancel }>{ __( 'Cancel', 'quick-qa-for-woocommerce' ) }</button>
 					<button
 						className="btn"
 						style={ { background: 'var(--red)', color: 'white', border: 'none', padding: '9px 16px', borderRadius: 'var(--r-md)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' } }
 						onClick={ onConfirm }
 					>
-						Delete template
+						{ __( 'Delete template', 'quick-qa-for-woocommerce' ) }
 					</button>
 				</div>
 			</div>
@@ -538,7 +577,7 @@ export default function ReplyTemplates() {
 
 	function handleCategoryAdded( newCategories ) {
 		setCategories( newCategories );
-		showToast( 'Category created' );
+		showToast( __( 'Category created', 'quick-qa-for-woocommerce' ) );
 	}
 
 	function handleCategoryDeleted( result ) {
@@ -560,8 +599,17 @@ export default function ReplyTemplates() {
 		}
 
 		const msg = result.reassigned > 0
-			? `Category deleted. ${ result.reassigned } template${ result.reassigned !== 1 ? 's' : '' } moved to Other.`
-			: 'Category deleted.';
+			? sprintf(
+				// translators: %d is the number of templates that were moved to the "Other" category.
+				_n(
+					'Category deleted. %d template moved to Other.',
+					'Category deleted. %d templates moved to Other.',
+					result.reassigned,
+					'quick-qa-for-woocommerce'
+				),
+				result.reassigned
+			)
+			: __( 'Category deleted.', 'quick-qa-for-woocommerce' );
 		showToast( msg );
 	}
 
@@ -586,16 +634,22 @@ export default function ReplyTemplates() {
 				: prev.map( t => String( t.id ) === String( saved.id ) ? saved : t )
 		);
 		setEditing( null );
-		showToast( action === 'created' ? 'Template created' : 'Template saved' );
+		showToast( action === 'created'
+			? __( 'Template created', 'quick-qa-for-woocommerce' )
+			: __( 'Template saved', 'quick-qa-for-woocommerce' ) );
 	}
 
 	async function handleDuplicate( t ) {
 		try {
 			const copy = await apiFetch( `admin/templates/${ t.id }/duplicate`, { method: 'POST' } );
 			setTemplates( prev => [ ...prev, copy ] );
-			showToast( 'Template duplicated' );
+			showToast( __( 'Template duplicated', 'quick-qa-for-woocommerce' ) );
 		} catch ( err ) {
-			showToast( `Error: ${ err.message }` );
+			showToast( sprintf(
+				// translators: %s is the error message returned by the failed request.
+				__( 'Error: %s', 'quick-qa-for-woocommerce' ),
+				err.message
+			) );
 		}
 	}
 
@@ -605,9 +659,13 @@ export default function ReplyTemplates() {
 		try {
 			await apiFetch( `admin/templates/${ t.id }/delete`, { method: 'POST' } );
 			setTemplates( prev => prev.filter( x => String( x.id ) !== String( t.id ) ) );
-			showToast( 'Template deleted' );
+			showToast( __( 'Template deleted', 'quick-qa-for-woocommerce' ) );
 		} catch ( err ) {
-			showToast( `Error: ${ err.message }` );
+			showToast( sprintf(
+				// translators: %s is the error message returned by the failed request.
+				__( 'Error: %s', 'quick-qa-for-woocommerce' ),
+				err.message
+			) );
 		}
 	}
 
@@ -641,16 +699,23 @@ export default function ReplyTemplates() {
 		try {
 			parsed = JSON.parse( await file.text() );
 		} catch {
-			showToast( 'Error: not a valid JSON file' );
+			showToast( __( 'Error: not a valid JSON file', 'quick-qa-for-woocommerce' ) );
 			return;
 		}
 		try {
 			const result = await apiFetch( 'admin/templates/import', { method: 'POST', body: parsed } );
 			const fresh  = await apiFetch( 'admin/templates' );
 			setTemplates( fresh );
-			showToast( `Imported ${ result.imported } template${ result.imported !== 1 ? 's' : '' }` );
+			showToast( sprintf(
+				_n( 'Imported %d template', 'Imported %d templates', result.imported, 'quick-qa-for-woocommerce' ),
+				result.imported
+			) );
 		} catch ( err ) {
-			showToast( `Error: ${ err.message }` );
+			showToast( sprintf(
+				// translators: %s is the error message returned by the failed request.
+				__( 'Error: %s', 'quick-qa-for-woocommerce' ),
+				err.message
+			) );
 		}
 	}
 
@@ -659,7 +724,7 @@ export default function ReplyTemplates() {
 	if ( loading ) {
 		return (
 			<div className="qq-page">
-				<div className="qq-state-msg">Loading templates…</div>
+				<div className="qq-state-msg">{ __( 'Loading templates…', 'quick-qa-for-woocommerce' ) }</div>
 			</div>
 		);
 	}
@@ -667,7 +732,13 @@ export default function ReplyTemplates() {
 	if ( loadError ) {
 		return (
 			<div className="qq-page">
-				<div className="qq-state-msg qq-state-msg--error">Failed to load: { loadError }</div>
+				<div className="qq-state-msg qq-state-msg--error">
+					{ sprintf(
+						// translators: %s is the error message returned by the failed request.
+						__( 'Failed to load: %s', 'quick-qa-for-woocommerce' ),
+						loadError
+					) }
+				</div>
 			</div>
 		);
 	}

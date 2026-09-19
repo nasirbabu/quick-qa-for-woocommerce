@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { __, _n, sprintf } from '../../i18n';
 
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 
@@ -14,7 +15,7 @@ async function apiFetch(path, options = {}) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Request failed (${res.status})`);
+    throw new Error(err.message || sprintf( __( 'Request failed (%d)', 'quick-qa-for-woocommerce' ), res.status ));
   }
   return res.json();
 }
@@ -29,12 +30,12 @@ function Avatar({ initials, role }) {
 }
 
 function RoleBadge({ role }) {
-  if (role === 'staff')          return <span className="qq-msg-role-staff">Store team</span>;
-  if (role === 'verified-buyer') return <span className="qq-msg-role-buyer">Verified buyer</span>;
-  if (role === 'community')      return <span className="qq-msg-role">Community</span>;
-  if (role === 'guest')          return <span className="qq-msg-role">Guest</span>;
-  if (role === 'customer')       return <span className="qq-msg-role">Original asker</span>;
-  return <span className="qq-msg-role">Customer</span>;
+  if (role === 'staff')          return <span className="qq-msg-role-staff">{__( 'Store team', 'quick-qa-for-woocommerce' )}</span>;
+  if (role === 'verified-buyer') return <span className="qq-msg-role-buyer">{__( 'Verified buyer', 'quick-qa-for-woocommerce' )}</span>;
+  if (role === 'community')      return <span className="qq-msg-role">{__( 'Community', 'quick-qa-for-woocommerce' )}</span>;
+  if (role === 'guest')          return <span className="qq-msg-role">{__( 'Guest', 'quick-qa-for-woocommerce' )}</span>;
+  if (role === 'customer')       return <span className="qq-msg-role">{__( 'Original asker', 'quick-qa-for-woocommerce' )}</span>;
+  return <span className="qq-msg-role">{__( 'Customer', 'quick-qa-for-woocommerce' )}</span>;
 }
 
 // ── Template picker modal ─────────────────────────────────────────────────────
@@ -74,9 +75,9 @@ function TemplatePicker({ onInsert, onClose }) {
       <div className="qq-modal qq-tpl-picker-modal" onClick={e => e.stopPropagation()}>
         <div className="qq-modal-head">
           <div className="qq-modal-head-text">
-            <div className="qq-modal-title">Insert a template</div>
+            <div className="qq-modal-title">{__( 'Insert a template', 'quick-qa-for-woocommerce' )}</div>
             <div className="qq-modal-desc">
-              Pick a template to pre-fill the answer field. You can edit it before publishing.
+              {__( 'Pick a template to pre-fill the answer field. You can edit it before publishing.', 'quick-qa-for-woocommerce' )}
             </div>
           </div>
           <button className="qq-modal-close" onClick={onClose}>&#x2715;</button>
@@ -87,7 +88,7 @@ function TemplatePicker({ onInsert, onClose }) {
             ref={searchRef}
             className="qq-tpl-pick-search"
             type="text"
-            placeholder="Search templates…"
+            placeholder={__( 'Search templates…', 'quick-qa-for-woocommerce' )}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -95,13 +96,13 @@ function TemplatePicker({ onInsert, onClose }) {
 
         <div className="qq-tpl-pick-list">
           {loading && (
-            <div className="qq-tpl-pick-empty">Loading templates…</div>
+            <div className="qq-tpl-pick-empty">{__( 'Loading templates…', 'quick-qa-for-woocommerce' )}</div>
           )}
           {!loading && filtered.length === 0 && (
             <div className="qq-tpl-pick-empty">
               {search.trim()
-                ? 'No templates match your search.'
-                : 'No templates yet. Create some in Reply Templates.'}
+                ? __( 'No templates match your search.', 'quick-qa-for-woocommerce' )
+                : __( 'No templates yet. Create some in Reply Templates.', 'quick-qa-for-woocommerce' )}
             </div>
           )}
           {!loading && filtered.map(t => (
@@ -118,7 +119,7 @@ function TemplatePicker({ onInsert, onClose }) {
         </div>
 
         <div className="qq-modal-foot">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-ghost" onClick={onClose}>{__( 'Cancel', 'quick-qa-for-woocommerce' )}</button>
         </div>
       </div>
     </div>
@@ -141,13 +142,17 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
           <div className="qq-conv-status">
-            Pending review · {item.upvotes} upvote{item.upvotes !== 1 ? 's' : ''}
+            {sprintf(
+              // translators: %d is the number of upvotes on the question
+              _n( 'Pending review · %d upvote', 'Pending review · %d upvotes', item.upvotes, 'quick-qa-for-woocommerce' ),
+              item.upvotes
+            )}
           </div>
         </div>
         <div className="qq-conv-meta-actions">
-          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">{__( 'View product', 'quick-qa-for-woocommerce' )}</a>
         </div>
       </div>
 
@@ -162,26 +167,26 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
             </div>
             <div className="qq-msg-text">{item.text}</div>
             <div className="qq-msg-foot">
-              <span>↑ {item.upvotes} upvotes</span>
+              <span>{sprintf( __( '↑ %d upvotes', 'quick-qa-for-woocommerce' ), item.upvotes )}</span>
             </div>
           </div>
         </div>
 
-        <div className="qq-section-divider">Optional: write a reply</div>
+        <div className="qq-section-divider">{__( 'Optional: write a reply', 'quick-qa-for-woocommerce' )}</div>
       </div>
 
       <div className="qq-composer">
         <div className="qq-composer-card">
           <textarea
             className="qq-textarea"
-            placeholder="Write an answer to publish alongside approval…"
+            placeholder={__( 'Write an answer to publish alongside approval…', 'quick-qa-for-woocommerce' )}
             value={reply}
             onChange={e => setReply(e.target.value)}
           />
           <div className="qq-bar">
             <div className="qq-bar-left">
               <span className="qq-bar-action" onClick={() => setPickerOpen(true)}>
-                Templates
+                {__( 'Templates', 'quick-qa-for-woocommerce' )}
               </span>
             </div>
             <div className="qq-bar-right">
@@ -190,21 +195,21 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
                 onClick={onReject}
                 disabled={saving}
               >
-                Reject
+                {__( 'Reject', 'quick-qa-for-woocommerce' )}
               </button>
               <button
                 className="btn btn-secondary btn-sm"
                 onClick={onApprove}
                 disabled={saving}
               >
-                Approve
+                {__( 'Approve', 'quick-qa-for-woocommerce' )}
               </button>
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => onApproveAndAnswer(reply, insertedTemplateId)}
                 disabled={!reply.trim() || saving}
               >
-                Approve &amp; answer
+                {__( 'Approve & answer', 'quick-qa-for-woocommerce' )}
               </button>
             </div>
           </div>
@@ -230,11 +235,11 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
-          <div className="qq-conv-status">Community answer pending review</div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-status">{__( 'Community answer pending review', 'quick-qa-for-woocommerce' )}</div>
         </div>
         <div className="qq-conv-meta-actions">
-          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">{__( 'View product', 'quick-qa-for-woocommerce' )}</a>
         </div>
       </div>
 
@@ -254,7 +259,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
         {item.answers.length > 0 && (
           <>
             <div className="qq-thread-divider">
-              {item.answers.length} approved answer{item.answers.length !== 1 ? 's' : ''}
+              {sprintf( _n( '%d approved answer', '%d approved answers', item.answers.length, 'quick-qa-for-woocommerce' ), item.answers.length )}
             </div>
             {item.answers.map(ans => (
               <div key={ans.id} className="qq-msg">
@@ -272,7 +277,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
           </>
         )}
 
-        <div className="qq-thread-divider">Pending answer</div>
+        <div className="qq-thread-divider">{__( 'Pending answer', 'quick-qa-for-woocommerce' )}</div>
 
         <div className="qq-pending-card">
           <div className="qq-msg-meta" style={{ marginBottom: 10 }}>
@@ -290,7 +295,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
       <div className="qq-action-bar">
         <div className="qq-action-row">
           <div className="qq-action-info">
-            Review this community answer before it goes public.
+            {__( 'Review this community answer before it goes public.', 'quick-qa-for-woocommerce' )}
           </div>
           <div className="qq-action-buttons">
             <button
@@ -298,14 +303,14 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
               onClick={onReject}
               disabled={saving}
             >
-              Reject
+              {__( 'Reject', 'quick-qa-for-woocommerce' )}
             </button>
             <button
               className="btn btn-primary btn-sm"
               onClick={onApprove}
               disabled={saving}
             >
-              Approve &amp; publish
+              {__( 'Approve & publish', 'quick-qa-for-woocommerce' )}
             </button>
           </div>
         </div>
@@ -330,7 +335,7 @@ function FollowupReplyComposer({ onReply, saving }) {
       <div className="qq-composer-card">
         <textarea
           className="qq-textarea"
-          placeholder="Reply to this follow-up…"
+          placeholder={__( 'Reply to this follow-up…', 'quick-qa-for-woocommerce' )}
           value={text}
           onChange={e => setText(e.target.value)}
         />
@@ -342,7 +347,7 @@ function FollowupReplyComposer({ onReply, saving }) {
               onClick={handleSubmit}
               disabled={!text.trim() || saving}
             >
-              {saving ? 'Replying…' : 'Reply & resolve thread'}
+              {saving ? __( 'Replying…', 'quick-qa-for-woocommerce' ) : __( 'Reply & resolve thread', 'quick-qa-for-woocommerce' )}
             </button>
           </div>
         </div>
@@ -374,22 +379,22 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
           <div className="qq-conv-status" style={{ color: 'var(--green)' }}>
             {item.answers.length > 0
-              ? `Answered · ${item.answers.length} answer${item.answers.length !== 1 ? 's' : ''}`
-              : 'Approved · no answers yet'}
-            {item.isLocked && <span className="qq-resolved-badge">Resolved</span>}
+              ? sprintf( _n( 'Answered · %d answer', 'Answered · %d answers', item.answers.length, 'quick-qa-for-woocommerce' ), item.answers.length )
+              : __( 'Approved · no answers yet', 'quick-qa-for-woocommerce' )}
+            {item.isLocked && <span className="qq-resolved-badge">{__( 'Resolved', 'quick-qa-for-woocommerce' )}</span>}
           </div>
         </div>
         <div className="qq-conv-meta-actions">
-          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View on product page</a>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">{__( 'View on product page', 'quick-qa-for-woocommerce' )}</a>
           <button
             className="btn btn-ghost btn-sm"
             onClick={onToggleLock}
             disabled={saving}
           >
-            {item.isLocked ? 'Unlock thread' : 'Lock thread'}
+            {item.isLocked ? __( 'Unlock thread', 'quick-qa-for-woocommerce' ) : __( 'Lock thread', 'quick-qa-for-woocommerce' )}
           </button>
         </div>
       </div>
@@ -410,7 +415,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
         {item.answers.length > 0 ? (
           <>
             <div className="qq-section-divider">
-              {item.answers.length} answer{item.answers.length !== 1 ? 's' : ''}
+              {sprintf( _n( '%d answer', '%d answers', item.answers.length, 'quick-qa-for-woocommerce' ), item.answers.length )}
             </div>
             {item.answers.map(ans => (
               <div key={ans.id} className={`qq-msg ${ans.isBest ? 'qq-msg-best' : ''}`}>
@@ -420,23 +425,23 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
                     <b>{ans.author}</b>
                     <RoleBadge role={ans.role} />
                     <span>· {ans.time}</span>
-                    {ans.isBest && <span className="qq-best-tag">★ Best answer</span>}
+                    {ans.isBest && <span className="qq-best-tag">{__( '★ Best answer', 'quick-qa-for-woocommerce' )}</span>}
                   </div>
                   <div className="qq-msg-text">{ans.text}</div>
                   <div className="qq-msg-foot">
-                    <span>👍 {ans.helpful} helpful</span>
+                    <span>{sprintf( __( '👍 %d helpful', 'quick-qa-for-woocommerce' ), ans.helpful )}</span>
                   </div>
                 </div>
               </div>
             ))}
           </>
         ) : (
-          <div className="qq-section-divider">No answers yet — be the first to reply</div>
+          <div className="qq-section-divider">{__( 'No answers yet — be the first to reply', 'quick-qa-for-woocommerce' )}</div>
         )}
 
         {item.followups && item.followups.length > 0 && item.followups.map(fu => (
           <div key={fu.id} className="qq-followup">
-            <div className="qq-thread-divider">Customer follow-up</div>
+            <div className="qq-thread-divider">{__( 'Customer follow-up', 'quick-qa-for-woocommerce' )}</div>
             <div className="qq-msg">
               <Avatar initials={fu.avatar} role="customer" />
               <div className="qq-msg-body">
@@ -475,14 +480,14 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
         <div className="qq-composer-card">
           <textarea
             className="qq-textarea"
-            placeholder={item.answers.length > 0 ? 'Add a follow-up reply…' : 'Write your answer…'}
+            placeholder={item.answers.length > 0 ? __( 'Add a follow-up reply…', 'quick-qa-for-woocommerce' ) : __( 'Write your answer…', 'quick-qa-for-woocommerce' )}
             value={reply}
             onChange={e => setReply(e.target.value)}
           />
           <div className="qq-bar">
             <div className="qq-bar-left">
               <span className="qq-bar-action" onClick={() => setPickerOpen(true)}>
-                Templates
+                {__( 'Templates', 'quick-qa-for-woocommerce' )}
               </span>
             </div>
             <div className="qq-bar-right">
@@ -491,7 +496,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
                 onClick={handleSubmit}
                 disabled={!reply.trim() || saving}
               >
-                {saving ? 'Publishing…' : 'Publish reply'}
+                {saving ? __( 'Publishing…', 'quick-qa-for-woocommerce' ) : __( 'Publish reply', 'quick-qa-for-woocommerce' )}
               </button>
             </div>
           </div>
@@ -515,9 +520,17 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
           <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
-            Auto-hidden after {item.flagCount} flag{item.flagCount !== 1 ? 's' : ''} · awaiting your review
+            {sprintf(
+              _n(
+                'Auto-hidden after %d flag · awaiting your review',
+                'Auto-hidden after %d flags · awaiting your review',
+                item.flagCount,
+                'quick-qa-for-woocommerce'
+              ),
+              item.flagCount
+            )}
           </div>
         </div>
       </div>
@@ -526,11 +539,20 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
         <div className="qq-flag-banner-head">
           <div className="qq-flag-banner-title">
             <div className="qq-flag-icon">!</div>
-            Flagged {item.flagCount} time{item.flagCount !== 1 ? 's' : ''}
-            {item.flags.length > 1 ? ` by ${item.flags.length} different customers` : ''}
+            {item.flags.length > 1
+              ? sprintf(
+                  // translators: %1$d is the total number of flags, %2$d is the number of distinct customers who flagged
+                  __( 'Flagged %1$d times by %2$d different customers', 'quick-qa-for-woocommerce' ),
+                  item.flagCount,
+                  item.flags.length
+                )
+              : sprintf(
+                  _n( 'Flagged %d time', 'Flagged %d times', item.flagCount, 'quick-qa-for-woocommerce' ),
+                  item.flagCount
+                )}
           </div>
           {item.flags.length > 0 && (
-            <div className="qq-flag-banner-meta">First flag: {item.flags[0].time}</div>
+            <div className="qq-flag-banner-meta">{sprintf( __( 'First flag: %s', 'quick-qa-for-woocommerce' ), item.flags[0].time )}</div>
           )}
         </div>
         {item.flags.length > 0 && (
@@ -566,8 +588,8 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
         <div className="qq-action-row">
           <div className="qq-action-info">
             {item.flags.length > 0
-              ? <>Multiple customers reported this as <b>{item.flags[0].reason.toLowerCase()}</b>.</>
-              : 'This content was flagged by customers.'}
+              ? <>{__( 'Multiple customers reported this as', 'quick-qa-for-woocommerce' )} <b>{item.flags[0].reason.toLowerCase()}</b>.</>
+              : __( 'This content was flagged by customers.', 'quick-qa-for-woocommerce' )}
           </div>
           <div className="qq-action-buttons">
             <button
@@ -575,14 +597,14 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
               onClick={onDismiss}
               disabled={saving}
             >
-              Dismiss flags
+              {__( 'Dismiss flags', 'quick-qa-for-woocommerce' )}
             </button>
             <button
               className="btn btn-danger btn-sm"
               onClick={onDelete}
               disabled={saving}
             >
-              Delete
+              {__( 'Delete', 'quick-qa-for-woocommerce' )}
             </button>
           </div>
         </div>
@@ -598,13 +620,21 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
           <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
-            {item.flaggedAnswers.length} answer{item.flaggedAnswers.length !== 1 ? 's' : ''} auto-hidden · awaiting your review
+            {sprintf(
+              _n(
+                '%d answer auto-hidden · awaiting your review',
+                '%d answers auto-hidden · awaiting your review',
+                item.flaggedAnswers.length,
+                'quick-qa-for-woocommerce'
+              ),
+              item.flaggedAnswers.length
+            )}
           </div>
         </div>
         <div className="qq-conv-meta-actions">
-          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">View product</a>
+          <a href={item.productPermalink} target="_blank" rel="noopener noreferrer">{__( 'View product', 'quick-qa-for-woocommerce' )}</a>
         </div>
       </div>
 
@@ -624,7 +654,7 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
         {item.answers.length > 0 && (
           <>
             <div className="qq-thread-divider">
-              {item.answers.length} approved answer{item.answers.length !== 1 ? 's' : ''}
+              {sprintf( _n( '%d approved answer', '%d approved answers', item.answers.length, 'quick-qa-for-woocommerce' ), item.answers.length )}
             </div>
             {item.answers.map(ans => (
               <div key={ans.id} className="qq-msg">
@@ -642,18 +672,27 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
           </>
         )}
 
-        <div className="qq-thread-divider">Flagged answers</div>
+        <div className="qq-thread-divider">{__( 'Flagged answers', 'quick-qa-for-woocommerce' )}</div>
 
         {item.flaggedAnswers.map(ans => (
           <div key={ans.id} className="qq-flag-banner">
             <div className="qq-flag-banner-head">
               <div className="qq-flag-banner-title">
                 <div className="qq-flag-icon">!</div>
-                Flagged {ans.flagCount} time{ans.flagCount !== 1 ? 's' : ''}
-                {ans.flags.length > 1 ? ` by ${ans.flags.length} different customers` : ''}
+                {ans.flags.length > 1
+                  ? sprintf(
+                      // translators: %1$d is the total number of flags, %2$d is the number of distinct customers who flagged
+                      __( 'Flagged %1$d times by %2$d different customers', 'quick-qa-for-woocommerce' ),
+                      ans.flagCount,
+                      ans.flags.length
+                    )
+                  : sprintf(
+                      _n( 'Flagged %d time', 'Flagged %d times', ans.flagCount, 'quick-qa-for-woocommerce' ),
+                      ans.flagCount
+                    )}
               </div>
               {ans.flags.length > 0 && (
-                <div className="qq-flag-banner-meta">First flag: {ans.flags[0].time}</div>
+                <div className="qq-flag-banner-meta">{sprintf( __( 'First flag: %s', 'quick-qa-for-woocommerce' ), ans.flags[0].time )}</div>
               )}
             </div>
             {ans.flags.length > 0 && (
@@ -688,14 +727,14 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
                 onClick={() => onDismissAnswer(ans.dbId)}
                 disabled={saving}
               >
-                Dismiss flags
+                {__( 'Dismiss flags', 'quick-qa-for-woocommerce' )}
               </button>
               <button
                 className="btn btn-danger btn-sm"
                 onClick={() => onDeleteAnswer(ans.dbId)}
                 disabled={saving}
               >
-                Delete
+                {__( 'Delete', 'quick-qa-for-woocommerce' )}
               </button>
             </div>
           </div>
@@ -712,8 +751,8 @@ function RejectedDetail({ item, onRestore, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">Question about <b>{item.product}</b></div>
-          <div className="qq-conv-status" style={{ color: 'var(--text-3)' }}>Rejected</div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-status" style={{ color: 'var(--text-3)' }}>{__( 'Rejected', 'quick-qa-for-woocommerce' )}</div>
         </div>
       </div>
 
@@ -733,14 +772,14 @@ function RejectedDetail({ item, onRestore, saving }) {
 
       <div className="qq-action-bar">
         <div className="qq-action-row">
-          <div className="qq-action-info">This question was rejected.</div>
+          <div className="qq-action-info">{__( 'This question was rejected.', 'quick-qa-for-woocommerce' )}</div>
           <div className="qq-action-buttons">
             <button
               className="btn btn-secondary btn-sm"
               onClick={onRestore}
               disabled={saving}
             >
-              Restore
+              {__( 'Restore', 'quick-qa-for-woocommerce' )}
             </button>
           </div>
         </div>
@@ -757,9 +796,9 @@ export default function QuestionDetail({ item, onAction, saving }) {
       <div className="qq-conv">
         <div className="qq-conv-empty">
           <div className="qq-conv-empty-art">💬</div>
-          <div className="qq-conv-empty-title">Select a question</div>
+          <div className="qq-conv-empty-title">{__( 'Select a question', 'quick-qa-for-woocommerce' )}</div>
           <div className="qq-conv-empty-desc">
-            Choose a question from the list to view the conversation and take action.
+            {__( 'Choose a question from the list to view the conversation and take action.', 'quick-qa-for-woocommerce' )}
           </div>
         </div>
       </div>
@@ -791,7 +830,15 @@ export default function QuestionDetail({ item, onAction, saving }) {
     <div className="qq-conv">
       {belowThresholdFlagCount > 0 && (
         <div className="qq-flag-banner qq-flag-banner--soft">
-          ⚑ {belowThresholdFlagCount} flag{belowThresholdFlagCount !== 1 ? 's' : ''} recorded on this question so far — it will auto-hide once flags reach your configured threshold.
+          {sprintf(
+            _n(
+              '⚑ %d flag recorded on this question so far — it will auto-hide once flags reach your configured threshold.',
+              '⚑ %d flags recorded on this question so far — it will auto-hide once flags reach your configured threshold.',
+              belowThresholdFlagCount,
+              'quick-qa-for-woocommerce'
+            ),
+            belowThresholdFlagCount
+          )}
         </div>
       )}
       {item.status === 'flagged' && (
