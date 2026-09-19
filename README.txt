@@ -203,7 +203,7 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 
 == Changelog ==
 
-= 1.4.0 (15-09-2026) =
+= 1.4.0 (19-09-2026) =
 * Added: An "Askora Q&A" Gutenberg block and an `[askora]` shortcode, for themes and page builders (Elementor, Divi, block-based FSE themes) that don't use WooCommerce's automatic tab placement. Both render the widget exactly like automatic placement, using all your current Askora settings. The block's sidebar has a Product ID field for placements where the product can't be inferred automatically.
 * Added: WPML and Polylang compatibility — each language version of a product keeps its own separate Q&A, and the `[askora]` shortcode/block and product/category scope settings now resolve correctly across translated products.
 * Added: Full translation support for the plugin's admin dashboard (Settings, All Q&A, Reply Templates) via standard WordPress i18n, plus a regenerated `.pot` file in `/languages/` for translators.
