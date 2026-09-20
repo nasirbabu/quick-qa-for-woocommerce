@@ -38,6 +38,7 @@ function ComingSoonTab({ label }) {
 }
 
 export default function Settings() {
+  const isPro = Boolean(window.quickQaAdmin?.isPro);
   const [activeTab,  setActiveTab]  = useState('general');
   const [settings,   setSettings]   = useState(null);
   const [draft,      setDraft]      = useState(null);
@@ -109,11 +110,11 @@ export default function Settings() {
       case 'general':
         return <GeneralTab draft={draft} onChange={setDraft} categories={categories} products={products} />;
       case 'submission':
-        return <SubmissionTab draft={draft} onChange={setDraft} />;
+        return <SubmissionTab draft={draft} onChange={setDraft} isPro={isPro} />;
       case 'moderation':
         return <ModerationTab draft={draft} onChange={setDraft} />;
       case 'notifications':
-        return <NotificationsTab draft={draft} onChange={setDraft} />;
+        return <NotificationsTab draft={draft} onChange={setDraft} isPro={isPro} />;
       case 'community':
         return <CommunityTab draft={draft} onChange={setDraft} />;
       case 'appearance':

@@ -654,6 +654,20 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'author_role'    => $answer->is_verified_buyer ? __( 'Verified buyer', 'quick-qa-for-woocommerce' ) : __( 'Community member', 'quick-qa-for-woocommerce' ),
 				) );
 			}
+
+			/**
+			 * Fires when an answer's status transitions to 'approved',
+			 * whether by direct admin reply or by moderating a pending
+			 * community/follow-up answer.
+			 *
+			 * Lets extensions (e.g. a companion Pro plugin's analytics/
+			 * real-time features) react without polling the answers table.
+			 *
+			 * @since 1.5.0
+			 * @param int $question_id
+			 * @param int $answer_id
+			 */
+			do_action( 'quick_qa_question_answered', $answer->question_id, $id );
 		}
 
 		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
@@ -773,6 +787,9 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			'author_name'    => $answerer ? $answerer->display_name : __( 'the team', 'quick-qa-for-woocommerce' ),
 			'author_role'    => __( 'Staff', 'quick-qa-for-woocommerce' ),
 		) );
+
+		/** This action is documented in includes/api/class-quick-qa-rest-questions.php (admin_update_answer). */
+		do_action( 'quick_qa_question_answered', $question_id, (int) $wpdb->insert_id );
 
 		return rest_ensure_response(
 			array(
@@ -1343,6 +1360,19 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			? ( $user_data ? $user_data->display_name : __( 'Customer', 'quick-qa-for-woocommerce' ) )
 			: ( $guest_name ?: __( 'Guest', 'quick-qa-for-woocommerce' ) );
 		Quick_Qa_Notifier::new_question( $question_id, $product_id, $question_text, $asker_name );
+
+		/**
+		 * Fires right after a question is successfully persisted.
+		 *
+		 * Lets extensions (e.g. a companion Pro plugin's analytics/real-time
+		 * features) react without polling the questions table.
+		 *
+		 * @since 1.5.0
+		 * @param int    $question_id
+		 * @param int    $product_id
+		 * @param string $status  'approved' or 'pending'.
+		 */
+		do_action( 'quick_qa_question_submitted', $question_id, $product_id, $status );
 
 		// 10. Respond.
 		$message = ( 'approved' === $status )
