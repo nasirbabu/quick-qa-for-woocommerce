@@ -582,6 +582,18 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			)
 		);
 
+		// Free tier: re-approving a staff answer counts toward the per-product
+		// cap, so it can't be used to sidestep it (KAN-30).
+		if (
+			$answer
+			&& 'approved' === $status
+			&& 'approved' !== $answer->status
+			&& 'admin' === $answer->answer_type
+			&& Quick_Qa_Answer_Cap::is_capped( (int) $answer->product_id )
+		) {
+			return Quick_Qa_Answer_Cap::get_error( (int) $answer->product_id );
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->update(
 			$table,
@@ -727,6 +739,12 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 
 			$replying_to_followup = true;
+		}
+
+		// Free tier: staff answers are capped per product (KAN-30). Blocked
+		// before anything is written, so the question isn't auto-approved either.
+		if ( Quick_Qa_Answer_Cap::is_capped( (int) $question->product_id ) ) {
+			return Quick_Qa_Answer_Cap::get_error( (int) $question->product_id );
 		}
 
 		// Auto-approve the question when an admin publishes a reply to it.
@@ -1489,6 +1507,23 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		}
 
 		$answer_type = $is_admin ? 'admin' : 'community';
+
+		// Free tier: staff answers are capped per product (KAN-30). Community
+		// answers are never capped.
+		if ( $is_admin ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$cap_product_id = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT product_id FROM {$questions_table} WHERE id = %d",
+					$question_id
+				)
+			);
+
+			if ( Quick_Qa_Answer_Cap::is_capped( $cap_product_id ) ) {
+				return Quick_Qa_Answer_Cap::get_error( $cap_product_id );
+			}
+		}
 
 		// Admins auto-publish. Verified buyers auto-publish only when
 		// verified_buyer_approval = 'auto'. Everyone else needs approval —

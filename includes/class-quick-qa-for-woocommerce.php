@@ -143,6 +143,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-export.php';
 
 		/**
+		 * Free-tier cap on staff answers per product (KAN-30).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-answer-cap.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';

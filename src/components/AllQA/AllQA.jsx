@@ -29,9 +29,69 @@ async function apiFetch(path, options = {}) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || sprintf( __( 'Request failed (%d)', 'quick-qa-for-woocommerce' ), res.status ));
+    const error = new Error(err.message || sprintf( __( 'Request failed (%d)', 'quick-qa-for-woocommerce' ), res.status ));
+    // Keep the WP_Error code/data so callers can react to specific failures
+    // (e.g. the free-tier staff answer cap).
+    error.code = err.code;
+    error.data = err.data;
+    throw error;
   }
   return res.json();
+}
+
+const CAP_ERROR_CODE = 'quick_qa_staff_answer_limit';
+
+// ── Upgrade prompt shown when the free-tier staff answer cap is hit ──────────
+
+function UpgradeCapModal({ cap, onClose }) {
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="qq-modal-backdrop" onClick={onClose}>
+      <div
+        className="qq-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="qq-cap-title"
+        onClick={e => e.stopPropagation()}
+      >
+        <h2 id="qq-cap-title" className="qq-modal-title">
+          {__( 'Free staff answer limit reached', 'quick-qa-for-woocommerce' )}
+        </h2>
+        <p className="qq-modal-text">{cap.message}</p>
+        <p className="qq-modal-note">
+          {__( 'Your draft has been kept. Answers already published on this product stay visible to shoppers, and verified buyers and other customers can still answer.', 'quick-qa-for-woocommerce' )}
+        </p>
+        <div className="qq-modal-actions">
+          <button className="btn btn-sm" onClick={onClose}>
+            {__( 'Not now', 'quick-qa-for-woocommerce' )}
+          </button>
+          {cap.upgradeUrl && (
+            <a
+              className="btn btn-primary btn-sm"
+              href={cap.upgradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {__( 'Upgrade to Pro', 'quick-qa-for-woocommerce' )}
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function toCapState(err) {
+  return {
+    message:    err.message,
+    limit:      err.data && err.data.limit,
+    upgradeUrl: err.data && err.data.upgrade_url,
+  };
 }
 
 // ── Data transformation ──────────────────────────────────────────────────────
@@ -297,6 +357,7 @@ export default function AllQA() {
   const [selectedIds,    setSelectedIds]    = useState([]);
   const [page,           setPage]           = useState(1);
   const [bulkResult,     setBulkResult]     = useState(null);
+  const [capModal,       setCapModal]       = useState(null);
   const filterRef = useRef(null);
   const sortRef   = useRef(null);
 
@@ -455,6 +516,8 @@ export default function AllQA() {
 
       if (failedIds.length > 0) {
         setBulkResult({ succeeded: results.length - failedIds.length, failed: failedIds.length });
+        const capFailure = results.find(r => r.status === 'rejected' && r.reason && r.reason.code === CAP_ERROR_CODE);
+        if (capFailure) setCapModal(toCapState(capFailure.reason));
       }
     } catch (err) {
       console.error('Bulk action failed:', err.message);
@@ -567,8 +630,14 @@ export default function AllQA() {
         setSelectedId(id);
         if (filterByTab(refreshed, 'flagged').length === 0) setActiveTab('answered');
       }
+      return true;
     } catch (err) {
-      console.error('Askora QA action failed:', err.message);
+      if (err.code === CAP_ERROR_CODE) {
+        setCapModal(toCapState(err));
+      } else {
+        console.error('Askora QA action failed:', err.message);
+      }
+      return false;
     } finally {
       setSaving(false);
     }
@@ -592,6 +661,7 @@ export default function AllQA() {
 
   return (
     <div className="qq-page">
+      {capModal && <UpgradeCapModal cap={capModal} onClose={() => setCapModal(null)} />}
       <div className="qq-top">
         <div className="qq-top-left">
           <span className="qq-page-label">{__( 'All Q&A', 'quick-qa-for-woocommerce' )}</span>
