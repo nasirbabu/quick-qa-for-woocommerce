@@ -1,0 +1,272 @@
+/* ==========================================================================
+   GET PRO — pricing page (layout follows the Easy Map pricing page,
+   restyled with Askora's coral / cream tokens)
+   ========================================================================== */
+
+.qq-upgrade-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 32px 24px 48px;
+}
+.qq-upgrade-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Hero */
+.qq-upgrade-hero {
+  background: linear-gradient(135deg, var(--coral) 0%, #FF8B6F 100%);
+  color: #fff;
+  padding: 40px;
+  border-radius: var(--r-lg);
+  margin-bottom: 30px;
+}
+.qq-upgrade-hero h2 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+}
+.qq-upgrade-hero p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #FFF1EC;
+}
+
+/* Trust badges */
+.qq-upgrade-trust {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+.qq-upgrade-trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 14px;
+}
+.qq-upgrade-trust-badge .dashicons {
+  color: var(--green);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Billing toggle */
+.qq-upgrade-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.qq-upgrade-tab {
+  padding: 8px 20px;
+  background: var(--cream-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.qq-upgrade-tab.active {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+}
+
+/* Pricing cards */
+.qq-upgrade-pricing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin: 20px 0;
+}
+.qq-upgrade-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 30px 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.qq-upgrade-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.qq-upgrade-card.featured {
+  border: 2px solid var(--coral);
+  transform: scale(1.04);
+}
+.qq-upgrade-card.featured:hover { transform: scale(1.04) translateY(-5px); }
+.qq-upgrade-card h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: var(--text);
+}
+.qq-upgrade-popular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--coral);
+  color: #fff;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.qq-upgrade-price {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--coral);
+  margin: 10px 0 20px;
+}
+.qq-upgrade-price span {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+.qq-upgrade-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 25px;
+  text-align: left;
+}
+.qq-upgrade-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13px;
+  color: var(--text);
+}
+.qq-upgrade-features li .dashicons {
+  color: var(--green);
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.qq-upgrade-btn {
+  display: inline-block;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.qq-upgrade-btn:hover { background: #000; }
+.qq-upgrade-btn.featured {
+  background: var(--coral);
+  padding: 12px 32px;
+  font-weight: 600;
+}
+.qq-upgrade-btn.featured:hover { background: var(--coral-hover); }
+
+/* Guarantee banner */
+.qq-upgrade-guarantee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: var(--green-soft);
+  border: 1px solid #CFE3C0;
+  border-radius: var(--r-lg);
+  padding: 20px 30px;
+  margin-top: 30px;
+}
+.qq-upgrade-guarantee > .dashicons {
+  color: var(--green);
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.qq-upgrade-guarantee-text { text-align: left; }
+.qq-upgrade-guarantee-text strong {
+  display: block;
+  font-size: 16px;
+  color: #3F5A24;
+  margin-bottom: 4px;
+}
+.qq-upgrade-guarantee-text p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+/* Everything you get */
+.qq-upgrade-highlights {
+  margin-top: 40px;
+  padding: 30px;
+  background: var(--cream-2);
+  border-radius: var(--r-lg);
+}
+.qq-upgrade-highlights h3 {
+  margin: 0 0 25px;
+  font-size: 22px;
+  color: var(--text);
+}
+.qq-upgrade-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.qq-upgrade-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  background: #fff;
+  border-radius: var(--r-md);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+.qq-upgrade-highlight .dashicons {
+  color: var(--coral);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.qq-upgrade-highlight strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.qq-upgrade-highlight p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* Nav "Get Pro" tab */
+.qq-nav-pro-tab {
+  align-self: center;
+  margin-left: 8px;
+}
+.qq-nav-pro-tab.active { box-shadow: 0 0 0 2px var(--coral-soft-2); }
+
+@media (max-width: 768px) {
+  .qq-upgrade-hero { padding: 25px 20px; }
+  .qq-upgrade-hero h2 { font-size: 22px; }
+  .qq-upgrade-trust { flex-direction: column; align-items: center; gap: 15px; }
+  .qq-upgrade-guarantee { flex-direction: column; text-align: center; padding: 20px; }
+  .qq-upgrade-guarantee-text { text-align: center; }
+  .qq-upgrade-card.featured,
+  .qq-upgrade-card.featured:hover { transform: none; }
+}

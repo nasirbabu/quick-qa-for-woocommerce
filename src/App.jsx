@@ -3,6 +3,7 @@ import AllQA          from './components/AllQA/AllQA';
 import Settings       from './components/Settings/Settings';
 import ReplyTemplates from './components/ReplyTemplates/ReplyTemplates';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
+import UpgradePro     from './components/UpgradePro/UpgradePro';
 import { __ } from './i18n';
 
 const NAV_ITEMS = [
@@ -38,6 +39,20 @@ export default function App() {
             {item.label}
           </div>
         ))}
+
+        {/* "Get Pro" tab — only offered while Pro is not active. */}
+        {!isPro && (
+          <>
+            <div className="qq-nav-spacer" />
+            <button
+              type="button"
+              className={`qq-nav-pro qq-nav-pro-tab${page === 'upgrade' ? ' active' : ''}`}
+              onClick={() => setPage('upgrade')}
+            >
+              {__( 'Get Pro', 'quick-qa-for-woocommerce' )}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Page content */}
@@ -45,6 +60,7 @@ export default function App() {
       {page === 'templates' && <ReplyTemplates />}
       {page === 'settings'  && <Settings />}
       {isPro && page === 'analytics' && <AnalyticsDashboard />}
+      {!isPro && page === 'upgrade' && <UpgradePro />}
     </div>
   );
 }
