@@ -332,6 +332,22 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			}
 		}
 
+		// Notifications are Pro-only (KAN-57). The admin app posts the full
+		// draft on every save, so unchanged values round-trip; only an actual
+		// change to a Notifications key is rejected on the free tier.
+		if ( class_exists( 'Quick_Qa_Notifier' ) && ! Quick_Qa_Notifier::is_pro() ) {
+			foreach ( Quick_Qa_Notifier::PRO_KEYS as $key ) {
+				// Compare as strings so a legacy '1'/'5' stored value still matches true/5.
+				if ( array_key_exists( $key, $patch ) && (string) $patch[ $key ] !== (string) ( $current[ $key ] ?? '' ) ) {
+					return new WP_Error(
+						'quick_qa_pro_required',
+						__( 'Notifications are a Pro feature. Upgrade to Askora Pro to change them.', 'quick-qa-for-woocommerce' ),
+						array( 'status' => 403 )
+					);
+				}
+			}
+		}
+
 		// Merge validated patch over the current settings and write one option.
 		update_option( self::OPTION_KEY, array_merge( $current, $patch ) );
 

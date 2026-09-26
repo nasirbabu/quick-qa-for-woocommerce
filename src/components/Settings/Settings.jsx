@@ -44,6 +44,7 @@ export default function Settings() {
   const [draft,      setDraft]      = useState(null);
   const [saving,     setSaving]     = useState(false);
   const [saveStatus, setSaveStatus] = useState('saved');
+  const [saveError,  setSaveError]  = useState('');
   const [loadError,  setLoadError]  = useState(null);
   const [categories, setCategories] = useState([]);
   const [products,   setProducts]   = useState([]);
@@ -71,7 +72,8 @@ export default function Settings() {
       const merged = { ...DEFAULT_SETTINGS, ...saved };
       setSettings(merged);
       setDraft(merged);
-    } catch {
+    } catch (err) {
+      setSaveError(err.message);
       setSaveStatus('error');
     } finally {
       setSaving(false);
@@ -155,7 +157,7 @@ export default function Settings() {
             <div className="qq-savebar">
               <div className="qq-savebar-msg">
                 {saveStatus === 'error'
-                  ? <b className="qq-savebar-error">{ __( 'Save failed. Please try again.', 'quick-qa-for-woocommerce' ) }</b>
+                  ? <b className="qq-savebar-error">{ saveError || __( 'Save failed. Please try again.', 'quick-qa-for-woocommerce' ) }</b>
                   : isDirty
                     ? <><b>{ __( 'Unsaved changes.', 'quick-qa-for-woocommerce' ) }</b> { __( 'They will not apply until you save.', 'quick-qa-for-woocommerce' ) }</>
                     : __( 'All changes saved', 'quick-qa-for-woocommerce' )}
