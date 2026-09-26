@@ -69,7 +69,7 @@ These aren't vague promises. They're already in progress:
 
 * AI-powered answer suggestions, using your own OpenAI key (coming soon)
 * An analytics dashboard with response times, top questions, and full customer and product Q&A history (coming soon)
-* SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (coming soon)
+* SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (Askora Pro)
 * Follow-up questions, letting the original asker ask one clarifying question after their answer (coming soon)
 * A "My Questions" tab inside WooCommerce My Account (coming soon)
 * CSV import and export for migrations and backups (coming soon)

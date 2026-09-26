@@ -176,6 +176,8 @@
   border-color: var(--coral);
   background: var(--coral-soft);
 }
+.qq-radio-card.disabled { opacity: 0.55; cursor: not-allowed; }
+.qq-radio-card.disabled:hover:not(.selected) { border-color: var(--hairline); }
 .qq-radio-circle {
   width: 16px;
   height: 16px;

@@ -44,12 +44,21 @@ async function fetchSeoPreview() {
   return data;
 }
 
-export default function SEOTab({ draft, onChange, settings }) {
+const ProBadge = () => <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>;
+
+export default function SEOTab({ draft, onChange, settings, isPro }) {
   const [preview,      setPreview]      = useState(null);
   const [previewError, setPreviewError] = useState(null);
   const [loading,      setLoading]      = useState(true);
 
+  // Free tier: no schema is output server-side, so show it as off (the
+  // saved value is kept in the draft and applies again once Pro is active).
+  function on(key) {
+    return Boolean(isPro && draft[key]);
+  }
+
   function set(key, val) {
+    if (!isPro) return;
     onChange({ ...draft, [key]: val });
   }
 
@@ -62,11 +71,12 @@ export default function SEOTab({ draft, onChange, settings }) {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadPreview(); }, [loadPreview]);
+  useEffect(() => { if (isPro) loadPreview(); }, [isPro, loadPreview]);
 
   const detectedSeoPlugin = settings?.detected_seo_plugin;
-  const showDetectBanner  = !draft.seo_delegate_to_seo_plugin && !!detectedSeoPlugin;
-  const schemaIsOff       = !draft.seo_enabled || draft.seo_delegate_to_seo_plugin;
+  const showDetectBanner  = isPro && !draft.seo_delegate_to_seo_plugin && !!detectedSeoPlugin;
+  const schemaIsOff       = !on('seo_enabled') || on('seo_delegate_to_seo_plugin');
+  const radioClass        = selected => `qq-radio-card${selected ? ' selected' : ''}${isPro ? '' : ' disabled'}`;
 
   return (
     <>
@@ -96,23 +106,23 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">{__('Output JSON-LD schema', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-label">{__('Output JSON-LD schema', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-settings-field-help">{__('Required for Q&A to appear as rich snippets in Google. Recommended on.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.seo_enabled} onChange={v => set('seo_enabled', v)} />
+            <Toggle checked={on('seo_enabled')} onChange={v => set('seo_enabled', v)} disabled={!isPro} />
           </div>
         </div>
 
-        {draft.seo_enabled && (
+        {on('seo_enabled') && (
           <div className="qq-settings-field-stacked">
-            <div className="qq-settings-field-label">{__('Schema type', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-label">{__('Schema type', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-settings-field-help">{__('Pick the type that best matches your content. This affects how Google interprets and displays your Q&A.', 'quick-qa-for-woocommerce')}</div>
             <div className="qq-radio-group">
               {SCHEMA_TYPE_OPTIONS.map(opt => (
                 <div
                   key={opt.val}
-                  className={`qq-radio-card${draft.seo_schema_type === opt.val ? ' selected' : ''}`}
+                  className={radioClass(draft.seo_schema_type === opt.val)}
                   onClick={() => set('seo_schema_type', opt.val)}
                 >
                   <div className="qq-radio-circle" />
@@ -128,11 +138,11 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">{__('Let my SEO plugin handle schema instead', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-label">{__('Let my SEO plugin handle schema instead', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-settings-field-help">{__('Turn this on if your SEO plugin (Yoast, RankMath, AIOSEO) already outputs Q&A schema. Two plugins outputting schema for the same content can hurt SEO.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.seo_delegate_to_seo_plugin} onChange={v => set('seo_delegate_to_seo_plugin', v)} />
+            <Toggle checked={on('seo_delegate_to_seo_plugin')} onChange={v => set('seo_delegate_to_seo_plugin', v)} disabled={!isPro} />
           </div>
         </div>
       </div>
@@ -142,13 +152,13 @@ export default function SEOTab({ draft, onChange, settings }) {
         <div className="qq-settings-card-desc">{__('Not every Q&A should go into schema. Quality matters — Google ranks rich snippets based on content depth and authority.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">{__('Which questions appear in schema', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-label">{__('Which questions appear in schema', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
           <div className="qq-settings-field-help">{__('Choose the rule that matches your moderation philosophy.', 'quick-qa-for-woocommerce')}</div>
           <div className="qq-radio-group">
             {INCLUDE_RULE_OPTIONS.map(opt => (
               <div key={opt.val}>
                 <div
-                  className={`qq-radio-card${draft.seo_include_rule === opt.val ? ' selected' : ''}`}
+                  className={radioClass(draft.seo_include_rule === opt.val)}
                   onClick={() => set('seo_include_rule', opt.val)}
                 >
                   <div className="qq-radio-circle" />
@@ -160,7 +170,7 @@ export default function SEOTab({ draft, onChange, settings }) {
 
                 {opt.val === 'upvoted' && draft.seo_include_rule === 'upvoted' && (
                   <div className="qq-subfield">
-                    <div className="qq-subfield-label">{__('Minimum upvotes', 'quick-qa-for-woocommerce')}</div>
+                    <div className="qq-subfield-label">{__('Minimum upvotes', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
                     <div className="qq-settings-input-wrap">
                       <input
                         className="qq-settings-input qq-settings-input--short"
@@ -169,6 +179,7 @@ export default function SEOTab({ draft, onChange, settings }) {
                         max="999"
                         value={draft.seo_upvote_min}
                         onChange={e => set('seo_upvote_min', Math.max(0, parseInt(e.target.value, 10) || 0))}
+                        disabled={!isPro}
                       />
                       <span className="qq-settings-input-unit">{__('upvotes required', 'quick-qa-for-woocommerce')}</span>
                     </div>
@@ -181,7 +192,7 @@ export default function SEOTab({ draft, onChange, settings }) {
 
         <div className="qq-settings-field">
           <div className="qq-settings-field-info">
-            <div className="qq-settings-field-label">{__('Maximum questions per product', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-settings-field-label">{__('Maximum questions per product', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-settings-field-help">{__('Google ignores schema beyond ~10 questions per page anyway, and large schema blocks slow page load. The most upvoted answered questions are picked.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
@@ -193,6 +204,7 @@ export default function SEOTab({ draft, onChange, settings }) {
                 max="20"
                 value={draft.seo_max_per_product}
                 onChange={e => set('seo_max_per_product', Math.max(1, Math.min(20, parseInt(e.target.value, 10) || 10)))}
+                disabled={!isPro}
               />
               <span className="qq-settings-input-unit">{__('default 10', 'quick-qa-for-woocommerce')}</span>
             </div>
@@ -201,12 +213,18 @@ export default function SEOTab({ draft, onChange, settings }) {
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">{__('Schema preview', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-title">{__('Schema preview', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
         <div className="qq-settings-card-desc">
           {__("The actual JSON-LD currently being injected into a product page's", 'quick-qa-for-woocommerce')} <code>&lt;head&gt;</code>{__(", based on your last-saved settings. Save changes above, then refresh to see them reflected here. Verify it in Google's Rich Results Test before publishing.", 'quick-qa-for-woocommerce')}
         </div>
 
-        {schemaIsOff ? (
+        {!isPro ? (
+          <div className="qq-settings-empty">
+            <div className="qq-settings-empty-mark">∅</div>
+            <div className="qq-settings-empty-title">{__('No schema is being output', 'quick-qa-for-woocommerce')}</div>
+            <div>{__('Schema output and preview are part of Askora Pro.', 'quick-qa-for-woocommerce')}</div>
+          </div>
+        ) : schemaIsOff ? (
           <div className="qq-settings-empty">
             <div className="qq-settings-empty-mark">∅</div>
             <div className="qq-settings-empty-title">{__('No schema is being output', 'quick-qa-for-woocommerce')}</div>

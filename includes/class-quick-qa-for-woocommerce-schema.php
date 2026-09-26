@@ -25,6 +25,33 @@
 class Quick_Qa_For_Woocommerce_Schema {
 
 	/**
+	 * Settings keys on the SEO tab that only a licensed Pro install may
+	 * change (KAN-59). Saving a different value on the free tier is rejected
+	 * by the settings REST endpoint.
+	 *
+	 * @since 1.6.0
+	 * @var   string[]
+	 */
+	const PRO_KEYS = array(
+		'seo_enabled',
+		'seo_schema_type',
+		'seo_delegate_to_seo_plugin',
+		'seo_include_rule',
+		'seo_upvote_min',
+		'seo_max_per_product',
+	);
+
+	/**
+	 * Whether SEO schema is unlocked (licensed Pro via `quick_qa_is_pro`).
+	 *
+	 * @since  1.6.0
+	 * @return bool
+	 */
+	public static function is_pro() {
+		return (bool) apply_filters( 'quick_qa_is_pro', false );
+	}
+
+	/**
 	 * The ID of this plugin.
 	 *
 	 * @since  1.3.0
@@ -75,7 +102,9 @@ class Quick_Qa_For_Woocommerce_Schema {
 	 * @since 1.3.0
 	 */
 	public function render_schema() {
-		if ( ! is_product() ) {
+		// Schema output is Pro-only (KAN-59): nothing leaks on the free tier,
+		// whatever the saved SEO settings say.
+		if ( ! self::is_pro() || ! is_product() ) {
 			return;
 		}
 

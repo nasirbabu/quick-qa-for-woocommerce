@@ -332,18 +332,26 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 			}
 		}
 
-		// Notifications are Pro-only (KAN-57). The admin app posts the full
-		// draft on every save, so unchanged values round-trip; only an actual
-		// change to a Notifications key is rejected on the free tier.
-		if ( class_exists( 'Quick_Qa_Notifier' ) && ! Quick_Qa_Notifier::is_pro() ) {
-			foreach ( Quick_Qa_Notifier::PRO_KEYS as $key ) {
-				// Compare as strings so a legacy '1'/'5' stored value still matches true/5.
-				if ( array_key_exists( $key, $patch ) && (string) $patch[ $key ] !== (string) ( $current[ $key ] ?? '' ) ) {
-					return new WP_Error(
-						'quick_qa_pro_required',
-						__( 'Notifications are a Pro feature. Upgrade to Askora Pro to change them.', 'quick-qa-for-woocommerce' ),
-						array( 'status' => 403 )
-					);
+		// Notifications (KAN-57) and SEO (KAN-59) are Pro-only. The admin app
+		// posts the full draft on every save, so unchanged values round-trip;
+		// only an actual change to a gated key is rejected on the free tier.
+		if ( ! apply_filters( 'quick_qa_is_pro', false ) ) {
+			$gated = array(
+				array(
+					Quick_Qa_Notifier::PRO_KEYS,
+					__( 'Notifications are a Pro feature. Upgrade to Askora Pro to change them.', 'quick-qa-for-woocommerce' ),
+				),
+				array(
+					Quick_Qa_For_Woocommerce_Schema::PRO_KEYS,
+					__( 'SEO settings are a Pro feature. Upgrade to Askora Pro to change them.', 'quick-qa-for-woocommerce' ),
+				),
+			);
+			foreach ( $gated as list( $keys, $message ) ) {
+				foreach ( $keys as $key ) {
+					// Compare as strings so a legacy '1'/'5' stored value still matches true/5.
+					if ( array_key_exists( $key, $patch ) && (string) $patch[ $key ] !== (string) ( $current[ $key ] ?? '' ) ) {
+						return new WP_Error( 'quick_qa_pro_required', $message, array( 'status' => 403 ) );
+					}
 				}
 			}
 		}
@@ -434,9 +442,17 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 	 *
 	 * @since  1.3.0
 	 * @param  WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_seo_preview( WP_REST_Request $request ) {
+		if ( ! Quick_Qa_For_Woocommerce_Schema::is_pro() ) {
+			return new WP_Error(
+				'quick_qa_pro_required',
+				__( 'SEO settings are a Pro feature. Upgrade to Askora Pro to change them.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$s = $this->load();
 
 		global $wpdb;
