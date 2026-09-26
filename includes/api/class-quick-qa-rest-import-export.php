@@ -98,6 +98,11 @@ class Quick_Qa_Rest_Import_Export extends Quick_Qa_Rest_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function preview_import( WP_REST_Request $request ) {
+		$locked = $this->pro_required_error();
+		if ( $locked ) {
+			return $locked;
+		}
+
 		$files = $request->get_file_params();
 
 		if ( empty( $files['csv_file'] ) || UPLOAD_ERR_OK !== $files['csv_file']['error'] ) {
@@ -170,6 +175,11 @@ class Quick_Qa_Rest_Import_Export extends Quick_Qa_Rest_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function commit_import( WP_REST_Request $request ) {
+		$locked = $this->pro_required_error();
+		if ( $locked ) {
+			return $locked;
+		}
+
 		$body = $request->get_json_params();
 		$rows = ( isset( $body['rows'] ) && is_array( $body['rows'] ) ) ? $body['rows'] : array();
 
@@ -238,6 +248,26 @@ class Quick_Qa_Rest_Import_Export extends Quick_Qa_Rest_Controller {
 				'imported' => $imported,
 				'skipped'  => $skipped,
 			)
+		);
+	}
+
+	/**
+	 * Import/Export is Pro-only (KAN-60): the 403 returned to the free tier,
+	 * or null when a licensed Pro install unlocks it via `quick_qa_is_pro`.
+	 *
+	 * @since  1.6.0
+	 * @access private
+	 * @return WP_Error|null
+	 */
+	private function pro_required_error() {
+		if ( Quick_Qa_For_Woocommerce_Export::is_pro() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'quick_qa_pro_required',
+			__( 'Import/Export is a Pro feature. Upgrade to Askora Pro to import Q&A.', 'quick-qa-for-woocommerce' ),
+			array( 'status' => 403 )
 		);
 	}
 

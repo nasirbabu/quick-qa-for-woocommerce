@@ -72,7 +72,7 @@ These aren't vague promises. They're already in progress:
 * SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (Askora Pro)
 * Follow-up questions, letting the original asker ask one clarifying question after their answer (coming soon)
 * A "My Questions" tab inside WooCommerce My Account (coming soon)
-* CSV import and export for migrations and backups (coming soon)
+* CSV import and export for migrations and backups (Askora Pro)
 
 None of this sits behind a paywall. It's simply not built yet, and when it ships, it ships in this same free plugin.
 

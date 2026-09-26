@@ -26,7 +26,9 @@ function Toast({ message, onDone }) {
   return <div className="qq-import-toast">{message}</div>;
 }
 
-export default function ImportExportTab({ categories }) {
+const ProBadge = () => <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>;
+
+export default function ImportExportTab({ categories, isPro }) {
   const [view, setView] = useState('form'); // 'form' | 'preview'
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -262,26 +264,34 @@ export default function ImportExportTab({ categories }) {
     <>
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
       <h1 className="qq-settings-page-title">{__('Import / Export', 'quick-qa-for-woocommerce')}</h1>
-      <p className="qq-settings-page-sub">{__('Move Q&A data in or out of your store. Useful for migrations, backups, and reports.', 'quick-qa-for-woocommerce')}</p>
+      <p className="qq-settings-page-sub">
+        {__('Move Q&A data in or out of your store. Useful for migrations, backups, and reports.', 'quick-qa-for-woocommerce')}
+        {!isPro && (
+          <>
+            {' '}
+            {__('Import and export are part of Askora Pro.', 'quick-qa-for-woocommerce')}
+          </>
+        )}
+      </p>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">{__('Export Q&A', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-title">{__('Export Q&A', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
         <div className="qq-settings-card-desc">{__('Generate a CSV download of your Q&A. Pick a date range, status, and product category to filter what gets included.', 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">{__('Date range', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-label">{__('Date range', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
           <div className="qq-settings-field-help">{__('Only Q&A created within this range will be exported. Leave blank for all time.', 'quick-qa-for-woocommerce')}</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input className="qq-settings-input qq-settings-input--md" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+            <input className="qq-settings-input qq-settings-input--md" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} disabled={!isPro} />
             <span style={{ color: 'var(--text-3)', fontSize: 13 }}>{__('to', 'quick-qa-for-woocommerce')}</span>
-            <input className="qq-settings-input qq-settings-input--md" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+            <input className="qq-settings-input qq-settings-input--md" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} disabled={!isPro} />
           </div>
         </div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">{__('Status', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-label">{__('Status', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
           <div className="qq-settings-field-help">{__('Choose which question states are included.', 'quick-qa-for-woocommerce')}</div>
-          <select className="qq-settings-select" value={status} onChange={e => setStatus(e.target.value)}>
+          <select className="qq-settings-select" value={status} onChange={e => setStatus(e.target.value)} disabled={!isPro}>
             <option value="all">{__('All statuses', 'quick-qa-for-woocommerce')}</option>
             <option value="approved">{__('Answered / approved only', 'quick-qa-for-woocommerce')}</option>
             <option value="pending">{__('Pending only', 'quick-qa-for-woocommerce')}</option>
@@ -290,9 +300,9 @@ export default function ImportExportTab({ categories }) {
         </div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">{__('Product category', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-label">{__('Product category', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
           <div className="qq-settings-field-help">{__('Limit the export to one category, or include all products.', 'quick-qa-for-woocommerce')}</div>
-          <select className="qq-settings-select" value={category} onChange={e => setCategory(e.target.value)}>
+          <select className="qq-settings-select" value={category} onChange={e => setCategory(e.target.value)} disabled={!isPro}>
             <option value="">{__('All categories', 'quick-qa-for-woocommerce')}</option>
             {(categories || []).map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -301,26 +311,31 @@ export default function ImportExportTab({ categories }) {
         </div>
 
         <div style={{ marginTop: 20 }}>
-          <a className="btn btn-primary" href={buildExportHref()}>{__('Generate download', 'quick-qa-for-woocommerce')}</a>
+          {isPro
+            ? <a className="btn btn-primary" href={buildExportHref()}>{__('Generate download', 'quick-qa-for-woocommerce')}</a>
+            : <button type="button" className="btn btn-primary" disabled>{__('Generate download', 'quick-qa-for-woocommerce')}</button>}
         </div>
       </div>
 
       <div className="qq-settings-card">
-        <div className="qq-settings-card-title">{__('Import Q&A', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-card-title">{__('Import Q&A', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
         <div className="qq-settings-card-desc">{__("Bring in existing Q&A from another store, a previous export, or a content team's spreadsheet. You'll preview every row before anything is imported.", 'quick-qa-for-woocommerce')}</div>
 
         <div className="qq-settings-field-stacked">
-          <div className="qq-settings-field-label">{__('Upload a CSV', 'quick-qa-for-woocommerce')}</div>
+          <div className="qq-settings-field-label">{__('Upload a CSV', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
           <div className="qq-settings-field-help">
             {__('Need a starter file?', 'quick-qa-for-woocommerce')}{' '}
-            <button type="button" className="qq-import-template-link" onClick={handleTemplateDownload}>{__('Download CSV template', 'quick-qa-for-woocommerce')}</button>{' '}
+            <button type="button" className="qq-import-template-link" onClick={handleTemplateDownload} disabled={!isPro}>{__('Download CSV template', 'quick-qa-for-woocommerce')}</button>{' '}
             {__('with the correct column headers.', 'quick-qa-for-woocommerce')}
           </div>
-          <div className="qq-import-dropzone" onClick={() => fileRef.current && fileRef.current.click()}>
+          <div
+            className={`qq-import-dropzone${isPro ? '' : ' disabled'}`}
+            onClick={() => isPro && fileRef.current && fileRef.current.click()}
+          >
             <div className="qq-import-dropzone-icon">⬆</div>
             <div className="qq-import-dropzone-title">{uploading ? __('Uploading…', 'quick-qa-for-woocommerce') : __('Click to browse for a CSV', 'quick-qa-for-woocommerce')}</div>
             <div className="qq-import-dropzone-sub">{__('UTF-8 encoding · CSV format', 'quick-qa-for-woocommerce')}</div>
-            <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
+            <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} disabled={!isPro} />
           </div>
           {uploadError && <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 8 }}>{uploadError}</div>}
         </div>

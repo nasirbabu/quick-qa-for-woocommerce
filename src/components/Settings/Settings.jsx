@@ -126,7 +126,7 @@ export default function Settings() {
       case 'seo':
         return <SEOTab draft={draft} onChange={setDraft} settings={settings} isPro={isPro} />;
       case 'import-export':
-        return <ImportExportTab categories={categories} />;
+        return <ImportExportTab categories={categories} isPro={isPro} />;
       default: {
         const tab = TABS.find(t => t.key === activeTab);
         return <ComingSoonTab label={tab?.label ?? activeTab} />;
