@@ -115,6 +115,8 @@ class Quick_Qa_For_Woocommerce_Admin {
 					 * @since 1.5.0
 					 */
 					'isPro'       => (bool) apply_filters( 'quick_qa_is_pro', false ),
+					'proRestUrl'  => esc_url_raw( rest_url( 'quick-qa-pro/v1/' ) ),
+					'upgradeUrl'  => esc_url_raw( (string) apply_filters( 'quick_qa_upgrade_url', 'https://askora.io/pro' ) ),
 				)
 			);
 		}
