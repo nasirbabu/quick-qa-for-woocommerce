@@ -122,7 +122,7 @@ export default function Settings() {
       case 'appearance':
         return <AppearanceTab draft={draft} onChange={setDraft} />;
       case 'email-templates':
-        return <EmailTemplatesTab />;
+        return <EmailTemplatesTab isPro={isPro} />;
       case 'seo':
         return <SEOTab draft={draft} onChange={setDraft} settings={settings} />;
       case 'import-export':

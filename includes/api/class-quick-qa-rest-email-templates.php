@@ -118,11 +118,21 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 	 *
 	 * @since  1.2.0
 	 * @param  WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function save_templates( WP_REST_Request $request ) {
 		$body  = $request->get_json_params();
 		$patch = array();
+
+		// Email templates are Pro-only (KAN-58). The admin app only posts
+		// what changed, so any global/template payload is a customization.
+		if ( ! Quick_Qa_Email_Store::is_pro() && ( isset( $body['global'] ) || isset( $body['templates'] ) ) ) {
+			return new WP_Error(
+				'quick_qa_pro_required',
+				__( 'Email templates are a Pro feature. Upgrade to Askora Pro to customize them.', 'quick-qa-for-woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
 
 		if ( isset( $body['global'] ) && is_array( $body['global'] ) ) {
 			$patch['global'] = $body['global'];
@@ -162,8 +172,8 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 			return new WP_Error( 'quick_qa_not_found', __( 'Unknown email template.', 'quick-qa-for-woocommerce' ), array( 'status' => 404 ) );
 		}
 
-		$subject_raw  = null !== $request->get_param( 'subject' ) ? (string) $request->get_param( 'subject' ) : $template['subject'];
-		$body_raw     = null !== $request->get_param( 'body' ) ? (string) $request->get_param( 'body' ) : $template['body'];
+		$subject_raw  = $this->draft_param( $request, 'subject', $template['subject'] );
+		$body_raw     = $this->draft_param( $request, 'body', $template['body'] );
 		$known_tokens = array_keys( $template['variables'] );
 		$sample       = Quick_Qa_Email_Vars::sample_data();
 
@@ -208,8 +218,8 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 			return new WP_Error( 'quick_qa_no_email', __( 'Your account has no email address to send a test to.', 'quick-qa-for-woocommerce' ), array( 'status' => 422 ) );
 		}
 
-		$subject_raw  = null !== $request->get_param( 'subject' ) ? (string) $request->get_param( 'subject' ) : $template['subject'];
-		$body_raw     = null !== $request->get_param( 'body' ) ? (string) $request->get_param( 'body' ) : $template['body'];
+		$subject_raw  = $this->draft_param( $request, 'subject', $template['subject'] );
+		$body_raw     = $this->draft_param( $request, 'body', $template['body'] );
 		$known_tokens = array_keys( $template['variables'] );
 		$sample       = Quick_Qa_Email_Vars::sample_data();
 
@@ -225,6 +235,25 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 	// =========================================================================
 	// Private helpers
 	// =========================================================================
+
+	/**
+	 * The editor's draft subject/body, or the template's own value when no
+	 * draft was sent. On the free tier (KAN-58) the draft is ignored so a
+	 * preview or test only ever shows the built-in copy.
+	 *
+	 * @since  1.6.0
+	 * @param  WP_REST_Request $request
+	 * @param  string          $key      'subject' or 'body'.
+	 * @param  string          $fallback The template's current value.
+	 * @return string
+	 */
+	private function draft_param( WP_REST_Request $request, $key, $fallback ) {
+		$value = $request->get_param( $key );
+		if ( null === $value || ! Quick_Qa_Email_Store::is_pro() ) {
+			return $fallback;
+		}
+		return (string) $value;
+	}
 
 	/**
 	 * Human-readable "sent to" preview for the list/editor UI.

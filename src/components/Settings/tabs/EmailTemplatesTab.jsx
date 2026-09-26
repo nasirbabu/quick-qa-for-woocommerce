@@ -26,7 +26,7 @@ const RECIPIENT_LABELS = {
   participants: __('to Participants', 'quick-qa-for-woocommerce'),
 };
 
-export default function EmailTemplatesTab() {
+export default function EmailTemplatesTab({ isPro }) {
   const [resource, setResource] = useState(null); // { global, templates }
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
@@ -104,12 +104,18 @@ export default function EmailTemplatesTab() {
           enabledCount,
           ids.length
         )}
+        {!isPro && (
+          <>
+            {' '}
+            {__('On the free version Askora sends its built-in emails. Upgrade to Pro to customize them.', 'quick-qa-for-woocommerce')}
+          </>
+        )}
       </p>
 
       <div className="qq-settings-card">
         <div className="qq-settings-card-title">{__('Default sender', 'quick-qa-for-woocommerce')}</div>
         <div className="qq-settings-card-desc">{__('Used for every email below, unless a template overrides it.', 'quick-qa-for-woocommerce')}</div>
-        <GlobalSenderFields global={resource.global} onSave={saveGlobal} saving={savingGlobal} />
+        <GlobalSenderFields global={resource.global} onSave={saveGlobal} saving={savingGlobal} isPro={isPro} />
       </div>
 
       <div className="qq-email-list">
@@ -118,7 +124,7 @@ export default function EmailTemplatesTab() {
           {sprintf(__('Admin emails (%d)', 'quick-qa-for-woocommerce'), adminIds.length)}
         </div>
         {adminIds.map(id => (
-          <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} />
+          <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} isPro={isPro} />
         ))}
 
         <div className="qq-email-group-label">
@@ -126,30 +132,34 @@ export default function EmailTemplatesTab() {
           {sprintf(__('Customer emails (%d)', 'quick-qa-for-woocommerce'), customerIds.length)}
         </div>
         {customerIds.map(id => (
-          <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} />
+          <EmailTemplateRow key={id} id={id} template={resource.templates[id]} onToggle={toggleEnabled} onEdit={setEditingId} isPro={isPro} />
         ))}
       </div>
     </>
   );
 }
 
-function EmailTemplateRow({ id, template, onToggle, onEdit }) {
+function EmailTemplateRow({ id, template, onToggle, onEdit, isPro }) {
   return (
-    <div className={`qq-email-row${template.enabled ? '' : ' disabled'}`} onClick={() => onEdit(id)}>
+    <div className={`qq-email-row${template.enabled ? '' : ' disabled'}`} onClick={() => isPro && onEdit(id)}>
       <div className="qq-email-row-toggle" onClick={e => e.stopPropagation()}>
-        <Toggle checked={template.enabled} onChange={val => onToggle(id, val)} />
+        <Toggle checked={template.enabled} onChange={val => onToggle(id, val)} disabled={!isPro} />
       </div>
       <div className="qq-email-row-info">
         <div className="qq-email-row-name">{template.name}</div>
         <div className="qq-email-row-subject">{template.subject}</div>
       </div>
       <div className="qq-email-row-recipient">{RECIPIENT_LABELS[template.recipient] || ''}</div>
-      <div className="qq-email-row-edit">{__('Edit →', 'quick-qa-for-woocommerce')}</div>
+      <div className="qq-email-row-edit">
+        {isPro
+          ? __('Edit →', 'quick-qa-for-woocommerce')
+          : <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>}
+      </div>
     </div>
   );
 }
 
-function GlobalSenderFields({ global, onSave, saving }) {
+function GlobalSenderFields({ global, onSave, saving, isPro }) {
   const [draft, setDraft] = useState(global);
   useEffect(() => setDraft(global), [global]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(global);
@@ -159,43 +169,59 @@ function GlobalSenderFields({ global, onSave, saving }) {
   return (
     <>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">{__('Sender name', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-field-label">
+          {__('Sender name', 'quick-qa-for-woocommerce')}
+          {!isPro && <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>}
+        </div>
         <input
           className="qq-settings-input qq-settings-input--full"
           value={draft.sender_name}
           onChange={e => set('sender_name', e.target.value)}
+          disabled={!isPro}
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">{__('Sender email address', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-field-label">
+          {__('Sender email address', 'quick-qa-for-woocommerce')}
+          {!isPro && <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>}
+        </div>
         <input
           className="qq-settings-input qq-settings-input--full"
           type="email"
           value={draft.sender_address}
           onChange={e => set('sender_address', e.target.value)}
+          disabled={!isPro}
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">{__('Reply-to address', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-field-label">
+          {__('Reply-to address', 'quick-qa-for-woocommerce')}
+          {!isPro && <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>}
+        </div>
         <input
           className="qq-settings-input qq-settings-input--full"
           type="email"
           value={draft.reply_to}
           onChange={e => set('reply_to', e.target.value)}
+          disabled={!isPro}
         />
       </div>
       <div className="qq-settings-field-stacked">
-        <div className="qq-settings-field-label">{__('Default email footer', 'quick-qa-for-woocommerce')}</div>
+        <div className="qq-settings-field-label">
+          {__('Default email footer', 'quick-qa-for-woocommerce')}
+          {!isPro && <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>}
+        </div>
         <div className="qq-settings-field-help">{__('Appended automatically to customer-facing emails.', 'quick-qa-for-woocommerce')}</div>
         <textarea
           className="qq-settings-textarea"
           rows={3}
           value={draft.footer}
           onChange={e => set('footer', e.target.value)}
+          disabled={!isPro}
         />
       </div>
       <div className="qq-email-global-actions">
-        <button className="btn btn-primary" disabled={!dirty || saving} onClick={() => onSave(draft)}>
+        <button className="btn btn-primary" disabled={!isPro || !dirty || saving} onClick={() => onSave(draft)}>
           {saving ? __('Saving…', 'quick-qa-for-woocommerce') : __('Save sender settings', 'quick-qa-for-woocommerce')}
         </button>
       </div>
