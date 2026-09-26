@@ -1,0 +1,14 @@
+.qq-analytics { padding: 24px; }
+.qq-analytics-title { font-size: 20px; margin: 0 0 4px; }
+.qq-analytics-sub { color: #666; margin: 0 0 24px; }
+.qq-analytics-stats { display: flex; gap: 16px; margin-bottom: 32px; }
+.qq-analytics-stat { flex: 1; border: 1px solid #e2e2e2; border-radius: 8px; padding: 16px; }
+.qq-analytics-stat-value { font-size: 28px; font-weight: 600; }
+.qq-analytics-stat-label { color: #666; }
+.qq-analytics-heading { font-size: 16px; margin: 0 0 8px; }
+.qq-analytics-table { width: 100%; border-collapse: collapse; }
+.qq-analytics-table th { text-align: left; padding: 8px 4px; border-bottom: 1px solid #e2e2e2; }
+.qq-analytics-table td { padding: 8px 4px; border-bottom: 1px solid #f0f0f0; }
+.qq-analytics-table .qq-analytics-num { text-align: right; }
+.qq-analytics-muted, .qq-analytics-table td.qq-analytics-empty { color: #666; }
+.qq-analytics-table td.qq-analytics-empty { padding: 16px 4px; }
