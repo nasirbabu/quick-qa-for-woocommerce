@@ -120,7 +120,7 @@ export default function Settings() {
       case 'community':
         return <CommunityTab draft={draft} onChange={setDraft} />;
       case 'appearance':
-        return <AppearanceTab draft={draft} onChange={setDraft} />;
+        return <AppearanceTab draft={draft} onChange={setDraft} isPro={isPro} />;
       case 'email-templates':
         return <EmailTemplatesTab isPro={isPro} />;
       case 'seo':

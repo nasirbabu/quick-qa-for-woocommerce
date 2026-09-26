@@ -1070,8 +1070,10 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 		}
 
-		// Load settings so the partial can respect community and appearance settings.
+		// Load settings so the partial can respect community and appearance settings
+		// (appearance falls back to defaults on the free tier — KAN-61).
 		$qq_s                      = get_option( 'quick_qa_settings', array() );
+		$qq_s                      = Quick_Qa_For_Woocommerce_Public::effective_appearance( is_array( $qq_s ) ? $qq_s : array() );
 		$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
 		$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
 		$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;

@@ -61,7 +61,7 @@ A product question and answer plugin is only useful if the questions on it are r
 
 = Customizable design, built to match your store =
 
-Askora inherits your brand instead of imposing its own. Change the brand colour, corner radius (sharp, rounded, or pill), avatar style, card style, font, and text density from Settings, with a live preview before you save. The Q&A section ends up looking like it was designed for your store, because with a few clicks, it was.
+Askora inherits your brand instead of imposing its own. Out of the box, on every plan, the Q&A section picks up your theme's button colour and font and uses Askora's clean default layout, with no setup. With Askora Pro you can customize it further: change the brand colour, corner radius (sharp, rounded, or pill), avatar style, card style, font, text density, which elements are shown, and add custom CSS from Settings, with a live preview before you save.
 
 = What's next for this product question and answer plugin =
 

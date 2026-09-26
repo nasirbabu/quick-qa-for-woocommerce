@@ -109,7 +109,8 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_settings( WP_REST_Request $request ) {
-		$s = $this->load();
+		// Free tier: report the default Appearance actually rendered (KAN-61).
+		$s = Quick_Qa_For_Woocommerce_Public::effective_appearance( $this->load() );
 
 		return rest_ensure_response( array(
 
@@ -353,6 +354,23 @@ class Quick_Qa_Rest_Settings extends Quick_Qa_Rest_Controller {
 						return new WP_Error( 'quick_qa_pro_required', $message, array( 'status' => 403 ) );
 					}
 				}
+			}
+
+			// Appearance (KAN-61): GET reports the defaults on the free tier, so
+			// anything other than a default is a customization. Defaults are
+			// dropped from the patch so stored Pro customizations are kept.
+			foreach ( Quick_Qa_For_Woocommerce_Public::default_appearance() as $key => $default ) {
+				if ( ! array_key_exists( $key, $patch ) ) {
+					continue;
+				}
+				if ( (string) $patch[ $key ] !== (string) $default ) {
+					return new WP_Error(
+						'quick_qa_pro_required',
+						__( 'Appearance customization is a Pro feature. Upgrade to Askora Pro to change it.', 'quick-qa-for-woocommerce' ),
+						array( 'status' => 403 )
+					);
+				}
+				unset( $patch[ $key ] );
 			}
 		}
 
