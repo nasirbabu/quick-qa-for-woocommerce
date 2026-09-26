@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -203,6 +203,18 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 
 == Changelog ==
 
+= 1.5.0 (27-09-2026) =
+* Added: Askora Pro support. The free plugin now detects a licensed Askora Pro install and unlocks Pro features automatically, with nothing to migrate — your existing settings carry over.
+* Added: A "Get Pro" tab in the Askora dashboard with Yearly and Lifetime plans for 1, 5 or 10 sites and secure checkout. It's hidden once Pro is active.
+* Added: An Analytics page in the Askora dashboard, available with Askora Pro.
+* Added: Staff answers are limited to 3 per product on the free version, with an upgrade prompt when the limit is reached. Community answers from verified buyers and customers are never limited.
+* Updated: Notifications (new-question alerts, daily digest, community-answer, upvote, flag and unanswered reminders, and Slack) are now an Askora Pro feature. On the free version these settings are locked and no admin alerts are sent.
+* Updated: Email template customization (sender name, address, reply-to, footer, and each email's wording and on/off state) is now an Askora Pro feature. On the free version, customer emails keep sending with Askora's built-in wording.
+* Updated: SEO structured data (JSON-LD schema) is now an Askora Pro feature. On the free version no schema is output.
+* Updated: CSV import and export are now an Askora Pro feature.
+* Updated: Appearance customization (brand colour, layout, font, visibility toggles and custom CSS) is now an Askora Pro feature. On the free version the Q&A section keeps a clean default look matched to your theme's button colour and font.
+* Updated: Pro-only settings show a "Pro" badge and are locked on the free version, and changes to them are also rejected by the server.
+
 = 1.4.0 (19-09-2026) =
 * Added: An "Askora Q&A" Gutenberg block and an `[askora]` shortcode, for themes and page builders (Elementor, Divi, block-based FSE themes) that don't use WooCommerce's automatic tab placement. Both render the widget exactly like automatic placement, using all your current Askora settings. The block's sidebar has a Product ID field for placements where the product can't be inferred automatically.
 * Added: WPML and Polylang compatibility — each language version of a product keeps its own separate Q&A, and the `[askora]` shortcode/block and product/category scope settings now resolve correctly across translated products.
@@ -264,6 +276,9 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Notifications, email template customization, SEO schema, CSV import/export and appearance customization move to Askora Pro. On the free version, admin alerts and schema output stop and the Q&A section uses its default, theme-matched look. Your saved settings are kept and return when Pro is active.
 
 = 1.0.0 =
 Initial release.
