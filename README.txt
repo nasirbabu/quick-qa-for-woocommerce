@@ -51,9 +51,9 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Runs on multilingual stores.** With WPML or Polylang active, each language's product keeps its own separate Q&A — questions asked on one language version never show up on another.
 * **Place it exactly where you want.** Not every theme or page builder supports Askora's automatic placement — drag the "Askora Q&A" block into the editor (or Elementor), or drop the `[askora]` shortcode into a custom template, and it renders with all your current settings, just like the automatic placement.
 
-= Notifications, so you never have to keep checking =
+= Notifications, so you never have to keep checking (Pro) =
 
-You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with a direct link straight to it, plus an optional Slack alert for teams who moderate from Slack instead of an inbox. Choose instant alerts or a daily digest that bundles everything into one email instead of one per question, and set an unanswered-question reminder so nothing sits ignored without you noticing. Every one of Askora's 10 emails can be customized from Settings → Email templates: edit the subject and body, insert variables like the customer's name or the product, and check a live preview before it ever reaches an inbox.
+With Askora Pro, you won't need to keep checking the dashboard for new activity. Askora Pro notifies you by email the moment a new question or community answer needs your attention, with a direct link straight to it, plus an optional Slack alert for teams who moderate from Slack instead of an inbox. Choose instant alerts or a daily digest that bundles everything into one email instead of one per question, get alerted when a question hits an upvote threshold or content is auto-hidden by flags, and set an unanswered-question reminder so nothing sits ignored without you noticing. On the free version, the Notifications settings are shown but locked. Every one of Askora's 10 emails can be customized from Settings → Email templates: edit the subject and body, insert variables like the customer's name or the product, and check a live preview before it ever reaches an inbox.
 
 = Spam protection in this product QA plugin (coming soon) =
 

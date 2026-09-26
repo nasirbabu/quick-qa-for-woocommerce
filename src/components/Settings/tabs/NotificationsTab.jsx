@@ -3,6 +3,12 @@ import Toggle from '../components/Toggle';
 import { __ } from '../../../i18n';
 
 export default function NotificationsTab({ draft, onChange, isPro }) {
+  // Free tier: alerts are off server-side, so show them off (the saved
+  // value is kept in the draft and applies again once Pro is active).
+  function on(key) {
+    return Boolean(isPro && draft[key]);
+  }
+
   function set(key, val) {
     onChange({ ...draft, [key]: val });
   }
@@ -26,11 +32,11 @@ export default function NotificationsTab({ draft, onChange, isPro }) {
             <div className="qq-settings-field-help">{__('Sends an email containing the question, customer info, and a direct link to answer.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.notify_new_question} onChange={v => set('notify_new_question', v)} disabled={!isPro} />
+            <Toggle checked={on('notify_new_question')} onChange={v => set('notify_new_question', v)} disabled={!isPro} />
           </div>
         </div>
 
-        {draft.notify_new_question && (
+        {on('notify_new_question') && (
           <>
             <div className="qq-settings-field-stacked">
               <div className="qq-settings-field-label">
@@ -107,7 +113,7 @@ export default function NotificationsTab({ draft, onChange, isPro }) {
             <div className="qq-settings-field-help">{__('When a verified buyer or community member submits an answer that needs your approval.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.notify_community_answer} onChange={v => set('notify_community_answer', v)} disabled={!isPro} />
+            <Toggle checked={on('notify_community_answer')} onChange={v => set('notify_community_answer', v)} disabled={!isPro} />
           </div>
         </div>
 
@@ -120,11 +126,11 @@ export default function NotificationsTab({ draft, onChange, isPro }) {
             <div className="qq-settings-field-help">{__("When many customers upvote the same unanswered question, it's a priority.", 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.notify_upvote_threshold} onChange={v => set('notify_upvote_threshold', v)} disabled={!isPro} />
+            <Toggle checked={on('notify_upvote_threshold')} onChange={v => set('notify_upvote_threshold', v)} disabled={!isPro} />
           </div>
         </div>
 
-        {draft.notify_upvote_threshold && (
+        {on('notify_upvote_threshold') && (
           <div className="qq-settings-field">
             <div className="qq-settings-field-info">
               <div className="qq-settings-field-label">
@@ -159,7 +165,7 @@ export default function NotificationsTab({ draft, onChange, isPro }) {
             <div className="qq-settings-field-help">{__('When a question or answer is automatically hidden after crossing your flag threshold.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.notify_flag_threshold} onChange={v => set('notify_flag_threshold', v)} disabled={!isPro} />
+            <Toggle checked={on('notify_flag_threshold')} onChange={v => set('notify_flag_threshold', v)} disabled={!isPro} />
           </div>
         </div>
 
@@ -172,11 +178,11 @@ export default function NotificationsTab({ draft, onChange, isPro }) {
             <div className="qq-settings-field-help">{__('Nudge yourself when a question has been waiting too long.', 'quick-qa-for-woocommerce')}</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.notify_unanswered_reminder} onChange={v => set('notify_unanswered_reminder', v)} disabled={!isPro} />
+            <Toggle checked={on('notify_unanswered_reminder')} onChange={v => set('notify_unanswered_reminder', v)} disabled={!isPro} />
           </div>
         </div>
 
-        {draft.notify_unanswered_reminder && (
+        {on('notify_unanswered_reminder') && (
           <div className="qq-settings-field">
             <div className="qq-settings-field-info">
               <div className="qq-settings-field-label">

@@ -107,6 +107,38 @@ class Quick_Qa_Notifier {
 	 */
 	const REVIEW_INVITE_NOTIFIED = 'quick_qa_review_invite_notified_ids';
 
+	/**
+	 * Settings keys on the Notifications tab that only a licensed Pro install
+	 * may change (KAN-57). Saving a different value on the free tier is
+	 * rejected by the settings REST endpoint.
+	 *
+	 * @since 1.6.0
+	 * @var   string[]
+	 */
+	const PRO_KEYS = array(
+		'notify_new_question',
+		'new_question_recipients',
+		'notify_mode',
+		'digest_time',
+		'notify_community_answer',
+		'notify_upvote_threshold',
+		'upvote_threshold_value',
+		'notify_flag_threshold',
+		'notify_unanswered_reminder',
+		'unanswered_reminder_days',
+		'slack_webhook',
+	);
+
+	/**
+	 * Whether Notifications are unlocked (licensed Pro via `quick_qa_is_pro`).
+	 *
+	 * @since  1.6.0
+	 * @return bool
+	 */
+	public static function is_pro() {
+		return (bool) apply_filters( 'quick_qa_is_pro', false );
+	}
+
 	// =========================================================================
 	// Cron management
 	// =========================================================================
@@ -472,6 +504,12 @@ class Quick_Qa_Notifier {
 	 * @since 1.0.0
 	 */
 	public static function send_digest() {
+		// A digest queued before Pro was deactivated is dropped, not sent.
+		if ( ! self::is_pro() ) {
+			delete_option( self::DIGEST_QUEUE );
+			return;
+		}
+
 		$queue = get_option( self::DIGEST_QUEUE, array() );
 		if ( empty( $queue ) ) {
 			return;
@@ -765,6 +803,17 @@ class Quick_Qa_Notifier {
 
 		$saved = get_option( 'quick_qa_settings', array() );
 		$cache = array_merge( $defaults, is_array( $saved ) ? $saved : array() );
+
+		// Free tier: every alert is off regardless of what is saved. The
+		// stored option is untouched, so the saved choices apply again as
+		// soon as Pro is active. Recipients are kept because
+		// admin_recipients() also serves non-notification emails.
+		if ( ! self::is_pro() ) {
+			foreach ( array( 'notify_new_question', 'notify_community_answer', 'notify_upvote_threshold', 'notify_unanswered_reminder', 'notify_flag_threshold' ) as $key ) {
+				$cache[ $key ] = false;
+			}
+			$cache['slack_webhook'] = '';
+		}
 
 		return $cache;
 	}
