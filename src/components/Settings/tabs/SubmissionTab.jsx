@@ -2,7 +2,7 @@ import React from 'react';
 import Toggle from '../components/Toggle';
 import { __ } from '../../../i18n';
 
-export default function SubmissionTab({ draft, onChange }) {
+export default function SubmissionTab({ draft, onChange, isPro }) {
   function set(key, val) {
     onChange({ ...draft, [key]: val });
   }
@@ -66,7 +66,7 @@ export default function SubmissionTab({ draft, onChange }) {
       <div className="qq-settings-card">
         <div className="qq-settings-card-title">
           { __( 'Spam protection', 'quick-qa-for-woocommerce' ) }
-          <span className="qq-badge-pro">{ __( 'Pro', 'quick-qa-for-woocommerce' ) }</span>
+          {!isPro && <span className="qq-badge-pro">{ __( 'Pro', 'quick-qa-for-woocommerce' ) }</span>}
         </div>
         <div className="qq-settings-card-desc">{ __( 'Stop bots and abuse before they reach your queue.', 'quick-qa-for-woocommerce' ) }</div>
 
@@ -76,7 +76,7 @@ export default function SubmissionTab({ draft, onChange }) {
             <div className="qq-settings-field-help">{ __( "Invisible field that bots fill but humans don't. Catches most automated spam silently. Recommended.", 'quick-qa-for-woocommerce' ) }</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.enable_honeypot} onChange={v => set('enable_honeypot', v)} disabled />
+            <Toggle checked={draft.enable_honeypot} onChange={v => set('enable_honeypot', v)} disabled={!isPro} />
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function SubmissionTab({ draft, onChange }) {
             <div className="qq-settings-field-help">{ __( 'Adds an “I\'m not a robot” check. Stronger than honeypot but adds friction. Use only if you see persistent spam.', 'quick-qa-for-woocommerce' ) }</div>
           </div>
           <div className="qq-settings-field-control">
-            <Toggle checked={draft.recaptcha_enabled} onChange={v => set('recaptcha_enabled', v)} disabled />
+            <Toggle checked={draft.recaptcha_enabled} onChange={v => set('recaptcha_enabled', v)} disabled={!isPro} />
           </div>
         </div>
 
@@ -114,7 +114,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 onChange={e => set('recaptcha_site_key', e.target.value)}
                 placeholder={ __( '6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'quick-qa-for-woocommerce' ) }
                 spellCheck={false}
-                disabled
+                disabled={!isPro}
               />
             </div>
             <div className="qq-settings-key-field">
@@ -129,7 +129,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 placeholder={ __( '6LeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'quick-qa-for-woocommerce' ) }
                 spellCheck={false}
                 autoComplete="new-password"
-                disabled
+                disabled={!isPro}
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ export default function SubmissionTab({ draft, onChange }) {
                 max="100"
                 value={draft.submission_rate_limit}
                 onChange={e => set('submission_rate_limit', Math.max(1, parseInt(e.target.value, 10) || 3))}
-                disabled
+                disabled={!isPro}
               />
               <span className="qq-settings-input-unit">{ __( 'per hour', 'quick-qa-for-woocommerce' ) }</span>
             </div>

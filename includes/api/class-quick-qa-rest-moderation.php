@@ -186,6 +186,28 @@ class Quick_Qa_Rest_Moderation extends Quick_Qa_Rest_Controller {
 		$answers_table = $wpdb->prefix . 'quick_qa_answers';
 		$flags_table   = $wpdb->prefix . 'quick_qa_flags';
 
+		// Free tier: restoring a non-approved staff answer counts toward the
+		// per-product cap (KAN-30).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$flagged = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT a.answer_type, a.status, q.product_id
+				 FROM {$answers_table} a
+				 INNER JOIN {$wpdb->prefix}quick_qa_questions q ON q.id = a.question_id
+				 WHERE a.id = %d",
+				$id
+			)
+		);
+		if (
+			$flagged
+			&& 'admin' === $flagged->answer_type
+			&& 'approved' !== $flagged->status
+			&& Quick_Qa_Answer_Cap::is_capped( (int) $flagged->product_id )
+		) {
+			return Quick_Qa_Answer_Cap::get_error( (int) $flagged->product_id );
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->update(
 			$answers_table,

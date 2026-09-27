@@ -5,6 +5,14 @@
 /* Two-column grid: controls (left) + sticky preview (right) */
 .qq-appr-grid    { display: flex; gap: 24px; align-items: flex-start; }
 .qq-appr-main    { flex: 1; min-width: 0; }
+.qq-appr-fieldset { border: 0; margin: 0; padding: 0; }
+
+/* Free tier: controls locked (KAN-61) */
+.qq-appr-fieldset:disabled .qq-color-swatch,
+.qq-appr-fieldset:disabled .qq-swatch-btn,
+.qq-appr-fieldset:disabled .qq-color-hex-input,
+.qq-appr-fieldset:disabled .qq-custom-css-area { opacity: 0.55; cursor: not-allowed; }
+.qq-appr-fieldset:disabled .qq-color-swatch:hover { transform: none; }
 .qq-appr-sidebar { width: 300px; flex-shrink: 0; position: sticky; top: 20px; }
 
 /* Section card */

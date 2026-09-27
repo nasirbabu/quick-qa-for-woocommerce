@@ -326,8 +326,8 @@ function FollowupReplyComposer({ onReply, saving }) {
 
   function handleSubmit() {
     if (!text.trim()) return;
-    onReply(text);
-    setText('');
+    // Keep the draft if the action fails (e.g. the free staff answer cap).
+    Promise.resolve(onReply(text)).then(ok => { if (ok !== false) setText(''); });
   }
 
   return (
@@ -365,9 +365,12 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
 
   function handleSubmit() {
     if (!reply.trim()) return;
-    onPublish(reply, insertedTemplateId);
-    setReply('');
-    setInsertedTemplateId(null);
+    // Keep the draft if the action fails (e.g. the free staff answer cap).
+    Promise.resolve(onPublish(reply, insertedTemplateId)).then(ok => {
+      if (ok === false) return;
+      setReply('');
+      setInsertedTemplateId(null);
+    });
   }
 
   function handleInsert(content, templateId) {

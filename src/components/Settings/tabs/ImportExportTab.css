@@ -21,6 +21,11 @@
 }
 .qq-import-template-link:hover { text-decoration: underline; }
 
+.qq-import-dropzone.disabled,
+.qq-import-template-link:disabled { opacity: 0.55; cursor: not-allowed; }
+.qq-import-dropzone.disabled:hover { border-color: #D4CCC2; }
+.qq-import-template-link:disabled:hover { text-decoration: none; }
+
 .qq-import-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

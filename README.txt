@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -51,9 +51,9 @@ Every part of Askora exists to shorten the distance between "I have a question" 
 * **Runs on multilingual stores.** With WPML or Polylang active, each language's product keeps its own separate Q&A — questions asked on one language version never show up on another.
 * **Place it exactly where you want.** Not every theme or page builder supports Askora's automatic placement — drag the "Askora Q&A" block into the editor (or Elementor), or drop the `[askora]` shortcode into a custom template, and it renders with all your current settings, just like the automatic placement.
 
-= Notifications, so you never have to keep checking =
+= Notifications, so you never have to keep checking (Pro) =
 
-You won't need to keep checking the dashboard for new activity. Askora notifies you by email the moment a new question or community answer needs your attention, with a direct link straight to it, plus an optional Slack alert for teams who moderate from Slack instead of an inbox. Choose instant alerts or a daily digest that bundles everything into one email instead of one per question, and set an unanswered-question reminder so nothing sits ignored without you noticing. Every one of Askora's 10 emails can be customized from Settings → Email templates: edit the subject and body, insert variables like the customer's name or the product, and check a live preview before it ever reaches an inbox.
+With Askora Pro, you won't need to keep checking the dashboard for new activity. Askora Pro notifies you by email the moment a new question or community answer needs your attention, with a direct link straight to it, plus an optional Slack alert for teams who moderate from Slack instead of an inbox. Choose instant alerts or a daily digest that bundles everything into one email instead of one per question, get alerted when a question hits an upvote threshold or content is auto-hidden by flags, and set an unanswered-question reminder so nothing sits ignored without you noticing. On the free version, the Notifications settings are shown but locked. With Askora Pro, every one of Askora's 10 emails can also be customized from Settings → Email templates: edit the subject and body, insert variables like the customer's name or the product, and check a live preview before it ever reaches an inbox. On the free version, customer emails (question answered, community answer approved, follow-ups, review invitations) are sent with Askora's built-in wording from your store's default sender.
 
 = Spam protection in this product QA plugin (coming soon) =
 
@@ -61,7 +61,7 @@ A product question and answer plugin is only useful if the questions on it are r
 
 = Customizable design, built to match your store =
 
-Askora inherits your brand instead of imposing its own. Change the brand colour, corner radius (sharp, rounded, or pill), avatar style, card style, font, and text density from Settings, with a live preview before you save. The Q&A section ends up looking like it was designed for your store, because with a few clicks, it was.
+Askora inherits your brand instead of imposing its own. Out of the box, on every plan, the Q&A section picks up your theme's button colour and font and uses Askora's clean default layout, with no setup. With Askora Pro you can customize it further: change the brand colour, corner radius (sharp, rounded, or pill), avatar style, card style, font, text density, which elements are shown, and add custom CSS from Settings, with a live preview before you save.
 
 = What's next for this product question and answer plugin =
 
@@ -69,10 +69,10 @@ These aren't vague promises. They're already in progress:
 
 * AI-powered answer suggestions, using your own OpenAI key (coming soon)
 * An analytics dashboard with response times, top questions, and full customer and product Q&A history (coming soon)
-* SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (coming soon)
+* SEO structured data (JSON-LD), so answered questions can appear as rich results in Google search (Askora Pro)
 * Follow-up questions, letting the original asker ask one clarifying question after their answer (coming soon)
 * A "My Questions" tab inside WooCommerce My Account (coming soon)
-* CSV import and export for migrations and backups (coming soon)
+* CSV import and export for migrations and backups (Askora Pro)
 
 None of this sits behind a paywall. It's simply not built yet, and when it ships, it ships in this same free plugin.
 
@@ -203,6 +203,18 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 
 == Changelog ==
 
+= 1.5.0 (27-09-2026) =
+* Added: Askora Pro support. The free plugin now detects a licensed Askora Pro install and unlocks Pro features automatically, with nothing to migrate — your existing settings carry over.
+* Added: A "Get Pro" tab in the Askora dashboard with Yearly and Lifetime plans for 1, 5 or 10 sites and secure checkout. It's hidden once Pro is active.
+* Added: An Analytics page in the Askora dashboard, available with Askora Pro.
+* Added: Staff answers are limited to 3 per product on the free version, with an upgrade prompt when the limit is reached. Community answers from verified buyers and customers are never limited.
+* Updated: Notifications (new-question alerts, daily digest, community-answer, upvote, flag and unanswered reminders, and Slack) are now an Askora Pro feature. On the free version these settings are locked and no admin alerts are sent.
+* Updated: Email template customization (sender name, address, reply-to, footer, and each email's wording and on/off state) is now an Askora Pro feature. On the free version, customer emails keep sending with Askora's built-in wording.
+* Updated: SEO structured data (JSON-LD schema) is now an Askora Pro feature. On the free version no schema is output.
+* Updated: CSV import and export are now an Askora Pro feature.
+* Updated: Appearance customization (brand colour, layout, font, visibility toggles and custom CSS) is now an Askora Pro feature. On the free version the Q&A section keeps a clean default look matched to your theme's button colour and font.
+* Updated: Pro-only settings show a "Pro" badge and are locked on the free version, and changes to them are also rejected by the server.
+
 = 1.4.0 (19-09-2026) =
 * Added: An "Askora Q&A" Gutenberg block and an `[askora]` shortcode, for themes and page builders (Elementor, Divi, block-based FSE themes) that don't use WooCommerce's automatic tab placement. Both render the widget exactly like automatic placement, using all your current Askora settings. The block's sidebar has a Product ID field for placements where the product can't be inferred automatically.
 * Added: WPML and Polylang compatibility — each language version of a product keeps its own separate Q&A, and the `[askora]` shortcode/block and product/category scope settings now resolve correctly across translated products.
@@ -264,6 +276,9 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Notifications, email template customization, SEO schema, CSV import/export and appearance customization move to Askora Pro. On the free version, admin alerts and schema output stop and the Q&A section uses its default, theme-matched look. Your saved settings are kept and return when Pro is active.
 
 = 1.0.0 =
 Initial release.

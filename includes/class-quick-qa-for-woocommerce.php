@@ -70,7 +70,7 @@ class Quick_Qa_For_Woocommerce {
 		if ( defined( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION' ) ) {
 			$this->version = QUICK_QA_FOR_WOOCOMMERCE_VERSION;
 		} else {
-			$this->version = '1.4.0';
+			$this->version = '1.5.0';
 		}
 		$this->plugin_name = 'quick-qa-for-woocommerce';
 
@@ -141,6 +141,11 @@ class Quick_Qa_For_Woocommerce {
 		 * CSV export of Q&A data, streamed via admin-post.php (KAN-26).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-for-woocommerce-export.php';
+
+		/**
+		 * Free-tier cap on staff answers per product (KAN-30).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-answer-cap.php';
 
 		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).

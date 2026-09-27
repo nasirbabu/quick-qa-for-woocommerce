@@ -582,6 +582,18 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			)
 		);
 
+		// Free tier: re-approving a staff answer counts toward the per-product
+		// cap, so it can't be used to sidestep it (KAN-30).
+		if (
+			$answer
+			&& 'approved' === $status
+			&& 'approved' !== $answer->status
+			&& 'admin' === $answer->answer_type
+			&& Quick_Qa_Answer_Cap::is_capped( (int) $answer->product_id )
+		) {
+			return Quick_Qa_Answer_Cap::get_error( (int) $answer->product_id );
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->update(
 			$table,
@@ -654,6 +666,20 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 					'author_role'    => $answer->is_verified_buyer ? __( 'Verified buyer', 'quick-qa-for-woocommerce' ) : __( 'Community member', 'quick-qa-for-woocommerce' ),
 				) );
 			}
+
+			/**
+			 * Fires when an answer's status transitions to 'approved',
+			 * whether by direct admin reply or by moderating a pending
+			 * community/follow-up answer.
+			 *
+			 * Lets extensions (e.g. a companion Pro plugin's analytics/
+			 * real-time features) react without polling the answers table.
+			 *
+			 * @since 1.5.0
+			 * @param int $question_id
+			 * @param int $answer_id
+			 */
+			do_action( 'quick_qa_question_answered', $answer->question_id, $id );
 		}
 
 		return rest_ensure_response( array( 'id' => $id, 'status' => $status ) );
@@ -715,6 +741,12 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			$replying_to_followup = true;
 		}
 
+		// Free tier: staff answers are capped per product (KAN-30). Blocked
+		// before anything is written, so the question isn't auto-approved either.
+		if ( Quick_Qa_Answer_Cap::is_capped( (int) $question->product_id ) ) {
+			return Quick_Qa_Answer_Cap::get_error( (int) $question->product_id );
+		}
+
 		// Auto-approve the question when an admin publishes a reply to it.
 		if ( 'approved' !== $question->status ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -773,6 +805,9 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			'author_name'    => $answerer ? $answerer->display_name : __( 'the team', 'quick-qa-for-woocommerce' ),
 			'author_role'    => __( 'Staff', 'quick-qa-for-woocommerce' ),
 		) );
+
+		/** This action is documented in includes/api/class-quick-qa-rest-questions.php (admin_update_answer). */
+		do_action( 'quick_qa_question_answered', $question_id, (int) $wpdb->insert_id );
 
 		return rest_ensure_response(
 			array(
@@ -1035,8 +1070,10 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			}
 		}
 
-		// Load settings so the partial can respect community and appearance settings.
+		// Load settings so the partial can respect community and appearance settings
+		// (appearance falls back to defaults on the free tier — KAN-61).
 		$qq_s                      = get_option( 'quick_qa_settings', array() );
+		$qq_s                      = Quick_Qa_For_Woocommerce_Public::effective_appearance( is_array( $qq_s ) ? $qq_s : array() );
 		$allow_community           = isset( $qq_s['allow_community'] )           ? (bool) $qq_s['allow_community']           : true;
 		$allow_verified_buyers     = isset( $qq_s['allow_verified_buyers'] )     ? (bool) $qq_s['allow_verified_buyers']     : true;
 		$allow_logged_in_customers = isset( $qq_s['allow_logged_in_customers'] ) ? (bool) $qq_s['allow_logged_in_customers'] : true;
@@ -1344,6 +1381,19 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			: ( $guest_name ?: __( 'Guest', 'quick-qa-for-woocommerce' ) );
 		Quick_Qa_Notifier::new_question( $question_id, $product_id, $question_text, $asker_name );
 
+		/**
+		 * Fires right after a question is successfully persisted.
+		 *
+		 * Lets extensions (e.g. a companion Pro plugin's analytics/real-time
+		 * features) react without polling the questions table.
+		 *
+		 * @since 1.5.0
+		 * @param int    $question_id
+		 * @param int    $product_id
+		 * @param string $status  'approved' or 'pending'.
+		 */
+		do_action( 'quick_qa_question_submitted', $question_id, $product_id, $status );
+
 		// 10. Respond.
 		$message = ( 'approved' === $status )
 			? __( 'Your question has been published.', 'quick-qa-for-woocommerce' )
@@ -1459,6 +1509,23 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 		}
 
 		$answer_type = $is_admin ? 'admin' : 'community';
+
+		// Free tier: staff answers are capped per product (KAN-30). Community
+		// answers are never capped.
+		if ( $is_admin ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$cap_product_id = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT product_id FROM {$questions_table} WHERE id = %d",
+					$question_id
+				)
+			);
+
+			if ( Quick_Qa_Answer_Cap::is_capped( $cap_product_id ) ) {
+				return Quick_Qa_Answer_Cap::get_error( $cap_product_id );
+			}
+		}
 
 		// Admins auto-publish. Verified buyers auto-publish only when
 		// verified_buyer_approval = 'auto'. Everyone else needs approval —

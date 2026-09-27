@@ -54,6 +54,16 @@ class Quick_Qa_For_Woocommerce_Export {
 	}
 
 	/**
+	 * Whether Import/Export is unlocked (licensed Pro via `quick_qa_is_pro`).
+	 *
+	 * @since  1.6.0
+	 * @return bool
+	 */
+	public static function is_pro() {
+		return (bool) apply_filters( 'quick_qa_is_pro', false );
+	}
+
+	/**
 	 * Handle `admin-post.php?action=quick_qa_export_csv`.
 	 *
 	 * Reads date_from/date_to/status/category filters from the query
@@ -70,6 +80,11 @@ class Quick_Qa_For_Woocommerce_Export {
 		}
 
 		check_admin_referer( 'quick_qa_export_csv' );
+
+		// Import/Export is Pro-only (KAN-60).
+		if ( ! self::is_pro() ) {
+			wp_die( esc_html__( 'Import/Export is a Pro feature. Upgrade to Askora Pro to export your Q&A.', 'quick-qa-for-woocommerce' ), '', array( 'response' => 403 ) );
+		}
 
 		$rows = $this->fetch_rows(
 			isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '',

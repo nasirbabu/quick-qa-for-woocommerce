@@ -105,6 +105,18 @@ class Quick_Qa_For_Woocommerce_Admin {
 					'nonce'       => wp_create_nonce( 'wp_rest' ),
 					'ajaxUrl'     => admin_url( 'admin-post.php' ),
 					'exportNonce' => wp_create_nonce( 'quick_qa_export_csv' ),
+					/**
+					 * Whether a licensed companion Pro plugin (e.g. Quick QA Pro)
+					 * is active. Defaults to false so the free plugin behaves
+					 * identically with no Pro plugin installed; a Pro plugin
+					 * flips this on via `add_filter( 'quick_qa_is_pro', '__return_true' )`
+					 * (or its own license-aware callback) once it is loaded and licensed.
+					 *
+					 * @since 1.5.0
+					 */
+					'isPro'       => (bool) apply_filters( 'quick_qa_is_pro', false ),
+					'proRestUrl'  => esc_url_raw( rest_url( 'quick-qa-pro/v1/' ) ),
+					'upgradeUrl'  => esc_url_raw( (string) apply_filters( 'quick_qa_upgrade_url', 'https://askora.io/pro' ) ),
 				)
 			);
 		}

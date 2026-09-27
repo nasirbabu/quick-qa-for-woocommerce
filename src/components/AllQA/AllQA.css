@@ -192,6 +192,30 @@
 }
 .qq-bulk-result-banner-x:hover { opacity: 1; }
 
+/* Free-tier staff answer cap: upgrade prompt (KAN-30) */
+.qq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.qq-modal {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+.qq-modal-title { margin: 0 0 10px; font-size: 16px; font-weight: 600; }
+.qq-modal-text  { margin: 0 0 10px; font-size: 13px; line-height: 1.5; }
+.qq-modal-note  { margin: 0 0 18px; font-size: 12px; line-height: 1.5; opacity: 0.75; }
+.qq-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
 /* Queue rows */
 .qq-row {
   padding: 14px 20px 14px 44px;

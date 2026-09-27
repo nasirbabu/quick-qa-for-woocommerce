@@ -16,7 +16,7 @@
  * Plugin Name:       Askora – Product Questions & Answers for WooCommerce
  * Plugin URI:        https://wordpress.org/plugins/quick-qa-for-woocommerce
  * Description:       A calm, focused Q&A plugin that helps you answer customer questions before they abandon their cart. Built for WooCommerce, priced for real stores.
- * Version:           1.4.0
+ * Version:           1.5.0
  * Author:            WP Easy Soft
  * Author URI:        https://profiles.wordpress.org/nashirbabu/
  * License:           GPL-2.0+
@@ -45,7 +45,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION', '1.4.0' );
+define( 'QUICK_QA_FOR_WOOCOMMERCE_VERSION', '1.5.0' );
 
 /**
  * The code that runs during plugin activation.

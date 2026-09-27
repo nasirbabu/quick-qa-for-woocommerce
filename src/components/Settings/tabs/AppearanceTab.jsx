@@ -19,7 +19,9 @@ const COLOR_PRESETS = [
 
 const HEX_RE = /^#[0-9A-Fa-f]{6}$/;
 
-export default function AppearanceTab({ draft, onChange }) {
+const ProBadge = () => <span className="qq-badge-pro">{__('Pro', 'quick-qa-for-woocommerce')}</span>;
+
+export default function AppearanceTab({ draft, onChange, isPro }) {
   const [cssOpen,      setCssOpen]      = useState(false);
   const [previewState, setPreviewState] = useState('logged-in');
   const [hexInput,     setHexInput]     = useState(draft.appr_color);
@@ -30,6 +32,7 @@ export default function AppearanceTab({ draft, onChange }) {
   }, [draft.appr_color]);
 
   function set(key, val) {
+    if (!isPro) return;
     onChange({ ...draft, [key]: val });
   }
 
@@ -48,16 +51,25 @@ export default function AppearanceTab({ draft, onChange }) {
   return (
     <>
       <h1 className="qq-settings-page-title">{__('Appearance', 'quick-qa-for-woocommerce')}</h1>
-      <p className="qq-settings-page-sub">{__('How the Q&A widget looks on your product pages. Preview updates as you change.', 'quick-qa-for-woocommerce')}</p>
+      <p className="qq-settings-page-sub">
+        {__('How the Q&A widget looks on your product pages. Preview updates as you change.', 'quick-qa-for-woocommerce')}
+        {!isPro && (
+          <>
+            {' '}
+            {__('Your Q&A uses Askora\'s default style, matched to your theme. Upgrade to Pro to customize it.', 'quick-qa-for-woocommerce')}
+          </>
+        )}
+      </p>
 
       <div className="qq-appr-grid">
 
         {/* ── Left: controls ── */}
-        <div className="qq-appr-main">
+        {/* Free tier: every control is locked; the preview stays usable (KAN-61). */}
+        <fieldset className="qq-appr-main qq-appr-fieldset" disabled={!isPro}>
 
           {/* Brand color */}
           <div className="qq-appr-section">
-            <div className="qq-appr-section-title">{__('Brand color', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-appr-section-title">{__('Brand color', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-appr-section-desc">{__('Used for buttons, links, and accents.', 'quick-qa-for-woocommerce')}</div>
 
             <div className="qq-color-swatches">
@@ -91,7 +103,7 @@ export default function AppearanceTab({ draft, onChange }) {
 
           {/* Layout */}
           <div className="qq-appr-section">
-            <div className="qq-appr-section-title">{__('Layout', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-appr-section-title">{__('Layout', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-appr-section-desc">{__('Shape, spacing, and density.', 'quick-qa-for-woocommerce')}</div>
 
             <SwatchRow label={__('Corner radius', 'quick-qa-for-woocommerce')}>
@@ -183,7 +195,7 @@ export default function AppearanceTab({ draft, onChange }) {
 
           {/* What to show */}
           <div className="qq-appr-section">
-            <div className="qq-appr-section-title">{__('What to show', 'quick-qa-for-woocommerce')}</div>
+            <div className="qq-appr-section-title">{__('What to show', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</div>
             <div className="qq-appr-section-desc">{__('Toggle elements on or off in the customer-facing widget.', 'quick-qa-for-woocommerce')}</div>
 
             <div className="qq-visibility-list">
@@ -196,7 +208,7 @@ export default function AppearanceTab({ draft, onChange }) {
               ].map(item => (
                 <div key={item.key} className="qq-visibility-row">
                   <span className="qq-visibility-row-label">{item.label}</span>
-                  <Toggle checked={draft[item.key]} onChange={v => set(item.key, v)} />
+                  <Toggle checked={draft[item.key]} onChange={v => set(item.key, v)} disabled={!isPro} />
                 </div>
               ))}
             </div>
@@ -206,7 +218,7 @@ export default function AppearanceTab({ draft, onChange }) {
           <div className={`qq-css-collapsible${cssOpen ? ' open' : ''}`}>
             <div className="qq-css-collapsible-head" onClick={() => setCssOpen(o => !o)}>
               <div>
-                <span className="qq-css-collapsible-title">{__('Custom CSS', 'quick-qa-for-woocommerce')}</span>
+                <span className="qq-css-collapsible-title">{__('Custom CSS', 'quick-qa-for-woocommerce')}{!isPro && <ProBadge />}</span>
                 <span className="qq-css-collapsible-sub">{__('For power users', 'quick-qa-for-woocommerce')}</span>
               </div>
               <span className="qq-css-collapsible-icon">›</span>
@@ -231,7 +243,7 @@ export default function AppearanceTab({ draft, onChange }) {
             </div>
           </div>
 
-        </div>
+        </fieldset>
 
         {/* ── Right: live preview ── */}
         <div className="qq-appr-sidebar">

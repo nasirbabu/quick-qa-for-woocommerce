@@ -132,8 +132,60 @@ class Quick_Qa_For_Woocommerce_Public {
 		);
 
 		$saved  = get_option( 'quick_qa_settings', array() );
-		$cache  = array_merge( $defaults, is_array( $saved ) ? $saved : array() );
+		$cache  = self::effective_appearance( array_merge( $defaults, is_array( $saved ) ? $saved : array() ) );
 		return $cache;
+	}
+
+	/**
+	 * Default Appearance values, shared by every tier (KAN-61).
+	 *
+	 * The brand colour follows the active theme's button colour, exactly as
+	 * a fresh install is seeded, falling back to Askora's coral. Uppercased
+	 * to match how the settings endpoint stores hex colours.
+	 *
+	 * @since  1.6.0
+	 * @return array<string, mixed>
+	 */
+	public static function default_appearance() {
+		$color = class_exists( 'Quick_Qa_For_Woocommerce_Activator' )
+			? Quick_Qa_For_Woocommerce_Activator::detect_theme_button_color()
+			: null;
+
+		return array(
+			'appr_color'               => strtoupper( $color ? $color : '#FF6B4A' ),
+			'appr_radius'              => 'rounded',
+			'appr_avatar_style'        => 'circle',
+			'appr_card_style'          => 'bordered',
+			'appr_font_mode'           => 'inherit',
+			'appr_font_custom'         => '',
+			'appr_font_size'           => 'medium',
+			'appr_density'             => 'comfortable',
+			'appr_show_upvotes'        => true,
+			'appr_show_helpful'        => true,
+			'appr_show_role_badges'    => true,
+			'appr_show_best_highlight' => true,
+			'appr_show_avatars'        => true,
+			'appr_custom_css'          => '',
+		);
+	}
+
+	/**
+	 * Apply the Appearance tier rules to a settings array.
+	 *
+	 * Appearance customization is Pro-only (KAN-61): on the free tier every
+	 * appr_* value is replaced with default_appearance(), so the widget keeps
+	 * its default, theme-matched look. The stored option is untouched, so
+	 * saved customizations apply again as soon as `quick_qa_is_pro` is true.
+	 *
+	 * @since  1.6.0
+	 * @param  array $s Settings array (stored values merged over defaults).
+	 * @return array
+	 */
+	public static function effective_appearance( array $s ) {
+		if ( apply_filters( 'quick_qa_is_pro', false ) ) {
+			return $s;
+		}
+		return array_merge( $s, self::default_appearance() );
 	}
 
 	/**
@@ -190,7 +242,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * would silently stop matching on every other language's product pages
 	 * once WPML/Polylang is active (KAN-29).
 	 *
-	 * @since  1.5.0
+	 * @since  1.4.0
 	 * @access private
 	 * @param  array  $ids  Raw post or term IDs as stored in settings.
 	 * @param  string $kind 'product' or 'term'.

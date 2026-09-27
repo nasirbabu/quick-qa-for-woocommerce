@@ -157,6 +157,16 @@ class Quick_Qa_Email_Store {
 	}
 
 	/**
+	 * Whether email customization is unlocked (licensed Pro via `quick_qa_is_pro`).
+	 *
+	 * @since  1.6.0
+	 * @return bool
+	 */
+	public static function is_pro() {
+		return (bool) apply_filters( 'quick_qa_is_pro', false );
+	}
+
+	/**
 	 * Load the saved option merged over defaults (overrides win).
 	 *
 	 * @since  1.2.0
@@ -164,7 +174,11 @@ class Quick_Qa_Email_Store {
 	 */
 	public static function get_all() {
 		$saved = get_option( self::OPTION_KEY, array() );
-		if ( ! is_array( $saved ) ) {
+
+		// Free tier (KAN-58): ignore every override so each email goes out
+		// with the built-in copy, sender and on/off state. The option is
+		// untouched, so customizations return as soon as Pro is active.
+		if ( ! is_array( $saved ) || ! self::is_pro() ) {
 			$saved = array();
 		}
 
