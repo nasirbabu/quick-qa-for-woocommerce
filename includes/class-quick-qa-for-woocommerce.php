@@ -153,6 +153,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-customer-identity.php';
 
 		/**
+		 * Deactivation feedback popup on the Plugins screen (KAN-68).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-deactivation-feedback.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';
@@ -241,6 +246,12 @@ class Quick_Qa_For_Woocommerce {
 		// Streams a CSV download of Q&A data (KAN-26).
 		$plugin_export = new Quick_Qa_For_Woocommerce_Export( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'admin_post_quick_qa_export_csv', $plugin_export, 'handle_export_csv' );
+
+		// Asks why the plugin is being deactivated, on the Plugins screen (KAN-68).
+		$deactivation_feedback = new Quick_Qa_Deactivation_Feedback();
+		$this->loader->add_action( 'admin_enqueue_scripts', $deactivation_feedback, 'enqueue' );
+		$this->loader->add_action( 'admin_footer', $deactivation_feedback, 'render_modal' );
+		$this->loader->add_action( 'wp_ajax_' . Quick_Qa_Deactivation_Feedback::ACTION, $deactivation_feedback, 'handle_ajax' );
 
 	}
 

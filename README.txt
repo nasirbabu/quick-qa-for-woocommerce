@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,9 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.7.1 (16-11-2026) =
+* Added: An optional feedback popup when you deactivate Askora, asking why you are leaving. You can always skip it, and it never delays deactivation.
 
 = 1.7.0 (16-11-2026) =
 * Added: Customer and product profiles for Askora Pro. Click any customer or product name in All Q&A or Analytics to see their full Q&A history, purchases and risk signals, or what customers ask about a product most.
