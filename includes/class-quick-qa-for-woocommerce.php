@@ -148,6 +148,11 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-answer-cap.php';
 
 		/**
+		 * Stable author identity keys, shared with the Pro customer profiles (KAN-33).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-customer-identity.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';

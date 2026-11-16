@@ -150,6 +150,7 @@ function transformItem(q) {
     status,
     text:      q.question_text || '',
     customer,
+    customerKey: q.author_key || '',
     avatar:    makeInitials(customer),
     role:      q.is_verified_buyer == '1' ? 'verified-buyer' : (parseInt(q.user_id) > 0 ? 'customer' : 'guest'),
     product:          q.product_title || sprintf( __( 'Product #%d', 'quick-qa-for-woocommerce' ), q.product_id ),
@@ -163,6 +164,7 @@ function transformItem(q) {
       id:        String(a.id),
       dbId:      parseInt(a.id, 10),
       author:    a.author_name || __( 'Team', 'quick-qa-for-woocommerce' ),
+      authorKey: a.author_key || '',
       avatar:    makeInitials(a.author_name || __( 'Team', 'quick-qa-for-woocommerce' )),
       role:      a.answer_type === 'admin' ? 'staff' : 'community',
       time:      timeAgo(a.created_at),
@@ -180,6 +182,7 @@ function transformItem(q) {
       id:     String(pa.id),
       dbId:   parseInt(pa.id, 10),
       author: pa.author_name || __( 'User', 'quick-qa-for-woocommerce' ),
+      authorKey: pa.author_key || '',
       avatar: makeInitials(pa.author_name || __( 'User', 'quick-qa-for-woocommerce' )),
       role:   pa.answer_type === 'admin' ? 'staff' : 'community',
       text:   pa.answer_text || '',
@@ -200,6 +203,7 @@ function transformItem(q) {
       id:        String(a.id),
       dbId:      parseInt(a.id, 10),
       author:    a.author_name || __( 'Team', 'quick-qa-for-woocommerce' ),
+      authorKey: a.author_key || '',
       avatar:    makeInitials(a.author_name || __( 'Team', 'quick-qa-for-woocommerce' )),
       role:      a.answer_type === 'admin' ? 'staff' : 'community',
       time:      timeAgo(a.created_at),
@@ -218,6 +222,7 @@ function transformItem(q) {
         dbId:            parseInt(fu.id, 10),
         parentAnswerId:  parseInt(fu.parent_answer_id, 10),
         author:          fu.author_name || customer,
+        authorKey:       fu.author_key || '',
         avatar:          makeInitials(fu.author_name || customer),
         time:            timeAgo(fu.created_at),
         text:            fu.answer_text || '',
@@ -342,7 +347,7 @@ function BulkSummary({ selectedItems, activeTab }) {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function AllQA() {
+export default function AllQA({ initialQuestionId = null }) {
   const [questions,      setQuestions]      = useState([]);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState(null);
@@ -372,8 +377,10 @@ export default function AllQA() {
     loadQuestions()
       .then(items => {
         setLoading(false);
-        const qid = parseInt(new URLSearchParams(window.location.search).get('qid'), 10);
-        const linked = qid && items.find(q => q.id === qid);
+        // Deep link: ?qid= (e.g. from notification emails) or a question opened
+        // from a profile page. Items carry the numeric id in dbId (id is a string).
+        const qid = initialQuestionId || parseInt(new URLSearchParams(window.location.search).get('qid'), 10);
+        const linked = qid && items.find(q => q.dbId === qid);
         if (linked) {
           setActiveTab('all');
           setSelectedId(linked.id);

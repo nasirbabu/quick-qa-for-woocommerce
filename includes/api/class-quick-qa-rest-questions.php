@@ -325,6 +325,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			} else {
 				$q->author_name = $q->guest_name ?: 'Guest';
 			}
+			// KAN-33: links the author to their (Pro) customer profile.
+			$q->author_key = Quick_Qa_Customer_Identity::key( $q->user_id, $q->guest_email );
 		}
 
 		$question_ids = array_map( 'absint', wp_list_pluck( $questions, 'id' ) );
@@ -346,6 +348,8 @@ class Quick_Qa_Rest_Questions extends Quick_Qa_Rest_Controller {
 			} else {
 				$a->author_name = 'Team';
 			}
+			// KAN-33: staff answers get no profile link.
+			$a->author_key = 'admin' === $a->answer_type ? '' : Quick_Qa_Customer_Identity::key( $a->user_id );
 		}
 
 		$answers_map = array();

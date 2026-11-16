@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { __, sprintf, _n } from '../../i18n';
 import { TEXT_DOMAIN, searchProducts } from './api';
+import { useNav } from '../../navigation';
 import {
 	describeTiles,
 	describeOutlier,
@@ -235,6 +236,7 @@ export function ThresholdSettings( { settings, onSave } ) {
 }
 
 export function OutlierCallout( { outlier, onFilter } ) {
+	const { navigate } = useNav();
 	const text = describeOutlier( outlier );
 	if ( ! text ) {
 		return null;
@@ -267,6 +269,9 @@ export function OutlierCallout( { outlier, onFilter } ) {
 							{ __( 'Edit product description →', TEXT_DOMAIN ) }
 						</a>
 					) }
+					<button type="button" className="qq-an-link-btn" onClick={ () => navigate( 'product-profile', { id: outlier.product.id } ) }>
+						{ __( 'View product profile', TEXT_DOMAIN ) }
+					</button>
 					<button type="button" className="qq-an-link-btn" onClick={ () => onFilter( outlier.product ) }>
 						{ __( 'Show only this product', TEXT_DOMAIN ) }
 					</button>
@@ -326,7 +331,7 @@ export function DailyChart( { daily, rangeLabel } ) {
 /* Lists                                                              */
 /* ------------------------------------------------------------------ */
 
-function Card( { title, sub, children } ) {
+export function Card( { title, sub, children } ) {
 	return (
 		<div className="qq-an-card">
 			<div className="qq-an-card-head">
@@ -338,19 +343,31 @@ function Card( { title, sub, children } ) {
 	);
 }
 
-function Empty() {
-	return <div className="qq-an-empty">{ __( 'No activity in this period.', TEXT_DOMAIN ) }</div>;
+export function Empty( { children } ) {
+	return <div className="qq-an-empty">{ children || __( 'No activity in this period.', TEXT_DOMAIN ) }</div>;
 }
 
-function topSub( n ) {
+function topSub( n, onViewAll ) {
 	/* translators: %d: number of rows shown. */
-	return sprintf( __( 'Top %d', TEXT_DOMAIN ), n );
+	const label = sprintf( __( 'Top %d', TEXT_DOMAIN ), n );
+	if ( ! onViewAll ) {
+		return label;
+	}
+	return (
+		<>
+			{ label } ·{ ' ' }
+			<button type="button" className="qq-an-view-all" onClick={ onViewAll }>
+				{ __( 'View all →', TEXT_DOMAIN ) }
+			</button>
+		</>
+	);
 }
 
 export function TopProducts( { rows, onFilter } ) {
+	const { navigate } = useNav();
 	const max = rows.reduce( ( m, r ) => Math.max( m, r.questions ), 0 );
 	return (
-		<Card title={ __( 'Products with most questions', TEXT_DOMAIN ) } sub={ topSub( 5 ) }>
+		<Card title={ __( 'Products with most questions', TEXT_DOMAIN ) } sub={ topSub( 5, () => navigate( 'products' ) ) }>
 			{ rows.length === 0 ? <Empty /> : (
 				<div className="qq-an-list">
 					{ rows.map( ( p, i ) => (
@@ -359,10 +376,19 @@ export function TopProducts( { rows, onFilter } ) {
 							<button
 								type="button"
 								className="qq-an-list-name qq-an-clickable"
-								title={ __( 'Show only this product', TEXT_DOMAIN ) }
-								onClick={ () => onFilter( p ) }
+								title={ __( 'View product profile', TEXT_DOMAIN ) }
+								onClick={ () => navigate( 'product-profile', { id: p.id } ) }
 							>
 								{ p.name }
+							</button>
+							<button
+								type="button"
+								className="qq-an-filter-btn"
+								title={ __( 'Show only this product on the dashboard', TEXT_DOMAIN ) }
+								aria-label={ __( 'Show only this product on the dashboard', TEXT_DOMAIN ) }
+								onClick={ () => onFilter( p ) }
+							>
+								{ __( 'Filter', TEXT_DOMAIN ) }
 							</button>
 							<div className="qq-an-list-bar-wrap">
 								<div className="qq-an-list-bar" style={ { width: `${ max ? ( p.questions / max ) * 100 : 0 }%` } } />
@@ -377,15 +403,23 @@ export function TopProducts( { rows, onFilter } ) {
 }
 
 export function TopCustomers( { rows } ) {
+	const { navigate } = useNav();
 	return (
-		<Card title={ __( 'Most active customers', TEXT_DOMAIN ) } sub={ topSub( 5 ) }>
+		<Card title={ __( 'Most active customers', TEXT_DOMAIN ) } sub={ topSub( 5, () => navigate( 'customers' ) ) }>
 			{ rows.length === 0 ? <Empty /> : (
 				<div className="qq-an-list">
 					{ rows.map( ( c, i ) => (
 						<div className="qq-an-list-row" key={ c.user_id }>
 							<span className="qq-an-list-rank">{ i + 1 }</span>
 							<span className="qq-an-list-name">
-								{ c.name }
+								<button
+									type="button"
+									className="qq-an-clickable"
+									title={ __( 'View customer profile', TEXT_DOMAIN ) }
+									onClick={ () => navigate( 'customer-profile', { key: c.key || `u:${ c.user_id }` } ) }
+								>
+									{ c.name }
+								</button>
 								{ c.verified_buyer && <span className="qq-an-faded"> · { __( 'Verified buyer', TEXT_DOMAIN ) }</span> }
 							</span>
 							<span className="qq-an-faded qq-an-list-detail">{ customerDetail( c ) }</span>

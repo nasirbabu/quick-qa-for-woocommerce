@@ -1,0 +1,335 @@
+/* ==========================================================================
+   CUSTOMER & PRODUCT PROFILES + DIRECTORIES (KAN-33)
+   Ported from the design prototype (quick-qa-prototype_2.html: CLICKABLE
+   NAMES, BACK NAVIGATION, PROFILE PAGES, DIRECTORY TABLE), prefixed qq-pf-.
+   Reuses qq-an-* cards, lists and stat tiles from Analytics.css.
+   ========================================================================== */
+
+.qq-pf .qq-pf-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.qq-pf-content {
+  padding: 24px 40px 60px;
+  max-width: 1080px;
+  margin: 0 auto;
+  transition: opacity 0.15s;
+}
+.qq-pf-content.is-loading { opacity: 0.6; }
+
+/* Clickable names (subtle link affordance) */
+.qq-pf-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s, color 0.15s;
+}
+.qq-pf-link:hover { text-decoration-color: currentColor; color: var(--coral); }
+.qq-pf-link-strong { font-weight: 600; color: var(--text); }
+a.qq-pf-link { text-decoration: none; }
+
+/* Analytics additions: "View all →" and per-row filter button */
+.qq-an-view-all {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--coral);
+  font-weight: 500;
+  cursor: pointer;
+}
+.qq-an-view-all:hover { color: var(--coral-hover); }
+.qq-an-filter-btn {
+  background: none;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--text-4);
+  cursor: pointer;
+}
+.qq-an-filter-btn:hover { color: var(--coral); border-color: var(--coral); }
+
+/* Back navigation */
+.qq-pf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 6px 0;
+  margin-bottom: 16px;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.qq-pf-back:hover { color: var(--text); }
+
+.qq-pf-title { font-size: 22px; font-weight: 500; color: var(--text); margin: 0 0 6px; padding: 0; }
+.qq-pf-sub { font-size: 14px; color: var(--text-3); margin: 0 0 20px; }
+.qq-pf-section { margin-bottom: 28px; }
+.qq-pf-count { font-size: 12px; }
+
+/* Profile header */
+.qq-pf-header {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 28px 32px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.qq-pf-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--cream-3);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 500;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.qq-pf-avatar-large.guest { background: #F5F1EB; color: var(--text-3); }
+.qq-pf-avatar-large.product {
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--coral-soft) 0%, var(--coral-soft-2) 100%);
+  color: var(--coral-text);
+  font-size: 26px;
+}
+.qq-pf-header-body { flex: 1; min-width: 0; }
+.qq-pf-name-large { font-size: 22px; font-weight: 500; color: var(--text); margin: 0 0 6px; padding: 0; }
+.qq-pf-meta {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.qq-pf-ext { color: var(--coral); text-decoration: none; font-weight: 500; }
+.qq-pf-ext:hover { color: var(--coral-hover); }
+.qq-pf-type-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.qq-pf-type-pill.verified-buyer { background: var(--green-soft); color: #3B6D11; }
+.qq-pf-type-pill.customer { background: var(--coral-soft); color: var(--coral-text); }
+.qq-pf-type-pill.guest { background: var(--cream-3); color: var(--text-3); }
+.qq-pf-trust-line { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+.qq-pf-trust-line b { color: var(--text); font-weight: 500; }
+
+.qq-pf-stats { margin-bottom: 20px; }
+.qq-pf-stats .qq-an-stat-num { font-size: 24px; }
+
+/* Risk signals */
+.qq-pf-risk-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.qq-pf-risk-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+}
+.qq-pf-risk-list li.triggered { background: var(--red-soft-2); border-color: #F2C9C2; }
+.qq-pf-risk-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  background: var(--green-soft);
+  color: var(--green);
+}
+.triggered .qq-pf-risk-mark { background: var(--red); color: white; }
+.qq-pf-risk-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.qq-pf-risk-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; line-height: 1.45; }
+.qq-pf-risk-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Activity lists */
+.qq-pf-activity { padding: 18px 24px; }
+.qq-pf-activity-item {
+  padding: 12px 0;
+  border-top: 0.5px solid var(--cream-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.qq-pf-activity-item:first-child { border-top: none; padding-top: 0; }
+.qq-pf-activity-item:last-child { padding-bottom: 0; }
+.qq-pf-activity-main { flex: 1; min-width: 0; }
+.qq-pf-activity-product,
+.qq-pf-activity-context { font-size: 12px; color: var(--text-3); margin-bottom: 4px; display: block; }
+.qq-pf-activity-text {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  width: 100%;
+}
+.qq-pf-activity-text:hover { color: var(--coral); }
+.qq-pf-activity-side {
+  font-size: 11px;
+  flex-shrink: 0;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.qq-pf-blank { padding: 22px 24px; color: var(--text-3); font-size: 13px; line-height: 1.6; text-align: center; }
+
+.qq-pf-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--cream-3);
+  color: var(--text-3);
+}
+.qq-pf-status.answered { background: var(--green-soft); color: #3B6D11; }
+.qq-pf-status.open,
+.qq-pf-status.pending { background: var(--gold-soft); color: var(--gold-text); }
+.qq-pf-status.rejected,
+.qq-pf-status.flagged { background: var(--red-soft); color: var(--red); }
+
+/* Chips (themes, purchased products) */
+.qq-pf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.qq-pf-chip {
+  background: var(--cream-2);
+  border: 0.5px solid var(--hairline);
+  color: var(--text-2);
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.qq-pf-chip:hover { border-color: var(--coral); color: var(--text); }
+.qq-pf-theme { padding: 6px 14px; font-size: 13px; }
+.qq-pf-theme.active { background: var(--coral-soft); border-color: var(--coral); color: var(--coral-text); }
+.qq-pf-theme.other { color: var(--text-3); }
+.qq-pf-chip-count { font-size: 11px; color: var(--text-4); }
+.qq-pf-theme.active .qq-pf-chip-count { color: var(--coral-text); }
+
+/* Directory tables */
+.qq-pf-table {
+  background: white;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.qq-pf-row {
+  display: grid;
+  gap: 14px;
+  padding: 12px 22px;
+  border-top: 0.5px solid var(--cream-3);
+  font-size: 13px;
+  align-items: center;
+}
+.qq-pf-row-link { cursor: pointer; transition: background 0.1s; }
+.qq-pf-row-link:hover,
+.qq-pf-row-link:focus-visible { background: var(--cream-2); outline: none; }
+.qq-pf-head { background: var(--cream-2); border-top: none; padding: 10px 22px; }
+.qq-pf-th {
+  font-size: 11px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 500;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.qq-pf-th-sort { cursor: pointer; }
+.qq-pf-th-sort:hover:not(:disabled) { color: var(--text); }
+.qq-pf-th-sort:disabled { cursor: not-allowed; opacity: 0.5; }
+.qq-pf-th.sorted { color: var(--coral); }
+
+.qq-pf-customers-grid { grid-template-columns: 30px minmax(160px, 1.6fr) 70px 80px 70px 70px minmax(120px, 1fr) 110px 80px 90px; }
+.qq-pf-products-grid  { grid-template-columns: 32px minmax(180px, 1.8fr) 80px 90px 90px 95px 70px 85px 95px; }
+
+.qq-pf-cell-name { display: flex; flex-direction: column; min-width: 0; }
+.qq-pf-name { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qq-pf-name-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.qq-pf-name-sub.verified-buyer { color: var(--green); }
+.qq-pf-num { color: var(--text-2); font-weight: 500; }
+.qq-pf-num.warm { color: var(--coral); }
+.qq-pf-faded-cell { color: var(--text-3); font-weight: 400; }
+.qq-pf-products { color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.qq-pf-av {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cream-3);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.qq-pf-av.product { border-radius: var(--r-sm); background: var(--coral-soft); color: var(--coral-text); font-size: 13px; }
+.qq-pf-av.guest { color: var(--text-4); }
+
+.qq-pf-empty { text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 13px; border-top: 0.5px solid var(--cream-3); }
+.qq-pf-foot { border-top: 0.5px solid var(--cream-3); }
+.qq-pf-page-of { font-size: 12px; color: var(--text-3); padding: 0 8px; align-self: center; }
+
+/* Wide tables scroll horizontally on narrow screens */
+@media (max-width: 1200px) {
+  .qq-pf-table { overflow-x: auto; }
+  .qq-pf-row { min-width: 980px; }
+}
+@media (max-width: 782px) {
+  .qq-pf-content { padding: 20px 16px 40px; }
+  .qq-pf-header { flex-direction: column; padding: 20px; }
+}

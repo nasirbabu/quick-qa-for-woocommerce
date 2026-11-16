@@ -1,5 +1,6 @@
 import React from 'react';
 import { __, _n, sprintf } from '../../i18n';
+import { CustomerLink, ProductLink } from '../Profiles/ProfileLink';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -46,6 +47,7 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
       {items.map(item => {
         const isPendingAnswer = item.tab === 'pending-a';
         const displayName = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.author : item.customer;
+        const displayKey  = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.authorKey : item.customerKey;
         const displayText = isPendingAnswer && item.pendingAnswer ? item.pendingAnswer.text : item.text;
         const isSelected  = selectedIds.includes(item.id);
         const isActive    = selectedId === item.id && !bulkMode;
@@ -69,10 +71,10 @@ export default function QuestionList({ items, selectedId, onSelect, showAllBadge
               {isSelected ? '✓' : ''}
             </div>
             <div className="qq-row-top">
-              <span className="qq-row-name">{highlightMatch(displayName, search)}</span>
+              <CustomerLink as="span" className="qq-row-name" identity={displayKey}>{highlightMatch(displayName, search)}</CustomerLink>
               <span className="qq-row-time">{item.time}</span>
             </div>
-            <div className="qq-row-product">{highlightMatch(item.product, search)}</div>
+            <div className="qq-row-product"><ProductLink as="span" id={item.productId}>{highlightMatch(item.product, search)}</ProductLink></div>
             <div className="qq-row-q">{highlightMatch(displayText, search)}</div>
             <div className="qq-row-foot">
               <span>↑ {item.upvotes}</span>

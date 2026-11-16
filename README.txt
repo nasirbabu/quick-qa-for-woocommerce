@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,11 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.7.0 (16-11-2026) =
+* Added: Customer and product profiles for Askora Pro. Click any customer or product name in All Q&A or Analytics to see their full Q&A history, purchases and risk signals, or what customers ask about a product most.
+* Added: "All customers" and "All products" directories for Askora Pro, sortable by activity, questions, answers, helpful votes, lifetime value, risk, answer rate, response time and more.
+* Fixed: Links that open a specific question in All Q&A (for example from notification emails) now select that question.
 
 = 1.6.0 (15-11-2026) =
 * Added: A full Analytics dashboard for Askora Pro: questions, average response time, answer rate and unanswered backlog with trends vs. the previous period, a live questions-per-day chart, products with the most questions, most active customers, most upvoted questions, where answers come from, a product filter, and CSV export of exactly what is on screen.
