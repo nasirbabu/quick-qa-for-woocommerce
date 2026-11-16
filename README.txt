@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -202,6 +202,11 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.6.0 (15-11-2026) =
+* Added: A full Analytics dashboard for Askora Pro: questions, average response time, answer rate and unanswered backlog with trends vs. the previous period, a live questions-per-day chart, products with the most questions, most active customers, most upvoted questions, where answers come from, a product filter, and CSV export of exactly what is on screen.
+* Added: An "unusually high volume" callout that flags products generating far more questions than your store average, with an adjustable threshold.
+* Improved: Faster date-range queries on large stores (new database indexes).
 
 = 1.5.0 (27-09-2026) =
 * Added: Askora Pro support. The free plugin now detects a licensed Askora Pro install and unlocks Pro features automatically, with nothing to migrate — your existing settings carry over.

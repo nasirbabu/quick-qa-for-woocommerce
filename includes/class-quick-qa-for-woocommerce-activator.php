@@ -31,7 +31,7 @@ class Quick_Qa_For_Woocommerce_Activator {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	const DB_VERSION = '1.0.3';
+	const DB_VERSION = '1.0.4'; // 1.0.4 (KAN-32): created_at indexes for date-range analytics.
 
 	/**
 	 * Option key used to store the installed schema version.
@@ -238,7 +238,8 @@ class Quick_Qa_For_Woocommerce_Activator {
 				updated_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
 				KEY product_status (product_id, status),
-				KEY user_id (user_id)
+				KEY user_id (user_id),
+				KEY created_at (created_at)
 			) {$charset_collate};"
 		);
 
@@ -270,7 +271,8 @@ class Quick_Qa_For_Woocommerce_Activator {
 				updated_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
 				KEY question_status (question_id, status),
-				KEY parent_answer_id (parent_answer_id)
+				KEY parent_answer_id (parent_answer_id),
+				KEY created_at (created_at)
 			) {$charset_collate};"
 		);
 
@@ -291,7 +293,8 @@ class Quick_Qa_For_Woocommerce_Activator {
 				user_id bigint(20) UNSIGNED NOT NULL,
 				created_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
-				UNIQUE KEY vote_unique (object_type,object_id,user_id)
+				UNIQUE KEY vote_unique (object_type,object_id,user_id),
+				KEY created_at (created_at)
 			) {$charset_collate};"
 		);
 
