@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Used by the admin questions payload here and by the Pro plugin's
  * customer profiles, so both always agree on who is who.
  *
- * @since      1.7.0
+ * @since      1.5.1
  * @package    Quick_Qa_For_Woocommerce
  * @subpackage Quick_Qa_For_Woocommerce/includes
  */
@@ -21,7 +21,7 @@ class Quick_Qa_Customer_Identity {
 	/**
 	 * Identity key for an author.
 	 *
-	 * @since  1.7.0
+	 * @since  1.5.1
 	 * @param  int    $user_id     0 for guests.
 	 * @param  string $guest_email Guest email (ignored for registered users).
 	 * @return string "u:{id}", "g:{md5}", or '' when the author can't be identified.
@@ -40,7 +40,7 @@ class Quick_Qa_Customer_Identity {
 	/**
 	 * Parse a key back into its parts.
 	 *
-	 * @since  1.7.0
+	 * @since  1.5.1
 	 * @param  string $key
 	 * @return array|null { type: 'user'|'guest', user_id: int, hash: string } or null if malformed.
 	 */

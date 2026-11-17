@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce versions, locale and whether Pro is active. Nothing is stored
  * locally.
  *
- * @since      1.7.1
+ * @since      1.5.1
  * @package    Quick_Qa_For_Woocommerce
  * @subpackage Quick_Qa_For_Woocommerce/includes
  */
@@ -26,7 +26,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * AJAX action and nonce name.
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 * @var   string
 	 */
 	const ACTION = 'quick_qa_deactivation_feedback';
@@ -34,7 +34,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Default feedback API (filterable via `quick_qa_deactivation_feedback_endpoint`).
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 * @var   string
 	 */
 	const ENDPOINT = 'https://easy-soft-feedback.vercel.app/api/feedbacks';
@@ -42,7 +42,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Max characters accepted in the details field.
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 * @var   int
 	 */
 	const MAX_DETAILS = 1000;
@@ -50,14 +50,14 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Deactivation reasons: key => { label, placeholder }.
 	 *
-	 * @since  1.7.1
+	 * @since  1.5.1
 	 * @return array
 	 */
 	public static function reasons() {
 		/**
 		 * Filter the deactivation reasons shown in the feedback popup.
 		 *
-		 * @since 1.7.1
+		 * @since 1.5.1
 		 * @param array $reasons key => { label: string, placeholder: string }
 		 */
 		return (array) apply_filters(
@@ -94,7 +94,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Whether the popup should be shown on the current request.
 	 *
-	 * @since  1.7.1
+	 * @since  1.5.1
 	 * @return bool
 	 */
 	private static function should_show() {
@@ -108,7 +108,7 @@ class Quick_Qa_Deactivation_Feedback {
 	}
 
 	/**
-	 * @since  1.7.1
+	 * @since  1.5.1
 	 * @return string
 	 */
 	private static function plugin_url() {
@@ -118,7 +118,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Enqueue the popup assets on the Plugins screen only.
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue( $hook ) {
@@ -153,7 +153,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Print the (hidden) modal in the Plugins screen footer.
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 */
 	public function render_modal() {
 		if ( ! self::should_show() ) {
@@ -210,7 +210,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * AJAX: forward the feedback to the feedback API.
 	 *
-	 * @since 1.7.1
+	 * @since 1.5.1
 	 */
 	public function handle_ajax() {
 		check_ajax_referer( self::ACTION, 'nonce' );
@@ -227,7 +227,7 @@ class Quick_Qa_Deactivation_Feedback {
 		/**
 		 * Filter the feedback API URL.
 		 *
-		 * @since 1.7.1
+		 * @since 1.5.1
 		 * @param string $endpoint
 		 */
 		$endpoint = (string) apply_filters( 'quick_qa_deactivation_feedback_endpoint', self::ENDPOINT );
@@ -263,7 +263,7 @@ class Quick_Qa_Deactivation_Feedback {
 	/**
 	 * Sanitize the submitted answer and add environment details.
 	 *
-	 * @since  1.7.1
+	 * @since  1.5.1
 	 * @param  string $reason
 	 * @param  string $details
 	 * @return array

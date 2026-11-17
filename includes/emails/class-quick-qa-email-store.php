@@ -159,7 +159,7 @@ class Quick_Qa_Email_Store {
 	/**
 	 * Whether email customization is unlocked (licensed Pro via `quick_qa_is_pro`).
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @return bool
 	 */
 	public static function is_pro() {

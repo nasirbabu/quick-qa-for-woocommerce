@@ -241,7 +241,7 @@ class Quick_Qa_Rest_Email_Templates extends Quick_Qa_Rest_Controller {
 	 * draft was sent. On the free tier (KAN-58) the draft is ignored so a
 	 * preview or test only ever shows the built-in copy.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @param  WP_REST_Request $request
 	 * @param  string          $key      'subject' or 'body'.
 	 * @param  string          $fallback The template's current value.
