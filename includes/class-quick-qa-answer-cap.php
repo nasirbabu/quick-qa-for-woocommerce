@@ -7,7 +7,7 @@
  * are never counted or blocked. A licensed Pro install lifts the cap via the
  * `quick_qa_is_pro` filter.
  *
- * @since      1.6.0
+ * @since      1.5.1
  * @package    Quick_Qa_For_Woocommerce
  * @subpackage Quick_Qa_For_Woocommerce/includes
  */
@@ -24,14 +24,14 @@ class Quick_Qa_Answer_Cap {
 	/**
 	 * Free-tier staff answer limit per product.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @return int
 	 */
 	public static function get_limit() {
 		/**
 		 * Filters the free-tier staff answer limit per product.
 		 *
-		 * @since 1.6.0
+		 * @since 1.5.1
 		 * @param int $limit Default 3.
 		 */
 		return max( 1, (int) apply_filters( 'quick_qa_free_staff_answer_limit', self::FREE_LIMIT ) );
@@ -40,7 +40,7 @@ class Quick_Qa_Answer_Cap {
 	/**
 	 * Whether the cap is lifted (licensed Pro).
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @return bool
 	 */
 	public static function is_unlimited() {
@@ -54,7 +54,7 @@ class Quick_Qa_Answer_Cap {
 	 * parent_answer_id, so they count too. Customer follow-ups
 	 * (answer_type = 'followup') and community answers never do.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @param  int $product_id
 	 * @return int
 	 * @global wpdb $wpdb
@@ -80,7 +80,7 @@ class Quick_Qa_Answer_Cap {
 	/**
 	 * Whether one more staff answer on this product would exceed the cap.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @param  int $product_id
 	 * @return bool
 	 */
@@ -95,7 +95,7 @@ class Quick_Qa_Answer_Cap {
 	/**
 	 * Error returned when the cap blocks a staff answer.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @param  int $product_id
 	 * @return WP_Error
 	 */
@@ -105,7 +105,7 @@ class Quick_Qa_Answer_Cap {
 		/**
 		 * Filters the URL of the upgrade call-to-action shown at the cap.
 		 *
-		 * @since 1.6.0
+		 * @since 1.5.1
 		 * @param string $url
 		 */
 		$upgrade_url = (string) apply_filters( 'quick_qa_upgrade_url', 'https://askora.io/pro' );

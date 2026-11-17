@@ -255,7 +255,7 @@ class Quick_Qa_Rest_Import_Export extends Quick_Qa_Rest_Controller {
 	 * Import/Export is Pro-only (KAN-60): the 403 returned to the free tier,
 	 * or null when a licensed Pro install unlocks it via `quick_qa_is_pro`.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @access private
 	 * @return WP_Error|null
 	 */

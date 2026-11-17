@@ -40,7 +40,13 @@ export function sprintf( format, ...args ) {
 	if ( i18n ) {
 		return i18n.sprintf( format, ...args );
 	}
-	// Minimal fallback: substitute %s/%d placeholders in order.
+	// Minimal fallback: positional (%1$s) and sequential (%s/%d) placeholders, and %%.
 	let i = 0;
-	return format.replace( /%[sd]/g, () => ( i < args.length ? args[ i++ ] : '' ) );
+	return format.replace( /%(?:(\d+)\$)?([sd%])/g, ( match, pos, type ) => {
+		if ( '%' === type ) {
+			return '%';
+		}
+		const value = pos ? args[ Number( pos ) - 1 ] : args[ i++ ];
+		return value === undefined ? '' : String( value );
+	} );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { __, _n, sprintf } from '../../i18n';
+import { CustomerLink, ProductLink } from '../Profiles/ProfileLink';
 
 const settings = window.quickQaAdmin || { restUrl: '', nonce: '' };
 
@@ -142,7 +143,7 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status">
             {sprintf(
               // translators: %d is the number of upvotes on the question
@@ -161,7 +162,7 @@ function PendingQuestionDetail({ item, onApprove, onApproveAndAnswer, onReject, 
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>
@@ -235,7 +236,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status">{__( 'Community answer pending review', 'quick-qa-for-woocommerce' )}</div>
         </div>
         <div className="qq-conv-meta-actions">
@@ -248,7 +249,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>
@@ -266,7 +267,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
                 <Avatar initials={ans.avatar} role={ans.role} />
                 <div className="qq-msg-body">
                   <div className="qq-msg-meta">
-                    <b>{ans.author}</b>
+                    <CustomerLink identity={ans.authorKey} name={ans.author} />
                     <RoleBadge role={ans.role} />
                     <span>· {ans.time}</span>
                   </div>
@@ -281,7 +282,7 @@ function PendingAnswerDetail({ item, onApprove, onReject, saving }) {
 
         <div className="qq-pending-card">
           <div className="qq-msg-meta" style={{ marginBottom: 10 }}>
-            <b>{pa.author}</b>
+            <CustomerLink identity={pa.authorKey} name={pa.author} />
             <RoleBadge role={pa.role} />
             <span>· {pa.time}</span>
           </div>
@@ -382,7 +383,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status" style={{ color: 'var(--green)' }}>
             {item.answers.length > 0
               ? sprintf( _n( 'Answered · %d answer', 'Answered · %d answers', item.answers.length, 'quick-qa-for-woocommerce' ), item.answers.length )
@@ -407,7 +408,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>
@@ -425,7 +426,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
                 <Avatar initials={ans.avatar} role={ans.role} />
                 <div className="qq-msg-body">
                   <div className="qq-msg-meta">
-                    <b>{ans.author}</b>
+                    <CustomerLink identity={ans.authorKey} name={ans.author} />
                     <RoleBadge role={ans.role} />
                     <span>· {ans.time}</span>
                     {ans.isBest && <span className="qq-best-tag">{__( '★ Best answer', 'quick-qa-for-woocommerce' )}</span>}
@@ -449,7 +450,7 @@ function AnsweredDetail({ item, onPublish, onReplyFollowup, onToggleLock, saving
               <Avatar initials={fu.avatar} role="customer" />
               <div className="qq-msg-body">
                 <div className="qq-msg-meta">
-                  <b>{fu.author}</b>
+                  <CustomerLink identity={fu.authorKey} name={fu.author} />
                   <RoleBadge role="customer" />
                   <span>· {fu.time}</span>
                 </div>
@@ -523,7 +524,7 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
             {sprintf(
               _n(
@@ -576,7 +577,7 @@ function FlaggedDetail({ item, onDismiss, onDelete, saving }) {
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>
@@ -623,7 +624,7 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status" style={{ color: '#A32D2D' }}>
             {sprintf(
               _n(
@@ -646,7 +647,7 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>
@@ -664,7 +665,7 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
                 <Avatar initials={ans.avatar} role={ans.role} />
                 <div className="qq-msg-body">
                   <div className="qq-msg-meta">
-                    <b>{ans.author}</b>
+                    <CustomerLink identity={ans.authorKey} name={ans.author} />
                     <RoleBadge role={ans.role} />
                     <span>· {ans.time}</span>
                   </div>
@@ -714,7 +715,7 @@ function FlaggedAnswersDetail({ item, onDismissAnswer, onDeleteAnswer, saving })
               <Avatar initials={ans.avatar} role={ans.role} />
               <div className="qq-msg-body">
                 <div className="qq-msg-meta">
-                  <b>{ans.author}</b>
+                  <CustomerLink identity={ans.authorKey} name={ans.author} />
                   <RoleBadge role={ans.role} />
                   <span>· {ans.time}</span>
                 </div>
@@ -754,7 +755,7 @@ function RejectedDetail({ item, onRestore, saving }) {
     <>
       <div className="qq-conv-head">
         <div>
-          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <b>{item.product}</b></div>
+          <div className="qq-conv-product">{__( 'Question about', 'quick-qa-for-woocommerce' )} <ProductLink id={item.productId} name={item.product} /></div>
           <div className="qq-conv-status" style={{ color: 'var(--text-3)' }}>{__( 'Rejected', 'quick-qa-for-woocommerce' )}</div>
         </div>
       </div>
@@ -764,7 +765,7 @@ function RejectedDetail({ item, onRestore, saving }) {
           <Avatar initials={item.avatar} role={item.role} />
           <div className="qq-msg-body">
             <div className="qq-msg-meta">
-              <b>{item.customer}</b>
+              <CustomerLink identity={item.customerKey} name={item.customer} />
               <RoleBadge role={item.role} />
               <span>· {item.time}</span>
             </div>

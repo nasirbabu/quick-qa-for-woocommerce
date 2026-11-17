@@ -112,7 +112,7 @@ class Quick_Qa_Notifier {
 	 * may change (KAN-57). Saving a different value on the free tier is
 	 * rejected by the settings REST endpoint.
 	 *
-	 * @since 1.6.0
+	 * @since 1.5.1
 	 * @var   string[]
 	 */
 	const PRO_KEYS = array(
@@ -132,7 +132,7 @@ class Quick_Qa_Notifier {
 	/**
 	 * Whether Notifications are unlocked (licensed Pro via `quick_qa_is_pro`).
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @return bool
 	 */
 	public static function is_pro() {

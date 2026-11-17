@@ -143,7 +143,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * a fresh install is seeded, falling back to Askora's coral. Uppercased
 	 * to match how the settings endpoint stores hex colours.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @return array<string, mixed>
 	 */
 	public static function default_appearance() {
@@ -177,7 +177,7 @@ class Quick_Qa_For_Woocommerce_Public {
 	 * its default, theme-matched look. The stored option is untouched, so
 	 * saved customizations apply again as soon as `quick_qa_is_pro` is true.
 	 *
-	 * @since  1.6.0
+	 * @since  1.5.1
 	 * @param  array $s Settings array (stored values merged over defaults).
 	 * @return array
 	 */

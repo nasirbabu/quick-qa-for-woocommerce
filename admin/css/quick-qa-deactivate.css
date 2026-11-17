@@ -1,0 +1,123 @@
+/**
+ * Askora deactivation feedback popup (KAN-68).
+ * Layout ported from Easy Map's deactivation modal; Askora brand colours.
+ */
+
+.qq-dfb-overlay {
+	--qq-dfb-coral: #FF6B4A;
+	--qq-dfb-coral-hover: #FF5436;
+	--qq-dfb-coral-soft: #FFF5F0;
+	--qq-dfb-text: #2A2825;
+	--qq-dfb-text-2: #6A655F;
+	--qq-dfb-text-3: #8A8580;
+	--qq-dfb-hairline: #EFE9E2;
+
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	background: rgba( 0, 0, 0, 0.55 );
+	animation: qq-dfb-fade 0.15s ease-out;
+}
+.qq-dfb-overlay[hidden] { display: none; }
+body.qq-dfb-open { overflow: hidden; }
+
+@keyframes qq-dfb-fade {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.qq-dfb-modal {
+	width: 100%;
+	max-width: 520px;
+	max-height: calc( 100vh - 32px );
+	overflow-y: auto;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 20px 60px rgba( 0, 0, 0, 0.25 );
+	color: var( --qq-dfb-text );
+}
+.qq-dfb-form { padding: 28px 32px 24px; margin: 0; }
+
+.qq-dfb-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+.qq-dfb-mark {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: var( --qq-dfb-coral );
+	color: #fff;
+	font-weight: 600;
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.qq-dfb-title { margin: 2px 0 4px; padding: 0; font-size: 18px; font-weight: 600; line-height: 1.3; color: var( --qq-dfb-text ); }
+.qq-dfb-sub { margin: 0; font-size: 13px; line-height: 1.5; color: var( --qq-dfb-text-2 ); }
+
+.qq-dfb-reasons { margin: 0 0 14px; padding: 0; border: 0; display: grid; gap: 6px; }
+.qq-dfb-reason {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 12px;
+	border: 1px solid var( --qq-dfb-hairline );
+	border-radius: 8px;
+	font-size: 13px;
+	cursor: pointer;
+	transition: border-color 0.12s, background 0.12s;
+}
+.qq-dfb-reason:hover { border-color: #E2D9CF; background: #FDFCFA; }
+.qq-dfb-reason.is-selected { border-color: var( --qq-dfb-coral ); background: var( --qq-dfb-coral-soft ); }
+.qq-dfb-reason input[type="radio"] { margin: 0; accent-color: var( --qq-dfb-coral ); }
+.qq-dfb-reason input[type="radio"]:checked::before { background-color: var( --qq-dfb-coral ); }
+
+.qq-dfb-details {
+	display: block;
+	width: 100%;
+	min-height: 80px;
+	padding: 9px 12px;
+	border: 1px solid var( --qq-dfb-hairline );
+	border-radius: 8px;
+	font-size: 13px;
+	line-height: 1.5;
+	resize: vertical;
+	box-shadow: none;
+}
+.qq-dfb-details:focus { border-color: var( --qq-dfb-coral ); box-shadow: 0 0 0 1px var( --qq-dfb-coral ); outline: none; }
+
+.qq-dfb-privacy { margin: 10px 0 18px; font-size: 12px; line-height: 1.5; color: var( --qq-dfb-text-3 ); }
+
+.qq-dfb-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.qq-dfb-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
+.qq-dfb-cancel.button-link { color: var( --qq-dfb-text-3 ); text-decoration: none; }
+.qq-dfb-cancel.button-link:hover { color: var( --qq-dfb-text ); }
+.qq-dfb-overlay .button-primary.qq-dfb-submit {
+	background: var( --qq-dfb-coral );
+	border-color: var( --qq-dfb-coral );
+	color: #fff;
+}
+.qq-dfb-overlay .button-primary.qq-dfb-submit:hover:not( :disabled ),
+.qq-dfb-overlay .button-primary.qq-dfb-submit:focus:not( :disabled ) {
+	background: var( --qq-dfb-coral-hover );
+	border-color: var( --qq-dfb-coral-hover );
+	color: #fff;
+	box-shadow: 0 0 0 1px #fff, 0 0 0 3px var( --qq-dfb-coral );
+}
+.qq-dfb-overlay .button-primary.qq-dfb-submit:disabled {
+	background: var( --qq-dfb-coral ) !important;
+	border-color: var( --qq-dfb-coral ) !important;
+	color: #fff !important;
+	opacity: 0.5;
+}
+
+@media ( max-width: 480px ) {
+	.qq-dfb-form { padding: 22px 18px 18px; }
+	.qq-dfb-actions { flex-direction: column-reverse; align-items: stretch; }
+	.qq-dfb-actions-right { flex-direction: column-reverse; }
+	.qq-dfb-actions-right .button { width: 100%; text-align: center; }
+}
