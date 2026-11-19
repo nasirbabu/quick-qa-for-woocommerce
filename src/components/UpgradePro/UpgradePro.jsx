@@ -52,6 +52,9 @@ const HIGHLIGHTS = [
   { icon: 'dashicons-chart-bar',     title: __('Analytics dashboard', 'quick-qa-for-woocommerce'),         desc: __('Response times, top questions and trends', 'quick-qa-for-woocommerce') },
 ];
 
+// BFCM 2026, remove after sale: { coupon, percent, endsAt } while the sale runs, else null.
+const SALE = window.quickQaAdmin?.sale || null;
+
 let freemiusScript = null;
 
 /**
@@ -98,6 +101,8 @@ function handleBuy(billing, plan) {
       // no price for makes Freemius reject the checkout ("Invalid pricing").
       handler.open({
         name: FREEMIUS.name,
+        // BFCM 2026, remove after sale: pre-apply the sale coupon.
+        ...( SALE && SALE.coupon ? { coupon: SALE.coupon } : {} ),
         purchaseCompleted: (response) => {
           // The logic here will be executed immediately after the purchase confirmation
           console.log('Purchase completed:', response);
@@ -131,6 +136,22 @@ export default function UpgradePro() {
           <h2>{__('Unlock the Full Power of Askora Pro', 'quick-qa-for-woocommerce')}</h2>
           <p>{__('Get notifications, custom emails, SEO rich results, import/export, full design control and priority support.', 'quick-qa-for-woocommerce')}</p>
         </div>
+
+        {/* BFCM 2026, remove after sale */}
+        {SALE && (
+          <div className="qq-upgrade-sale" role="note">
+            <span className="qq-upgrade-sale-emoji" aria-hidden="true">🛍️</span>
+            <span>
+              {sprintf(
+                /* translators: 1: discount percentage, 2: coupon code, 3: end date, e.g. "Dec 7". */
+                __('Black Friday: %1$s%% off with %2$s, applied at checkout. Ends %3$s.', 'quick-qa-for-woocommerce'),
+                SALE.percent,
+                SALE.coupon,
+                SALE.endsAt
+              )}
+            </span>
+          </div>
+        )}
 
         {/* Trust badges */}
         <div className="qq-upgrade-trust">

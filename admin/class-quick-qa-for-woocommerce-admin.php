@@ -117,6 +117,8 @@ class Quick_Qa_For_Woocommerce_Admin {
 					'isPro'       => (bool) apply_filters( 'quick_qa_is_pro', false ),
 					'proRestUrl'  => esc_url_raw( rest_url( 'quick-qa-pro/v1/' ) ),
 					'upgradeUrl'  => esc_url_raw( (string) apply_filters( 'quick_qa_upgrade_url', 'https://askora.io/pro' ) ),
+					// BFCM 2026, remove after sale: coupon pre-applied on the Upgrade page.
+					'sale'        => class_exists( 'Quick_Qa_Seasonal_Notice' ) ? Quick_Qa_Seasonal_Notice::sale_data() : null,
 				)
 			);
 		}

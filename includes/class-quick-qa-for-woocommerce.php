@@ -158,6 +158,12 @@ class Quick_Qa_For_Woocommerce {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-quick-qa-deactivation-feedback.php';
 
 		/**
+		 * Black Friday / Cyber Monday 2026 sale banner. Temporary: delete this
+		 * require + the marked block in define_admin_hooks() after the sale.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-quick-qa-seasonal-notice.php';
+
+		/**
 		 * REST API: abstract base controller (must be loaded before any subclass).
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api/class-quick-qa-rest-controller.php';
@@ -252,6 +258,13 @@ class Quick_Qa_For_Woocommerce {
 		$this->loader->add_action( 'admin_enqueue_scripts', $deactivation_feedback, 'enqueue' );
 		$this->loader->add_action( 'admin_footer', $deactivation_feedback, 'render_modal' );
 		$this->loader->add_action( 'wp_ajax_' . Quick_Qa_Deactivation_Feedback::ACTION, $deactivation_feedback, 'handle_ajax' );
+
+		// --- Black Friday 2026 seasonal notice — delete this block + the require above to remove after the sale ---
+		$seasonal_notice = new Quick_Qa_Seasonal_Notice();
+		$this->loader->add_action( 'admin_enqueue_scripts', $seasonal_notice, 'enqueue_assets' );
+		$this->loader->add_action( 'admin_notices', $seasonal_notice, 'render_notice' );
+		$this->loader->add_action( 'wp_ajax_' . Quick_Qa_Seasonal_Notice::AJAX_ACTION, $seasonal_notice, 'handle_dismiss' );
+		// --- end Black Friday 2026 seasonal notice ---
 
 	}
 
