@@ -25,6 +25,8 @@ Askora is a product question and answer plugin built specifically to close this 
 
 = How this product question and answer plugin helps your store =
 
+[youtube https://youtu.be/cxsvg0Qyu4A?si=1w5C1XvLyWvz0wmg]
+
 Every part of Askora exists to shorten the distance between "I have a question" and "I just bought it."
 
 * **Shoppers get answers without leaving the page.** No email, no waiting days for a reply. The question and its answer both live where the buying decision actually happens.
