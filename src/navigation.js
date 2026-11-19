@@ -11,8 +11,12 @@
  *
  * The current page (and its origin) is mirrored to location.hash, e.g.
  * #customer-profile/u:12~analytics, so a refresh keeps the page.
+ *
+ * Each navigation pushes a history entry carrying the full state, and
+ * popstate/hashchange bring the screen back in line with the URL, so
+ * browser Back/Forward and hand-edited hashes work (KAN-69).
  */
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 const NavContext = createContext( null );
 
@@ -115,26 +119,68 @@ export function NavProvider( { initialPage = 'all-qa', validPages, children } ) 
 	const [ state, setState ] = useState(
 		() => decodeHash( window.location.hash, validPages ) || { page: initialPage, params: {}, stack: [] }
 	);
+	// Current state, readable synchronously from callbacks and listeners.
+	const stateRef = useRef( state );
 
-	useEffect( () => {
-		const next = encodeHash( state );
-		if ( window.location.hash !== next ) {
-			window.history.replaceState( null, '', next );
+	/**
+	 * Move to `next`. mode: 'push' adds a history entry (user navigation),
+	 * 'none' leaves history alone (the browser already moved, e.g. popstate).
+	 */
+	const go = useCallback( ( next, mode ) => {
+		const hash = encodeHash( next );
+		if ( 'push' === mode ) {
+			if ( hash === encodeHash( stateRef.current ) ) {
+				return;
+			}
+			window.history.pushState( { qqNav: next }, '', hash );
 		}
-	}, [ state ] );
-
-	/** Open a page. Detail pages remember where they were opened from. */
-	const navigate = useCallback( ( page, params = {} ) => {
-		setState( prev => navReducer( prev, { type: 'navigate', page, params } ) );
+		stateRef.current = next;
+		setState( next );
 		const scroller = document.querySelector( '.qq-pf-scroll, .qq-an-scroll' );
 		if ( scroller ) {
 			scroller.scrollTop = 0;
 		}
 	}, [] );
 
+	// Two-way sync (KAN-69): the URL follows the screen via pushState above,
+	// and the screen follows the URL on Back/Forward or a hand-edited hash.
+	useEffect( () => {
+		const fallback = { page: initialPage, params: {}, stack: [] };
+		window.history.replaceState( { ...( window.history.state || {} ), qqNav: stateRef.current }, '', encodeHash( stateRef.current ) );
+
+		const syncFromLocation = event => {
+			const saved = event && event.state && event.state.qqNav;
+			const next  = ( saved && validPages.includes( saved.page ) && Array.isArray( saved.stack ) )
+				? saved
+				: ( decodeHash( window.location.hash, validPages ) || fallback );
+			const hash  = encodeHash( next );
+			if ( hash === encodeHash( stateRef.current ) && hash === window.location.hash ) {
+				return;
+			}
+			go( next, 'none' );
+			// Store the state on hand-typed entries and tidy the hash.
+			window.history.replaceState( { ...( window.history.state || {} ), qqNav: next }, '', hash );
+		};
+
+		window.addEventListener( 'popstate', syncFromLocation );
+		window.addEventListener( 'hashchange', syncFromLocation );
+		return () => {
+			window.removeEventListener( 'popstate', syncFromLocation );
+			window.removeEventListener( 'hashchange', syncFromLocation );
+		};
+	// validPages / initialPage are fixed for the app's lifetime.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ go ] );
+
+	/** Open a page. Detail pages remember where they were opened from. */
+	const navigate = useCallback( ( page, params = {} ) => {
+		go( navReducer( stateRef.current, { type: 'navigate', page, params } ), 'push' );
+	}, [ go ] );
+
+	/** In-app "← Back to …": goes to the origin, as a new history entry. */
 	const back = useCallback( () => {
-		setState( prev => navReducer( prev, { type: 'back' } ) );
-	}, [] );
+		go( navReducer( stateRef.current, { type: 'back' } ), 'push' );
+	}, [ go ] );
 
 	const value = useMemo( () => {
 		const origin = state.stack.length ? state.stack[ state.stack.length - 1 ].page : null;
