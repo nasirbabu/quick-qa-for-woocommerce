@@ -80,9 +80,9 @@ export default function ProductProfile( { productId } ) {
 							</div>
 							<div className="qq-pf-trust-line">
 								<Interpolate
-									/* translators: 1: questions, 2: answered percentage, 3: upvotes, 4: community answers. */
-									format={ __( '%1$s questions · %2$s answered · %3$s upvotes · %4$s community answers', TEXT_DOMAIN ) }
-									values={ [ formatNumber( s.questions ), null === s.answer_rate ? '—' : `${ s.answer_rate }%`, formatNumber( s.upvotes ), formatNumber( s.community ) ] }
+									/* translators: 1: questions, 2: answered percentage, 3: upvotes on questions, 4: helpful votes on answers, 5: community answers. */
+									format={ __( '%1$s questions · %2$s answered · %3$s upvotes · %4$s helpful votes · %5$s community answers', TEXT_DOMAIN ) }
+									values={ [ formatNumber( s.questions ), null === s.answer_rate ? '—' : `${ s.answer_rate }%`, formatNumber( s.upvotes ), formatNumber( s.helpful_votes ?? 0 ), formatNumber( s.community ) ] }
 								/>
 								<span className="qq-an-faded"> · { p.range.label }</span>
 							</div>

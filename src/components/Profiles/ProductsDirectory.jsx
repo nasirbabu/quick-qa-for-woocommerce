@@ -25,8 +25,9 @@ export const PROFILE_RANGES = [
 
 /**
  * Products with Q&A activity in the selected range (KAN-33). Sortable by
- * questions, unanswered, answer rate, avg response, upvotes, community
- * answers, last activity and name.
+ * questions, unanswered, answer rate, avg response, upvotes (votes on
+ * questions), helpful votes (votes on answers), community answers, last
+ * activity and name.
  */
 export default function ProductsDirectory() {
 	const { navigate }          = useNav();
@@ -98,7 +99,8 @@ export default function ProductsDirectory() {
 								<SortHeader { ...header } label={ __( 'Unanswered', TEXT_DOMAIN ) } sortKey="unanswered" />
 								<SortHeader { ...header } label={ __( 'Answer rate', TEXT_DOMAIN ) } sortKey="answer_rate" />
 								<SortHeader { ...header } label={ __( 'Avg response', TEXT_DOMAIN ) } sortKey="response" defaultOrder="asc" />
-								<SortHeader { ...header } label={ __( 'Upvotes', TEXT_DOMAIN ) } sortKey="upvotes" />
+								<SortHeader { ...header } label={ __( 'Upvotes', TEXT_DOMAIN ) } sortKey="upvotes" title={ __( 'Votes on questions', TEXT_DOMAIN ) } />
+								<SortHeader { ...header } label={ __( 'Helpful', TEXT_DOMAIN ) } sortKey="helpful_votes" title={ __( 'Helpful votes on answers', TEXT_DOMAIN ) } />
 								<SortHeader { ...header } label={ __( 'Community', TEXT_DOMAIN ) } sortKey="community" title={ __( 'Approved answers from customers', TEXT_DOMAIN ) } />
 								<SortHeader { ...header } label={ __( 'Last question', TEXT_DOMAIN ) } sortKey="last_activity" />
 							</div>
@@ -130,6 +132,7 @@ export default function ProductsDirectory() {
 									<span className="qq-pf-num">{ p.answer_rate }%</span>
 									<span className="qq-pf-num">{ formatDuration( p.avg_response_secs ) }</span>
 									<span className="qq-pf-num">{ formatNumber( p.upvotes ) }</span>
+									<span className="qq-pf-num">{ formatNumber( p.helpful_votes ?? 0 ) }</span>
 									<span className="qq-pf-num">{ formatNumber( p.community ) }</span>
 									<span className="qq-pf-num qq-pf-faded-cell">{ relativeTime( p.last_activity ) }</span>
 								</div>
