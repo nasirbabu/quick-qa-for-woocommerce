@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/nashirbabu
 Tags: woocommerce, questions, answers, product qa, q&a
 Requires at least: 5.9
 Tested up to: 7.1
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -204,6 +204,12 @@ Yes. Every feature described above is free, with nothing locked behind a paywall
 3. Appearance settings page.
 
 == Changelog ==
+
+= 1.5.2 (22-11-2026) =
+* Added: After activating Askora, you now land straight on its Settings screen so you can set it up right away. Bulk activations and network activations on multisite are not redirected.
+* Added: A Black Friday / Cyber Monday notice in the dashboard with 40% off Askora Pro (code FSBFCM2026) until December 7. You can dismiss it, and it's never shown once Pro is active.
+* Improved: The Askora dashboard now works with your browser's Back and Forward buttons, and each screen has its own address you can bookmark or share.
+* Improved: Askora Pro now shows helpful votes on answers separately from upvotes on questions. This covers a new sortable "Helpful" column in the All products directory, product profiles, the Analytics summary and CSV export.
 
 = 1.5.1 (19-11-2026) =
 * Added: An optional feedback popup when you deactivate Askora, asking why you are leaving. You can always skip it, and it never delays deactivation.
