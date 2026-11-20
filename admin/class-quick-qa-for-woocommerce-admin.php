@@ -42,6 +42,36 @@ class Quick_Qa_For_Woocommerce_Admin {
 	}
 
 	/**
+	 * Redirect to the Settings screen right after the plugin is activated.
+	 *
+	 * Runs on admin_init, before any output, so headers can still be sent.
+	 * The flag is set by Quick_Qa_For_Woocommerce_Activator::activate().
+	 *
+	 * @since 1.5.2
+	 * @return void
+	 */
+	public function maybe_redirect_after_activation() {
+		if ( ! get_transient( Quick_Qa_For_Woocommerce_Activator::ACTIVATION_REDIRECT_TRANSIENT ) ) {
+			return;
+		}
+
+		// Keep the flag for the next real admin page load.
+		if ( wp_doing_ajax() || is_network_admin() ) {
+			return;
+		}
+
+		delete_transient( Quick_Qa_For_Woocommerce_Activator::ACTIVATION_REDIRECT_TRANSIENT );
+
+		// Don't hijack a bulk activation, and don't redirect users who can't see the page.
+		if ( isset( $_GET['activate-multi'] ) || ! current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=quick-qa#settings' ) );
+		exit;
+	}
+
+	/**
 	 * Render the admin page shell. React mounts into #quick-qa-root.
 	 */
 	public function render_admin_page() {

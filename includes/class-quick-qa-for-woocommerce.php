@@ -246,6 +246,8 @@ class Quick_Qa_For_Woocommerce {
 		$plugin_admin = new Quick_Qa_For_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_menu',            $plugin_admin, 'register_admin_menu' );
+		// Land on Settings right after activation.
+		$this->loader->add_action( 'admin_init',            $plugin_admin, 'maybe_redirect_after_activation' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 

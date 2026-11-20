@@ -42,6 +42,16 @@ class Quick_Qa_For_Woocommerce_Activator {
 	const DB_VERSION_OPTION = 'quick_qa_db_version';
 
 	/**
+	 * Short-lived flag set on activation and consumed by
+	 * Quick_Qa_For_Woocommerce_Admin::maybe_redirect_after_activation()
+	 * on the next admin page load, to land the admin on Settings.
+	 *
+	 * @since 1.5.2
+	 * @var   string
+	 */
+	const ACTIVATION_REDIRECT_TRANSIENT = 'quick_qa_activation_redirect';
+
+	/**
 	 * Run on plugin activation.
 	 *
 	 * Handles both single-site and network-activated multisite installs by
@@ -65,6 +75,12 @@ class Quick_Qa_For_Woocommerce_Activator {
 			self::create_tables();
 			self::update_db_version();
 			self::maybe_seed_brand_color();
+		}
+
+		// Redirect to Settings on the next admin page load. Skipped for
+		// network activation (no single Settings page) and WP-CLI (no browser).
+		if ( ! $network_wide && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			set_transient( self::ACTIVATION_REDIRECT_TRANSIENT, 1, 30 );
 		}
 	}
 
