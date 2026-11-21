@@ -1,0 +1,420 @@
+/**
+ * Black Friday / Cyber Monday 2026 seasonal sale admin notice.
+ * Isolated from quick-qa-for-woocommerce-admin.css on purpose — deleted together with the
+ * rest of this feature after the sale ends.
+ */
+
+/* Scoped by id too: WooCommerce screens (e.g. Products list) apply
+   `.wc-wp-version-gte-70.woocommerce-embed-page .notice { padding: 8px 12px }`,
+   which would otherwise remove the right padding reserved for the dismiss
+   button and let it overlap the CTA. */
+#qq-bfcm-notice.qq-bfcm-notice {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 46px 18px 16px;
+  border-left: none;
+  color: #f5f5f5;
+  background: linear-gradient(135deg, #0b0b0f 0%, #1c1c24 55%, #3a0d12 100%);
+}
+
+.qq-bfcm-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.qq-bfcm-headline-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.qq-bfcm-notice .qq-bfcm-headline {
+  color: #fff;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.qq-bfcm-notice .qq-bfcm-emoji {
+  margin-right: 4px;
+  letter-spacing: 1px;
+}
+
+.qq-bfcm-percent {
+  display: inline-block;
+  font-size: 1.35em;
+  font-weight: 900;
+  color: #ffcc00;
+}
+
+.qq-bfcm-offer-ends {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffcc00;
+}
+
+.qq-bfcm-offer-ends .dashicons {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.qq-bfcm-pricing {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.qq-bfcm-price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.qq-bfcm-price-card--best {
+  border-color: #ff3b3b;
+}
+
+.qq-bfcm-best-badge {
+  position: absolute;
+  top: -11px;
+  right: 10px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #ff3b3b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.qq-bfcm-price-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #bdbdc7;
+}
+
+.qq-bfcm-price-old {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: line-through;
+}
+
+.qq-bfcm-price-new {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.qq-bfcm-coupon-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 420px;
+}
+
+.qq-bfcm-coupon-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1 1 220px;
+  padding: 12px 18px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.qq-bfcm-coupon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qq-bfcm-coupon-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #bdbdc7;
+}
+
+.qq-bfcm-code {
+  font-family: Consolas, Monaco, monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  color: #fff;
+  cursor: pointer;
+}
+
+.qq-bfcm-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  background: #ffcc00;
+  color: #111;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.qq-bfcm-copy-btn .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.qq-bfcm-copy-btn:hover,
+.qq-bfcm-copy-btn:focus {
+  background: #ffd84d;
+  color: #111;
+}
+
+.qq-bfcm-copy-status {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  color: #9effa0;
+  font-size: 13px;
+}
+
+.qq-bfcm-cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.qq-bfcm-guarantee {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #cdf7d6;
+}
+
+.qq-bfcm-guarantee .dashicons {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #6ee88a;
+}
+
+.qq-bfcm-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border: 2px solid #111;
+  border-radius: 14px;
+  background: #ffcc00;
+  color: #111 !important;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none !important;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.qq-bfcm-cta-arrow {
+  font-weight: 700;
+}
+
+.qq-bfcm-cta:hover,
+.qq-bfcm-cta:focus {
+  background: #ffd84d;
+  color: #111 !important;
+  transform: translateY(-1px);
+}
+
+.qq-bfcm-dismiss {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #f5f5f5;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.qq-bfcm-dismiss:hover {
+  color: #ffcc00;
+}
+
+/* Small phones — tighten spacing further. */
+@media (max-width: 420px) {
+  #qq-bfcm-notice.qq-bfcm-notice {
+    padding: 16px 42px 16px 14px;
+  }
+
+  .qq-bfcm-price-card {
+    padding: 8px 10px;
+  }
+
+  .qq-bfcm-coupon-card {
+    box-sizing: border-box;
+    width: 100%;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .qq-bfcm-code {
+    font-size: 17px;
+    letter-spacing: 0.5px;
+  }
+
+  .qq-bfcm-copy-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+  }
+
+  .qq-bfcm-cta {
+    box-sizing: border-box;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .qq-bfcm-cta-group {
+    width: 100%;
+    max-width: 260px;
+  }
+}
+
+/* Laptop (1200–1439px) — headline on its own line, pricing + coupon + CTA in
+   a row below it. The BFCM headline is too long to share one row with the
+   rest of the content at these widths. */
+@media (min-width: 1200px) {
+  #qq-bfcm-notice.qq-bfcm-notice {
+    padding: 20px 50px 20px 20px;
+  }
+
+  .qq-bfcm-body {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 24px;
+  }
+
+  .qq-bfcm-headline-group {
+    flex: 1 1 100%;
+    gap: 6px;
+  }
+
+  .qq-bfcm-notice .qq-bfcm-headline {
+    font-size: 18px;
+  }
+
+  .qq-bfcm-notice .qq-bfcm-emoji {
+    margin-right: 6px;
+  }
+
+  .qq-bfcm-pricing {
+    width: auto;
+    max-width: none;
+    gap: 14px;
+  }
+
+  .qq-bfcm-price-card {
+    flex: 0 0 auto;
+    min-width: 110px;
+  }
+
+  .qq-bfcm-coupon-row {
+    width: auto;
+    max-width: none;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  .qq-bfcm-coupon-card {
+    flex: 0 0 auto;
+    gap: 28px;
+    padding: 14px 20px;
+  }
+}
+
+/* Wide desktop — everything on a single row. The headline is allowed to
+   shrink and wrap so it can never push the CTA out of the banner. */
+@media (min-width: 1440px) {
+  .qq-bfcm-body {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 18px;
+    text-align: left;
+  }
+
+  .qq-bfcm-headline-group {
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  .qq-bfcm-pricing,
+  .qq-bfcm-coupon-row {
+    flex: 0 0 auto;
+  }
+
+  .qq-bfcm-pricing {
+    gap: 10px;
+  }
+
+  .qq-bfcm-coupon-row {
+    gap: 12px;
+  }
+
+  .qq-bfcm-coupon-card {
+    gap: 16px;
+    padding: 12px 16px;
+  }
+}
+
+/* Extra-wide screens have room for the roomier desktop spacing again. */
+@media (min-width: 1600px) {
+  .qq-bfcm-body {
+    gap: 20px;
+  }
+
+  .qq-bfcm-pricing,
+  .qq-bfcm-coupon-row {
+    gap: 14px;
+  }
+
+  .qq-bfcm-coupon-card {
+    gap: 28px;
+    padding: 14px 20px;
+  }
+}

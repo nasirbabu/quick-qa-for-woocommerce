@@ -62,10 +62,11 @@ function SummarySentence( { report } ) {
 			) }
 			{ ' ' }
 			<Interpolate
-				/* translators: 1: number of upvotes, 2: number of community answers from verified buyers. */
-				format={ __( 'Customers cast %1$s and verified buyers chipped in with %2$s.', TEXT_DOMAIN ) }
+				/* translators: 1: number of upvotes on questions, 2: number of helpful votes on answers, 3: number of community answers from verified buyers. */
+				format={ __( 'Customers cast %1$s and %2$s, and verified buyers chipped in with %3$s.', TEXT_DOMAIN ) }
 				values={ [
 					sprintf( _n( '%s upvote', '%s upvotes', s.upvotes, TEXT_DOMAIN ), formatNumber( s.upvotes ) ),
+					sprintf( _n( '%s helpful vote', '%s helpful votes', s.helpful_votes ?? 0, TEXT_DOMAIN ), formatNumber( s.helpful_votes ?? 0 ) ),
 					sprintf( _n( '%s community answer', '%s community answers', s.verified_answers, TEXT_DOMAIN ), formatNumber( s.verified_answers ) ),
 				] }
 			/>

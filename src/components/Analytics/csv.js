@@ -37,6 +37,7 @@ export function buildCsvRows( report ) {
 	rows.push( [ __( 'Metric', TEXT_DOMAIN ), __( 'Value', TEXT_DOMAIN ), __( 'Trend', TEXT_DOMAIN ) ] );
 	describeTiles( report ).forEach( t => rows.push( [ t.label, t.value, t.trend ] ) );
 	rows.push( [ __( 'Upvotes', TEXT_DOMAIN ), report.summary.upvotes, '' ] );
+	rows.push( [ __( 'Helpful votes', TEXT_DOMAIN ), report.summary.helpful_votes ?? 0, '' ] );
 	rows.push( [ __( 'Verified-buyer answers', TEXT_DOMAIN ), report.summary.verified_answers, '' ] );
 	blank();
 

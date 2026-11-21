@@ -292,7 +292,7 @@ a.qq-pf-link { text-decoration: none; }
 .qq-pf-th.sorted { color: var(--coral); }
 
 .qq-pf-customers-grid { grid-template-columns: 30px minmax(160px, 1.6fr) 70px 80px 70px 70px minmax(120px, 1fr) 110px 80px 90px; }
-.qq-pf-products-grid  { grid-template-columns: 32px minmax(180px, 1.8fr) 80px 90px 90px 95px 70px 85px 95px; }
+.qq-pf-products-grid  { grid-template-columns: 32px minmax(180px, 1.8fr) 80px 90px 90px 95px 70px 70px 85px 95px; }
 
 .qq-pf-cell-name { display: flex; flex-direction: column; min-width: 0; }
 .qq-pf-name { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
